@@ -1,0 +1,44 @@
+    * {
+      margin: 0;
+      box-sizing: border-box;
+    }
+    .green { color: #229922; }
+    .bold { font-weight: bold; }
+    .wrapper {
+      display: grid;
+      place-items: center;
+      grid-template-rows: 6em 20em 7em auto;
+      grid-gap: 1em;
+      height: 100vh;
+    }
+    .clock {
+      display: grid;
+      place-items: center;
+      grid-template-rows: 2em auto auto;
+      background-color: lightslategrey;
+      margin: 1em;
+      padding: .66em;
+      border: 3px outset darkslategrey;
+      border-radius: .66em;
+      height: 9em;
+      scale: 2;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 2.8em 3.1em 2.8em 2.2em;
+      grid-template-rows: auto 1.66em;
+      grid-gap: .33em;
+    }
+    input {
+      font-weight: 700;
+    }
+    .pause {
+      width: 2.33em;
+      height: 1.66em;
+      background-color: peachpuff;
+      border: 3px outset darkslategray;
+      border-radius: .33em;
+      font-weight: 1000;
+      font-size: 1.66em;
+      scale:2;
+    }

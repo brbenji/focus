@@ -1,0 +1,9 @@
+:~
+  title+'focus'
+  info+'interval timer'
+  color+0x30.935d
+  version+[1 0 0]
+  website+'https://howm.art'
+  license+'MIT'
+  site+/focus
+==
