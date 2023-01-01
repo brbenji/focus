@@ -29,6 +29,7 @@
     ::
     [%begin setfocus 9 2 ~s2 5]
   ?.  (~(has by args) 'pause')  ~
+  ~&  "we hit pause people"
   [%pause &]
 
 
@@ -51,8 +52,8 @@
       ==
       ;body
         ;div.wrapper
+          ;div;
           ;div.clock
-            ;div;
             ;strong: focus
             ;form(method "post")
               ;input(type "number", name "h", placeholder "h");
@@ -108,13 +109,12 @@
       font-weight: 700;
     }
     .pause {
-      width: 2.33em;
-      height: 1.66em;
+      display: grid;
+      width: 3.1em;
+      height: 3.1em;
       background-color: peachpuff;
       border: 3px outset darkslategray;
       border-radius: .33em;
-      font-weight: 1000;
-      font-size: 1.66em;
       scale:2;
     }
     '''
