@@ -10,13 +10,20 @@
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
   ?:  (~(has by args) 'begin')
-    ::  XX:use guy by it gives me default options right here,
-    ::  so I don't need logic later for transforming ~ into def
-    ::
     ::  this creates "~h0.m45.s0"
-    ::  XX: gotta be a better way.
+    ::  XX: gotta be a better way to create this tape.
     ::
-    =/  timer  `tape`['~' 'h' (~(got by args) 'h') '.' 'm' (~(got by args) 'm') '.' 's' (~(got by args) 's') ~]
+    =/  timer  ^-  tape
+    :~  '~'
+        'h'
+        ?~(h=(~(got by args) 'h') '0' h)
+        '.'
+        'm'
+        ?~(m=(~(got by args) 'm') '45' m)
+        '.'
+        's'
+        ?~(s=(~(got by args) 's') '0' s)
+    ==
     =/  setfocus  `@dr`(slav %dr (crip timer))
     ::  XX: add inputs for wrap and the rest.
     ::
