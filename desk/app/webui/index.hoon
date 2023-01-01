@@ -44,10 +44,6 @@
       ==
       ;body
         ;div.wrapper
-          ;h1: hello, mars!
-          ;p.green.bold: welcome to the focus.
-          ;p: ready to do that thing?
-          ;p: click something see what happens. is there a console log? what does your urbit say?
           ;div.clock
             ;div;
             ;strong: focus

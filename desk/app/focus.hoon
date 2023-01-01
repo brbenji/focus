@@ -56,6 +56,7 @@
       `this
         %begin
       ~&  'easing in'
+      ~&  "groove be {<gruv.command>}"
       =/  ease  (add now.bowl ~s4)
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
@@ -66,7 +67,7 @@
     ==
     ::
       %handle-http-request
-    ~&  'hey! we\'re in the http-request! look at me!'
+    ~&  "hey! we're in the http-request! look at me!"
     =;  out=(quip card _groove)
       [-.out this(groove +.out)]
     %.  [bowl !<(order:rudder vase) groove]
@@ -108,7 +109,7 @@
   ?+  -.wire  (on-arvo:def wire sign)
       %focus
     ?>  ?=([%behn %wake *] sign)
-    ?:  =(reps 0)
+    ?:  =(reps.groove 0)
       ~&  'doneskis!'
       `this
     ::  rest mode
@@ -127,6 +128,8 @@
     ::  focus mode
     ::
     ~&  'focus mode'
+    ~&  "groove be {<groove>}"
+    ~&  "reps be {<reps.groove>}"
     =/  focus  focus.groove
     =/  wrap  wrap.groove
     =/  setfocus  (add now.bowl focus)
@@ -136,7 +139,7 @@
         (~(wait pass:io /wrap) setwrap)
     ==
     %=  this
-      reps  (dec reps)
+      reps.groove  (dec reps.groove)
       then  [setfocus setwrap]
     ==
     ::
