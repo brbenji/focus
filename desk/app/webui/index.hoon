@@ -28,9 +28,11 @@
     ::  XX: add inputs for wrap and the rest.
     ::
     [%begin setfocus 9 2 ~s2 5]
-  ?.  (~(has by args) 'pause')  ~
-  ~&  "we hit pause people"
-  [%pause &]
+  ?:  (~(has by args) 'pause')
+    ~&  "we hit pause people"
+    [%pause &]
+  ~&  "we didn't hit pause people"
+  ~
 
 
 ::
@@ -63,7 +65,9 @@
             ==
           ==
           ;div.pause
-            ;button(type "submit", name "pause"):"||"
+            ;form(method "post")
+              ;input(type "submit", name "pause", value "||");
+            ==
           ==
         ==
       ==
@@ -102,7 +106,6 @@
     form {
       display: grid;
       grid-template-columns: 2.8em 3.1em 2.8em 2.2em;
-      grid-template-rows: auto 1.66em;
       grid-gap: .33em;
     }
     input {
@@ -111,7 +114,7 @@
     .pause {
       display: grid;
       width: 3.1em;
-      height: 3.1em;
+      height: 2.8em;
       background-color: peachpuff;
       border: 3px outset darkslategray;
       border-radius: .33em;
