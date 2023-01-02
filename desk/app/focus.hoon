@@ -1,6 +1,6 @@
 /-  *focus
 /+  rudder, agentio, verb, dbug, default-agent
-/~  pages  (page:rudder groove=gruv command)  /app/webui
+/~  pages  (page:rudder =gruv command)  /app/webui
 ::
 |%
 +$  versioned-state
@@ -8,7 +8,7 @@
   ==
 ::  groove ex: ~s2 9 2 ~s5 8
 ::
-+$  state-0  [%0 =then groove=gruv =reps]
++$  state-0  [%0 =then groove=gruv]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -60,27 +60,26 @@
       =/  ease  (add now.bowl ~s4)
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
-        groove  gruv.command
-        reps  reps.gruv.command
+        groove.state  gruv.command
         then  [ease ease]
       ==
     ==
     ::
       %handle-http-request
     ~&  "hey! we're in the http-request! look at me!"
-    =;  out=(quip card _groove)
-      [-.out this(groove +.out)]
-    %.  [bowl !<(order:rudder vase) groove]
-    %:  (steer:rudder _groove command)
+    =;  out=(quip card _groove.state)
+      [-.out this(groove.state +.out)]
+    %.  [bowl !<(order:rudder vase) groove.state]
+    %:  (steer:rudder _groove.state command)
       pages
       (point:rudder /[dap.bowl] & ~(key by pages))
-      (fours:rudder groove)
+      (fours:rudder groove.state)
       |=  cmd=command
       ^-  $@  brief:rudder
-          [brief:rudder (list card) _groove]
+          [brief:rudder (list card) _groove.state]
       =^  caz  this
         (on-poke %focus-command !>(cmd))
-      ['Processed succesfully.' caz groove]
+      ['Processed succesfully.' caz groove.state]
     ==
   ==
 ::

@@ -1,5 +1,6 @@
 /-  *focus
 /+  rudder
+=+  prev-cmd=@tas
 ^-  (page:rudder groove=gruv command)
 |_  [=bowl:gall * groove=gruv]
 ::
@@ -10,16 +11,17 @@
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
   ?:  (~(has by args) 'begin')
-    ::  this creates "~h0.m45.s0"
+    ::  this creates "~h0.m0.s0"
     ::  XX: gotta be a better way to create this tape.
     ::
+    =^  prev  prev-cmd  [_prev-cmd prev-cmd]
     =/  timer  ^-  tape
     :~  '~'
         'h'
         ?~(h=(~(got by args) 'h') '0' h)
         '.'
         'm'
-        ?~(m=(~(got by args) 'm') '45' m)
+        ?~(m=(~(got by args) 'm') '0' m)
         '.'
         's'
         ?~(s=(~(got by args) 's') '0' s)
