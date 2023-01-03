@@ -23,4 +23,5 @@
   ==
 ::
 +$  then  [@da @da]
++$  prev-cmd  ?(%begin %pause %cont %fresh)
 --

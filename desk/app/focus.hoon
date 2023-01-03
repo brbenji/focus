@@ -1,6 +1,6 @@
 /-  *focus
 /+  rudder, agentio, verb, dbug, default-agent
-/~  pages  (page:rudder =gruv command)  /app/webui
+/~  pages  (page:rudder [=then =gruv =prev-cmd] command)  /app/webui
 ::
 |%
 +$  versioned-state
@@ -8,7 +8,7 @@
   ==
 ::  groove ex: ~s2 9 2 ~s5 8
 ::
-+$  state-0  [%0 =then groove=gruv]
++$  state-0  [%0 =then groove=gruv =prev-cmd]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -35,6 +35,7 @@
   |=  saved=vase
   ^-  (quip card _this)
   ~&  ~(key by pages)
+  ~&  "prev-cmd init like {<prev-cmd>}"
   `this(state !<(versioned-state saved))
 ::
 ++  on-poke
@@ -47,7 +48,7 @@
     ?-    -.command
         %pause
       ~&  'oops no pause'
-      `this
+      `this(prev-cmd %pause)
         %cont
       ~&  'oops all begins'
       `this
@@ -61,25 +62,26 @@
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
         groove.state  gruv.command
+        prev-cmd  %begin
         then  [ease ease]
       ==
     ==
     ::
       %handle-http-request
-    ~&  "hey! we're in the http-request! look at me!"
-    =;  out=(quip card _groove.state)
-      [-.out this(groove.state +.out)]
-    %.  [bowl !<(order:rudder vase) groove.state]
-    %:  (steer:rudder _groove.state command)
+    ~&  "knock knock, http-request!"
+    =;  out=(quip card _+.state)
+      [-.out this(+.state +.out)]
+    %.  [bowl !<(order:rudder vase) +.state]
+    %:  (steer:rudder _+.state command)
       pages
       (point:rudder /[dap.bowl] & ~(key by pages))
-      (fours:rudder groove.state)
+      (fours:rudder +.state)
       |=  cmd=command
       ^-  $@  brief:rudder
-          [brief:rudder (list card) _groove.state]
+          [brief:rudder (list card) _+.state]
       =^  caz  this
         (on-poke %focus-command !>(cmd))
-      ['Processed succesfully.' caz groove.state]
+      ['Processed succesfully.' caz +.state]
     ==
   ==
 ::
@@ -110,7 +112,7 @@
     ?>  ?=([%behn %wake *] sign)
     ?:  =(reps.groove 0)
       ~&  'doneskis!'
-      `this
+      `this(prev-cmd %fresh)
     ::  rest mode
     ::
     ~&  'rest mode'
@@ -128,7 +130,6 @@
     ::
     ~&  'focus mode'
     ~&  "groove be {<groove>}"
-    ~&  "reps be {<reps.groove>}"
     =/  focus  focus.groove
     =/  wrap  wrap.groove
     =/  setfocus  (add now.bowl focus)
