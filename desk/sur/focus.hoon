@@ -29,5 +29,5 @@
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 ::  state for rudder, a copy of +.state-0
 ::
-+$  tack  [=then =gruv =prev-cmd =display]
++$  tack  [=then groove=gruv =prev-cmd =display]
 --

@@ -91,7 +91,7 @@
           ;div;
           ;div.clock
             ;form(method "post")
-              ;input(type "submit", name "nav", value "clock");
+              ;input(type "submit", name "nav", value "focus");
               ;input(type "submit", name "nav", value "form");
               ;input(type "submit", name "nav", value "help");
             ==
@@ -110,9 +110,9 @@
                 ;input(type "number", name "rs", placeholder "s", min "0");
                 ;input.range(type "range", name "wrep", min "5", max "9", value ">");
                 ;input.form-end(type "number", name "reps", placeholder "x1", min "1");
-                ;input.form-end(type "submit", name "begin", value ">");
+                ;input.form-end(type "submit", name "begin", name "nav", name "focus", value ">");
               ==
-            ?:  =(display %clock)
+            ?:  =(display %focus)
               ;div.circle
                 ;div.center;
                 ;div.hours;
@@ -134,10 +134,10 @@
                 ;input(type "submit", name "pause", value "||");
               ;input(type "submit", name "begin", value ">");
             ==
-            ;svg(viewbox "0 0 100 100")
-               ;circle(cx "50", cy "50", r "20");
-            ==
           ==
+          ;svg(viewbox "0 0 100 100")
+             ;circle(cx "50", cy "50", r "20");
+           ==
         ==
       ==
     ==
@@ -146,7 +146,21 @@
     console.log('nothing here')
     '''
   ::  mod-style is built in a tape for code insertion
+  ::  calc seconds from focus. =/  focus-sec (yell focus.groove)
+  ::  (mul mit:yo m.focus-sec)
+  ::  create a ?: =(mode %rest) to insert different second totals into
+  ::  animation
   ::
+  ++  seconds
+    ?:  =(prev-cmd %fresh)
+      0
+    ?:  =(display %focus)
+      =/  sec  (yell focus.groove)
+      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    ?:  =(display %rest)
+      =/  sec  (yell rest.groove)
+      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    0
   ++  mod-style
     """
     .circle:before \{
@@ -159,7 +173,7 @@
       border-radius: 5px;
       background: #444;
       transform-origin: bottom;
-      animation: time {<(add 500 100)>}s infinite linear;
+      animation: time {<seconds>}s infinite linear;
     }
     """
   ++  style

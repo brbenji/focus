@@ -9,7 +9,7 @@ strong: focus && rest {
   grid-column: 1/span 4;
   place-self: center;
 }
-input: range {
+input:range {
   grid-column: 1/span 3;
 }
 input: reps && submit begin {
