@@ -1,3 +1,18 @@
+::  XX: link the 'begin' button to submit the groove form
+::      learn how to make an http-request from on-arvo doneskis.
+::      improve the form visual
+::        grid area template
+::        learn possible css manipulation of forms
+::        try to curve the range input around the clock square
+::
+::      display a text of the total groove time
+::      craft the clock face (ticking down in numbers is a maybe)
+::      craft a visual representation of time passing (wipe effect)
+::      add sound (use howler.js?
+::        this might require using de:json and json marks)
+::
+::      build the rest functionality
+::
 ::
 /-  *focus
 /+  rudder
@@ -64,8 +79,12 @@
       ==
       ;body
         ;div.wrapper
-          ;div;
+          ;div.circle
+            ;div.center;
+            ;div.hours;
+          ==
           ;div.clock
+            ;div;
             ;form(method "post")
               ;strong: focus
               ;input(type "number", name "h", placeholder "h", min "0");
@@ -145,6 +164,70 @@
       border: 3px outset darkslategray;
       border-radius: .33em;
       scale:2;
+    }
+    .circle {
+      width: 300px;
+      height: 300px;
+      border-radius: 300px;
+      background: whitesmoke;
+      border: 4px solid #666;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .circle:before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 146px;
+      width: 8px;
+      height: 140px;
+      border-radius: 5px;
+      background: #444;
+      transform-origin: bottom;
+      animation: time 3600s infinite linear;
+    }
+    .circle:after {
+      content: "";
+      position: absolute;
+      top: 5px;
+      left: 149px;
+      width: 2px;
+      height: 145px;
+      border-radius: 5px;
+      background: red;
+      transform-origin: bottom;
+      animation: time 60s infinite linear;
+    }
+
+    .center {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 20px;
+      top: 140px;
+      left: 140px;
+      background: #444;
+      z-index: 2;
+    }
+
+    .hours {
+      position: absolute;
+      top: 70px;
+      left: 145px;
+      width: 10px;
+      height: 80px;
+      border-radius: 5px;
+      background: #444;
+      transform-origin: bottom;
+      animation: time 216000s infinite linear;
+    }
+
+    @keyframes time {
+      100% {
+        transform: rotate(360deg);
+      }
     }
     '''
   --
