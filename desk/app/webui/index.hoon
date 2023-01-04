@@ -79,10 +79,6 @@
       ==
       ;body
         ;div.wrapper
-          ;div.circle
-            ;div.center;
-            ;div.hours;
-          ==
           ;div.clock
             ;div;
             ;form(method "post")
@@ -113,6 +109,13 @@
                 ;input(type "submit", name "pause", value "||");
               ;input(type "submit", name "begin", value ">");
             ==
+          ==
+          ;div.circle
+            ;div.center;
+            ;div.hours;
+          ==
+          ;svg(viewbox "0 0 100 100")
+            ;circle(cx "50", cy "50", r "20");
           ==
         ==
       ==
@@ -171,7 +174,7 @@
       border-radius: 300px;
       background: whitesmoke;
       border: 4px solid #666;
-      position: absolute;
+      position: relative;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -186,7 +189,7 @@
       border-radius: 5px;
       background: #444;
       transform-origin: bottom;
-      animation: time 3600s infinite linear;
+      animation: time {<(add 500 100)>}s infinite linear;
     }
     .circle:after {
       content: "";
@@ -228,6 +231,22 @@
       100% {
         transform: rotate(360deg);
       }
+    }
+    svg {
+      height: 100px;
+      width: 100px;
+      transform: rotate(-90deg) scale(1, -1);
+    }
+    circle {
+      stroke: black;
+      fill: none;
+      stroke-width: 40px;
+      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
+      stroke-dashoffset: 0; /* initial setting */
+      transition: all 2s;
+    }
+    svg:hover circle{
+      stroke-dashoffset: 314;
     }
     '''
   --
