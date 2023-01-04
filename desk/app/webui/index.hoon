@@ -74,7 +74,7 @@
         ;title:"%focus"
         ;meta(charset "utf-8");
         ;meta(name "viewport", content "width=device-width, initial-scale=1");
-        ;style:"{(trip style)}"
+        ;style:"{(weld (trip style) mod-style)}"
         ;script:"{(trip script)}"
       ==
       ;body
@@ -124,6 +124,23 @@
     '''
     console.log('nothing here')
     '''
+  ::  mod-style is built in a tape for code insertion
+  ::
+  ++  mod-style
+    """
+    .circle:before \{
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 146px;
+      width: 8px;
+      height: 140px;
+      border-radius: 5px;
+      background: #444;
+      transform-origin: bottom;
+      animation: time {<(add 500 100)>}s infinite linear;
+    }
+    """
   ++  style
     '''
     * {
@@ -178,18 +195,6 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-    }
-    .circle:before {
-      content: "";
-      position: absolute;
-      top: 10px;
-      left: 146px;
-      width: 8px;
-      height: 140px;
-      border-radius: 5px;
-      background: #444;
-      transform-origin: bottom;
-      animation: time {<(add 500 100)>}s infinite linear;
     }
     .circle:after {
       content: "";
