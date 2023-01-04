@@ -1,6 +1,6 @@
 /-  *focus
 /+  rudder, agentio, verb, dbug, default-agent
-/~  pages  (page:rudder [=then =gruv =prev-cmd] command)  /app/webui
+/~  pages  (page:rudder tack command)  /app/webui
 ::
 |%
 +$  versioned-state
@@ -8,7 +8,7 @@
   ==
 ::  groove ex: ~s2 9 2 ~s5 8
 ::
-+$  state-0  [%0 =then groove=gruv =prev-cmd]
++$  state-0  [%0 =then groove=gruv =prev-cmd =display]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -35,7 +35,6 @@
   |=  saved=vase
   ^-  (quip card _this)
   ~&  ~(key by pages)
-  ~&  "prev-cmd init like {<prev-cmd>}"
   `this(state !<(versioned-state saved))
 ::
 ++  on-poke
@@ -65,6 +64,9 @@
         prev-cmd  %begin
         then  [ease ease]
       ==
+        %nav
+      ~&  'nav command bitches!'
+      `this(display display.command)
     ==
     ::
       %handle-http-request

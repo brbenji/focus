@@ -1,4 +1,9 @@
-::  XX: link the 'begin' button to submit the groove form
+::  XX:
+::      calc focus time and rest time in s, insert into css
+::      calc total time for a ;p at bottom of page
+::
+::      link the 'begin' button to submit the groove form
+::        even for wrap range on the clock face
 ::      learn how to make an http-request from on-arvo doneskis.
 ::      improve the form visual
 ::        grid area template
@@ -12,12 +17,14 @@
 ::        this might require using de:json and json marks)
 ::
 ::      build the rest functionality
+::      every entry of reps input:number needs to make a post request
+::        so that when it is (gte 2) it reveals/inserts the rest form
 ::
 ::
 /-  *focus
 /+  rudder
-^-  (page:rudder [=then =gruv =prev-cmd] command)
-|_  [=bowl:gall * [=then =gruv =prev-cmd]]
+^-  (page:rudder tack command)
+|_  [=bowl:gall * tack]
 ::
 ++  final  (alert:rudder (cat 3 '/' dap.bowl) build)
 ::
@@ -56,9 +63,11 @@
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]
+  ?:  (~(has by args) 'nav')
+    ~&  "we hit nav people, where going to {<display>}"
+    =/  display  `@tas`(slav %tas (~(got by args) 'nav'))
+    [%nav display]
   ~
-
-
 ::
 ++  build
   |=  $:  arg=(list [k=@t v=@t])
@@ -79,22 +88,38 @@
       ==
       ;body
         ;div.wrapper
+          ;div;
           ;div.clock
-            ;div;
             ;form(method "post")
-              ;strong: focus
-              ;input(type "number", name "h", placeholder "h", min "0");
-              ;input(type "number", name "m", placeholder "m", min "0");
-              ;input(type "number", name "s", placeholder "s", min "0");
-              ;input(type "range", name "wrap", min "5", max "9", value ">");
-              ;strong: rest
-              ;input(type "number", name "rh", placeholder "h", min "0");
-              ;input(type "number", name "rm", placeholder "m", min "0");
-              ;input(type "number", name "rs", placeholder "s", min "0");
-              ;input(type "range", name "wrep", min "5", max "9", value ">");
-              ;input(type "number", name "reps", placeholder "_x", min "1");
-              ;input(type "submit", name "begin", value ">");
+              ;input(type "submit", name "nav", value "clock");
+              ;input(type "submit", name "nav", value "form");
+              ;input(type "submit", name "nav", value "help");
             ==
+            ;div;
+            ;+
+            ?:  =(display %form)
+              ;form(method "post")
+                ;strong.label: focus
+                ;input(type "number", name "h", placeholder "h", min "0");
+                ;input(type "number", name "m", placeholder "m", min "0");
+                ;input(type "number", name "s", placeholder "s", min "0");
+                ;input.range(type "range", name "wrap", min "5", max "9", value ">");
+                ;strong.label: rest
+                ;input(type "number", name "rh", placeholder "h", min "0");
+                ;input(type "number", name "rm", placeholder "m", min "0");
+                ;input(type "number", name "rs", placeholder "s", min "0");
+                ;input.range(type "range", name "wrep", min "5", max "9", value ">");
+                ;input.form-end(type "number", name "reps", placeholder "x1", min "1");
+                ;input.form-end(type "submit", name "begin", value ">");
+              ==
+            ?:  =(display %clock)
+              ;div.circle
+                ;div.center;
+                ;div.hours;
+              ==
+            ?:  =(display %help)
+              ;p: here be help
+            ;p: nothing to see here
           ==
           ;div.pause
             ;form(method "post")
@@ -109,13 +134,9 @@
                 ;input(type "submit", name "pause", value "||");
               ;input(type "submit", name "begin", value ">");
             ==
-          ==
-          ;div.circle
-            ;div.center;
-            ;div.hours;
-          ==
-          ;svg(viewbox "0 0 100 100")
-            ;circle(cx "50", cy "50", r "20");
+            ;svg(viewbox "0 0 100 100")
+               ;circle(cx "50", cy "50", r "20");
+            ==
           ==
         ==
       ==
@@ -170,8 +191,19 @@
     }
     form {
       display: grid;
-      grid-template-columns: 2.8em 3.1em 2.8em 2.2em;
+      grid-template-columns: 2.8em 3.1em 2.8em;
       grid-gap: .33em;
+      accent-color: dimgray;
+    }
+    .form-end {
+      grid-column-end: 4;
+    }
+    .label {
+      grid-column: 1/span 4;
+      place-self: center;
+    }
+    .range {
+      grid-column: 1/span 3;
     }
     input {
       font-weight: 700;

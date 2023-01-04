@@ -1,3 +1,24 @@
+/* potential new settings end of tues */
+form {
+  display: grid;
+  grid-template-columns: 2.8em 3.1em 2.8em;
+  grid-gap: .33em;
+  accent-color: dimgray;
+}
+strong: focus && rest {
+  grid-column: 1/span 4;
+  place-self: center;
+}
+input: range {
+  grid-column: 1/span 3;
+}
+input: reps && submit begin {
+  grid-column-end: 4;
+}
+
+
+
+/* current settings */
     * {
       margin: 0;
       box-sizing: border-box;
