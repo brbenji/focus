@@ -1,5 +1,7 @@
-::  XX:
-::      calc focus time and rest time in s, insert into css
+::  XX: page refresh does not work as I suspect, doesn't a GET request
+::        produce a new page? maybe it requires a post?
+::    x calc focus time and rest time in s, insert into css
+::        inject css based on mode. requires understanding refresh
 ::      calc total time for a ;p at bottom of page
 ::
 ::      link the 'begin' button to submit the groove form
@@ -32,7 +34,10 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   ~&  "prev-cmd be {<prev-cmd>} at the top of argue"
+  ~&  "prev-cmd be {<display>}"
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
+  ::  ?:  =(mode %fin)
+  ::    [%nav %clock]
   ?:  (~(has by args) 'begin')
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
@@ -145,10 +150,6 @@
     console.log('nothing here')
     '''
   ::  mod-style is built in a tape for code insertion
-  ::  calc seconds from focus. =/  focus-sec (yell focus.groove)
-  ::  (mul mit:yo m.focus-sec)
-  ::  create a ?: =(mode %rest) to insert different second totals into
-  ::  animation
   ::
   ++  seconds
     ?:  =(prev-cmd %fresh)

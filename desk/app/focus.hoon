@@ -35,7 +35,9 @@
   |=  saved=vase
   ^-  (quip card _this)
   ~&  ~(key by pages)
-  `this(state !<(versioned-state saved))
+  ~&  "display be {<display>}"
+  ~&  "mode be {<mode>}"
+  `this(state !<(versioned-state saved), mode %focus)
 ::
 ++  on-poke
   |=  [=mark =vase]
@@ -90,16 +92,6 @@
     ==
   ==
 ::
-++  on-watch
-  |=  =path
-  ^-  (quip card _this)
-  ?>  =(our.bowl src.bowl)
-  ?+  path  (on-watch:def path)
-    [%http-response *]  [~ this]
-  ==
-::
-++  on-agent  on-agent:def
-++  on-peek   on-peek:def
 ::  what must I do to send data back to the frontend
 ::  'my pages' from on-arvo here?
 ::  ^ on-watch might be a clue.
@@ -117,11 +109,11 @@
     ?>  ?=([%behn %wake *] sign)
     ?:  =(reps.groove 0)
       ~&  'doneskis!'
-      ::  attempting to refresh the 'begin' play button
-      ::  but from here it requires some eyre request
+      ::  attempting to refresh the 'begin' play button and default clock
+      ::  but from here it requires some eyre request, only a maybe?
       ::
-      :_  this(prev-cmd %fresh)
-      ~[(~(poke-self pass:io /cont) [%handle-http-request !>(*request:http)])]
+      ::  `this(mode %fin)
+      `this
     ::  rest mode
     ::
     ~&  "{<mode>} mode"
@@ -163,6 +155,16 @@
    ::   [dap.bowl 'eyre bind rejected!' binding.sign-arvo]
    :: [~ this]
   ==
+++  on-watch
+  |=  =path
+  ^-  (quip card _this)
+  ?>  =(our.bowl src.bowl)
+  ?+  path  (on-watch:def path)
+    [%http-response *]  [~ this]
+  ==
+::
+++  on-agent  on-agent:def
+++  on-peek   on-peek:def
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
 --
