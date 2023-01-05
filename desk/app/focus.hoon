@@ -8,7 +8,7 @@
   ==
 ::  groove ex: ~s2 9 2 ~s5 8
 ::
-+$  state-0  [%0 =then groove=gruv =prev-cmd =display]
++$  state-0  [%0 =then groove=gruv =prev-cmd =display =mode]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -65,8 +65,11 @@
         then  [ease ease]
       ==
         %nav
-      ~&  'nav command bitches!'
-      `this(display display.command)
+      ~&  "we hit nav people, where going to {<+.command>}"
+      =/  next  (dis-convert +.command)
+      ::
+      ::
+      `this(display next)
     ==
     ::
       %handle-http-request
@@ -114,15 +117,19 @@
     ?>  ?=([%behn %wake *] sign)
     ?:  =(reps.groove 0)
       ~&  'doneskis!'
-      `this(prev-cmd %fresh)
+      ::  attempting to refresh the 'begin' play button
+      ::  but from here it requires some eyre request
+      ::
+      :_  this(prev-cmd %fresh)
+      ~[(~(poke-self pass:io /cont) [%handle-http-request !>(*request:http)])]
     ::  rest mode
     ::
-    ~&  'rest mode'
+    ~&  "{<mode>} mode"
     =/  rest  rest.groove
     =/  wrep  wrep.groove
     =/  setrest  (add now.bowl rest)
     =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-    :_  this(then [setrest setwrep])
+    :_  this(then [setrest setwrep], mode %rest)
     :~  (~(wait pass:io /rest) setrest)
         (~(wait pass:io /wrap) setwrep)
     ==
@@ -130,7 +137,7 @@
     ?>  ?=([%behn %wake *] sign)
     ::  focus mode
     ::
-    ~&  'focus mode'
+    ~&  "{<mode>} mode"
     ~&  "groove be {<groove>}"
     =/  focus  focus.groove
     =/  wrap  wrap.groove
@@ -143,6 +150,7 @@
     %=  this
       reps.groove  (dec reps.groove)
       then  [setfocus setwrap]
+      mode  %focus
     ==
     ::
       %wrap

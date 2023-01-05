@@ -10,14 +10,18 @@
 +$  wrep  @ud  :: wrap for the rest periods
 +$  gruv  [=focus =wrap =reps =rest =wrep]
 ::
-+$  display  @tas
++$  display  ?(%form %help %clock)
+++  dis-convert
+  |=  incoming=@tas
+  %-  display  incoming
++$  mode  ?(%rest %focus)
 ::
 +$  command
   $%  [%begin =gruv]
       [%pause ?]
       [%cont ?]
       [%mod mod=gruv]  :: for changing wrap, rest, rewarp on the fly
-      [%nav =display]
+      [%nav @tas]
   ==
 ::
 +$  update
@@ -29,5 +33,5 @@
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 ::  state for rudder, a copy of +.state-0
 ::
-+$  tack  [=then groove=gruv =prev-cmd =display]
++$  tack  [=then groove=gruv =prev-cmd =display =mode]
 --

@@ -64,7 +64,6 @@
     ~&  "we hit pause people"
     [%pause &]
   ?:  (~(has by args) 'nav')
-    ~&  "we hit nav people, where going to {<display>}"
     =/  display  `@tas`(slav %tas (~(got by args) 'nav'))
     [%nav display]
   ~
@@ -91,7 +90,7 @@
           ;div;
           ;div.clock
             ;form(method "post")
-              ;input(type "submit", name "nav", value "focus");
+              ;input(type "submit", name "nav", value "clock");
               ;input(type "submit", name "nav", value "form");
               ;input(type "submit", name "nav", value "help");
             ==
@@ -112,7 +111,7 @@
                 ;input.form-end(type "number", name "reps", placeholder "x1", min "1");
                 ;input.form-end(type "submit", name "begin", name "nav", name "focus", value ">");
               ==
-            ?:  =(display %focus)
+            ?:  =(display %clock)
               ;div.circle
                 ;div.center;
                 ;div.hours;
@@ -154,10 +153,10 @@
   ++  seconds
     ?:  =(prev-cmd %fresh)
       0
-    ?:  =(display %focus)
+    ?:  =(mode %focus)
       =/  sec  (yell focus.groove)
       (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    ?:  =(display %rest)
+    ?:  =(mode %rest)
       =/  sec  (yell rest.groove)
       (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     0
