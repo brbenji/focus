@@ -100,7 +100,10 @@
         ;div.wrapper
           ;div;
           ;div.clock
-            ;div;
+            ;svg(viewbox "0 0 100 100")
+               ;circle(cx "50", cy "50", r "22");
+             ==
+            ;strong.time: {<focus.groove>}
             ;+
             ?:  =(display %form)
               ;form(method "post")
@@ -119,7 +122,7 @@
               ==
             ?:  =(display %help)
               ;p: here be help
-            ;p: nothing to see here
+            ;div;
           ==
           ;div.pause
             ;form(method "post")
@@ -135,9 +138,6 @@
               ;input(type "submit", name "begin", value ">");
             ==
           ==
-          ;svg(viewbox "0 0 100 100")
-             ;circle(cx "50", cy "50", r "20");
-           ==
         ==
       ==
     ==
@@ -157,8 +157,34 @@
       =/  sec  (yell rest.groove)
       (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     0
+  ::  stroke-dashoffset: {<?:(=(mode %focus) 0 314)>}
+  ::    this works! but I don't know how to start it at 314,
+  ::    then change to 0 in that page, so the transition takes
+  ::    the seconds of the focus?
+  ::
+  ::    could I engage a hover effect?
+  ::    is there another wipe effect that would work in tandum with
+  ::    the ::before ticking arm option?
+  ::
+  ::  potential branch for clock vs form vs help for grid-template-rows
+  ::    (?:(=(display %clock) "auto" "10% auto auto"));
+  ::
   ++  mod-style
     """
+    .clock \{
+      display: grid;
+      place-items: center;
+      grid-template-rows: auto;
+      margin: 1em;
+      padding: .66em;
+      border: .1em solid black;
+      border-radius: .66em;
+      height: 9em;
+      width: 9em;
+      scale: 2;
+      overflow: hidden;
+      background-color: white;
+    }
     .clock:before \{
       content: "";
       position: absolute;
@@ -171,35 +197,38 @@
       transform-origin: bottom;
       animation: time {<seconds>}s infinite linear;
     }
+    .time \{
+      font-size: 3em;
+      color: white;
+      mix-blend-mode: difference;
+      grid-row: 1;
+      grid-column: 1;
+    }
+    circle \{
+      stroke: black;
+      fill: none;
+      stroke-width: 2.75em;
+      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
+      stroke-dashoffset: 314; /* initial setting */
+      transition: all {<seconds>}s;
+    }
+    svg:hover circle \{
+      stroke-dashoffset: 0;
+    }
     """
   ++  style
     '''
     * {
       margin: 0;
       box-sizing: border-box;
+      transition: ease-in-out 1s;
     }
-    .green { color: #229922; }
-    .bold { font-weight: bold; }
     .wrapper {
       display: grid;
       place-items: center;
       grid-template-rows: 6em 20em 7em auto;
       grid-gap: 1em;
       height: 100vh;
-    }
-    .clock {
-      display: grid;
-      place-items: center;
-      grid-template-rows: 2em auto auto;
-      background-color: lightslategrey;
-      margin: 1em;
-      padding: .66em;
-      border: 3px outset darkslategrey;
-      border-radius: .66em;
-      height: 9em;
-      width: 9em;
-      scale: 2;
-      overflow: hidden;
     }
     form {
       display: grid;
@@ -235,20 +264,10 @@
       }
     }
     svg {
-      height: 100px;
-      width: 100px;
-      transform: rotate(-90deg) scale(1, -1);
-    }
-    circle {
-      stroke: black;
-      fill: none;
-      stroke-width: 40px;
-      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
-      stroke-dashoffset: 0; /* initial setting */
-      transition: all 2s;
-    }
-    svg:hover circle{
-      stroke-dashoffset: 314;
+      transform: rotate(-90deg);
+      scale:2;
+      grid-row: 1;
+      grid-column: 1;
     }
     '''
   --
