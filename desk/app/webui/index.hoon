@@ -78,7 +78,13 @@
           msg=(unit [o=? =@t])
       ==
   ^-  reply:rudder
+  ::  old buttons
   ::
+  ::          ;form(method "post")
+  ::            ;input(type "submit", name "nav", value "clock");
+  ::            ;input(type "submit", name "nav", value "form");
+  ::            ;input(type "submit", name "nav", value "help");
+  ::          ==
   |^  [%page page]
   ++  page
     ^-  manx
@@ -94,11 +100,6 @@
         ;div.wrapper
           ;div;
           ;div.clock
-            ;form(method "post")
-              ;input(type "submit", name "nav", value "clock");
-              ;input(type "submit", name "nav", value "form");
-              ;input(type "submit", name "nav", value "help");
-            ==
             ;div;
             ;+
             ?:  =(display %form)
@@ -115,11 +116,6 @@
                 ;input.range(type "range", name "wrep", min "5", max "9", value ">");
                 ;input.form-end(type "number", name "reps", placeholder "x1", min "1");
                 ;input.form-end(type "submit", name "begin", name "nav", name "focus", value ">");
-              ==
-            ?:  =(display %clock)
-              ;div.circle
-                ;div.center;
-                ;div.hours;
               ==
             ?:  =(display %help)
               ;p: here be help
@@ -163,14 +159,14 @@
     0
   ++  mod-style
     """
-    .circle:before \{
+    .clock:before \{
       content: "";
       position: absolute;
-      top: 10px;
-      left: 146px;
-      width: 8px;
-      height: 140px;
-      border-radius: 5px;
+      height: 9em;
+      width: .2em;
+      left: 50%;
+      bottom: 50%;
+      border-radius: .66em;
       background: #444;
       transform-origin: bottom;
       animation: time {<seconds>}s infinite linear;
@@ -201,7 +197,9 @@
       border: 3px outset darkslategrey;
       border-radius: .66em;
       height: 9em;
+      width: 9em;
       scale: 2;
+      overflow: hidden;
     }
     form {
       display: grid;
@@ -231,53 +229,6 @@
       border-radius: .33em;
       scale:2;
     }
-    .circle {
-      width: 300px;
-      height: 300px;
-      border-radius: 300px;
-      background: whitesmoke;
-      border: 4px solid #666;
-      position: relative;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .circle:after {
-      content: "";
-      position: absolute;
-      top: 5px;
-      left: 149px;
-      width: 2px;
-      height: 145px;
-      border-radius: 5px;
-      background: red;
-      transform-origin: bottom;
-      animation: time 60s infinite linear;
-    }
-
-    .center {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 20px;
-      top: 140px;
-      left: 140px;
-      background: #444;
-      z-index: 2;
-    }
-
-    .hours {
-      position: absolute;
-      top: 70px;
-      left: 145px;
-      width: 10px;
-      height: 80px;
-      border-radius: 5px;
-      background: #444;
-      transform-origin: bottom;
-      animation: time 216000s infinite linear;
-    }
-
     @keyframes time {
       100% {
         transform: rotate(360deg);
