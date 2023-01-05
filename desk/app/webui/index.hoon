@@ -101,7 +101,7 @@
           ;div;
           ;div.clock
             ;svg(viewbox "0 0 100 100")
-               ;circle(cx "50", cy "50", r "22");
+               ;circle#wipe(cx "50", cy "50", r "22");
              ==
             ;strong.time: {<focus.groove>}
             ;+
@@ -141,9 +141,15 @@
         ==
       ==
     ==
+  ::  this waits for the page to load before changing stroke-dashoffset
+  ::    to "0", animating the wipe, timed to focus.groove
+  ::
   ++  script
     '''
-    console.log('nothing here')
+    window.addEventListener('DOMContentLoaded', (event) => {
+       document.getElementById("wipe").style.strokeDashoffset="0";
+       console.log('DOM fully loaded and parsed');
+    });
     '''
   ::  mod-style is built in a tape for code insertion
   ::
@@ -157,15 +163,6 @@
       =/  sec  (yell rest.groove)
       (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     0
-  ::  stroke-dashoffset: {<?:(=(mode %focus) 0 314)>}
-  ::    this works! but I don't know how to start it at 314,
-  ::    then change to 0 in that page, so the transition takes
-  ::    the seconds of the focus?
-  ::
-  ::    could I engage a hover effect?
-  ::    is there another wipe effect that would work in tandum with
-  ::    the ::before ticking arm option?
-  ::
   ::  potential branch for clock vs form vs help for grid-template-rows
   ::    (?:(=(display %clock) "auto" "10% auto auto"));
   ::
@@ -184,18 +181,6 @@
       scale: 2;
       overflow: hidden;
       background-color: white;
-    }
-    .clock:before \{
-      content: "";
-      position: absolute;
-      height: 9em;
-      width: .2em;
-      left: 50%;
-      bottom: 50%;
-      border-radius: .66em;
-      background: #444;
-      transform-origin: bottom;
-      animation: time {<seconds>}s infinite linear;
     }
     .time \{
       font-size: 3em;
@@ -257,11 +242,6 @@
       border: 3px outset darkslategray;
       border-radius: .33em;
       scale:2;
-    }
-    @keyframes time {
-      100% {
-        transform: rotate(360deg);
-      }
     }
     svg {
       transform: rotate(-90deg);
