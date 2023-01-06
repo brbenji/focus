@@ -55,10 +55,11 @@
 ++  argue
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
+  ~&  "state in pages be {<[then groove prev-cmd display mode begin]>}"
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
   ::  ?:  =(mode %fin)
   ::    [%nav %clock]
-  ~&  "or for begin-nav be like {<|((~(has by args) 'begin') (~(has by args) 'nav'))>}"
+  ::
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
@@ -67,8 +68,12 @@
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
-      =.  display  %help  ~
+      =.  display  %help
+      [%maneuver groove display |]
     =.  display  (^display (slav %tas (~(got by args) 'nav')))
+    ?.  (~(has by args) 'h')
+      ~&  'h be nothin'
+      [%maneuver groove display |]
     ::  these won't work unless nav produces h m s etc key and value
     ::
     =/  f-time  ^-  tape

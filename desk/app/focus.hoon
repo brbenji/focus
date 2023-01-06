@@ -5,7 +5,6 @@
 |%
 +$  versioned-state
   $%  state-0
-      state-1
   ==
 ::  groove ex: ~s2 9 2 ~s5 8
 ::
@@ -26,7 +25,9 @@
   ::  .^((list [binding:eyre duct action:eyre]) %e /=bindings=)
   ::  scry to trouble shoot no binding on install.
   ::
-  :_  this
+  ::  XX: change clock to %enter when I create that display
+  ::
+  :_  this(state [%0 [now.bowl now.bowl] [~m5 9 1 ~s30 8] %fresh %clock %focus |])
   ~[(~(connect pass:io /eyre/connect) [[~ /[dap.bowl]] dap.bowl])]
 ::
 ++  on-save  !>(state)
@@ -35,15 +36,11 @@
   |=  saved=vase
   ^-  (quip card _this)
   ~&  ~(key by pages)
-  ~&  "display be {<display>}"
-  ~&  "mode be {<mode>}"
-  =/  old  !<(versioned-state saved)
-  ?-  -.saved
-    %1  `this(state old, mode %focus)
-    %0  `this(state [%1 [old |]])
-  ==
+  =/  ole  !<(versioned-state saved)
+  `this(state ole)
 ::
 ++  on-poke
+  ~&  "state be {<state>}"
   |=  [=mark =vase]
   ^-  (quip card _this)
   ?>  (team:title our.bowl src.bowl)
@@ -57,7 +54,13 @@
         %cont
       ~&  'oops all begins'
       `this
+      ::  XX: branch on begin
+      ::      right now it starts a timer no matter what.
+      ::
         %maneuver
+      ?.  begin
+        ~&  'begin aint true'
+        `this(display display.command)
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
       ~&  "display might be {<display.command>}"

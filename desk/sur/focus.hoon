@@ -27,8 +27,7 @@
 ::
 +$  then  [@da @da]
 +$  prev-cmd  ?(%maneuver %pause %cont %fresh)
-+$  state-0  [%0 =then groove=gruv =prev-cmd =display =mode]
-+$  state-1  [%1 =then groove=gruv =prev-cmd =display =mode =begin]
++$  state-0  [%0 =then groove=gruv =prev-cmd =display =mode =begin]
 ::  state for rudder, a copy of +.state-0
 ::
 +$  tack  [=then groove=gruv =prev-cmd =display =mode =begin]
