@@ -10,13 +10,7 @@
 +$  wrep  @ud  :: wrap for the rest periods
 +$  gruv  [=focus =wrap =reps =rest =wrep]
 ::
-::  these type unions are for ^- and applying %- to data, from within a
-::  gate?
-::
 +$  display  ?(%form %help %clock)
-++  dis-convert
-  |=  incoming=@tas
-  %-  display  incoming
 +$  mode  ?(%fin %rest %focus)
 ::
 +$  command
@@ -24,7 +18,7 @@
       [%pause ?]
       [%cont ?]
       [%mod mod=gruv]  :: for changing wrap, rest, rewarp on the fly
-      [%nav @tas]
+      [%nav =display]
   ==
 ::
 +$  update

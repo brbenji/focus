@@ -2,26 +2,45 @@
 ::        produce a new page? maybe it requires a post?
 ::    x calc focus time and rest time in s, insert into css
 ::        inject css based on mode. requires understanding refresh
-::      calc total time for a ;p at bottom of page
 ::
 ::      link the 'begin' button to submit the groove form
 ::        even for wrap range on the clock face
 ::      learn how to make an http-request from on-arvo doneskis.
-::      improve the form visual
-::        grid area template
-::        learn possible css manipulation of forms
-::        try to curve the range input around the clock square
 ::
-::      display a text of the total groove time
 ::      craft the clock face (ticking down in numbers is a maybe)
-::      craft a visual representation of time passing (wipe effect)
-::      add sound (use howler.js?
-::        this might require using de:json and json marks)
 ::
 ::      build the rest functionality
 ::      every entry of reps input:number needs to make a post request
 ::        so that when it is (gte 2) it reveals/inserts the rest form
 ::
+::      create the #enter display
+::        it will have the cool fade in, strokeDashoffset: 200, and wrap
+::        at 9, no dyno-butt or total
+::        it can also slowly get to the strokeDeshoffset, for a really
+::        cool opening, start at :300. (start 25% goto 33% on the wipe
+::        effect)
+::
+::      remove %mod command
+::        the scenario for it doesn't seem too likely.
+::        I love the thought of moving the wrap indicator around the
+::        clock to set it, but it's too much for now.
+::
+::        instead we will simply have nav to %form by clicking on the
+::        clock, which will %pause, and setting a new groove will start
+::        it all again.
+::
+::      nav options
+::        first =display will now be apart of %begin cmd
+::          +argue will branch on or |('begin' 'nav') and the state
+::          groove will go into =gruv
+::
+::        #enter -> %form
+::        'help' -> %help
+::        'begin' -> %clock
+::        'pause' -> %clock with 'cont' button
+::        .clock -> %form
+::
+::        help will only exit in %form
 ::
 /-  *focus
 /+  rudder
@@ -74,7 +93,7 @@
     ~&  "nav be {<(~(got by args) 'nav')>}"
     ?:  =((~(got by args) 'nav') '?')
       =/  display  %help  [%nav display]
-    =/  display  `@tas`(slav %tas (~(got by args) 'nav'))
+    =/  display  (^display (slav %tas (~(got by args) 'nav')))
     [%nav display]
   ~
 ::
@@ -102,7 +121,7 @@
         ;script:"{(trip script)}"
       ==
       ;body
-        ;div.wrapper
+        ;div#wrapper
           ;form(method "post")
             ;input(type "submit", name "nav", value "clock");
             ;input(type "submit", name "nav", value "form");
@@ -127,12 +146,16 @@
                 ;input(type "number", name "rh", placeholder "h", min "0");
                 ;input(type "number", name "rm", placeholder "m", min "0");
                 ;input(type "number", name "rs", placeholder "s", min "0");
+                ;input.range(type "range", name "wrep", min "5", max "9", value ">");
+                ;input(type "hidden", name "nav", value "clock");
                 ;input#reps(type "number", name "reps", placeholder "x1", min "1");
-                ;input.form-end(type "submit", name "begin", name "nav", name "focus", value ">");
+                ;input.form-end(type "submit", name "begin", value ">");
               ==
             ?:  =(display %help)
               ;p: here be help
-            ;div;
+            ;audio(controls "", autoplay "")
+              ;source(src "https://raw.github.com/CodeExplainedRepo/Original-Flappy-bird-JavaScript/master/audio/sfx_point.wav", type "audio/mp3");
+            ==
           ==
           ;form.pause(method "post")
             ;+
@@ -161,6 +184,7 @@
     '''
     window.addEventListener('DOMContentLoaded', (event) => {
        document.getElementById("wipe").style.strokeDashoffset="0";
+       document.getElementById("enter").style.opacity="100%";
        console.log('DOM fully loaded and parsed');
     });
     '''
@@ -219,12 +243,16 @@
       margin: 0;
       box-sizing: border-box;
     }
-    .wrapper {
+    #wrapper {
       display: grid;
       place-items: center;
       grid-template-rows: 6em 20em 7em auto;
       grid-gap: 1em;
       height: 100vh;
+    }
+    #enter {
+      opacity: 0%;
+      transition: ease-in-out 1s;
     }
     .face {
       display: grid;

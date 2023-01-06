@@ -68,7 +68,7 @@
       ==
         %nav
       ~&  "we hit nav people, where going to {<+.command>}"
-      =/  next  (dis-convert +.command)
+      =/  next  (^display +.command)
       ::
       ::
       `this(display next)
