@@ -29,6 +29,9 @@
 ::        clock, which will %pause, and setting a new groove will start
 ::        it all again.
 ::
+::      create a %move cmd that sets groove, changes display, and gives
+::        a loobean for a new %begin ? type.
+::
 ::      nav options
 ::        first =display will now be apart of %begin cmd
 ::          +argue will branch on or |('begin' 'nav') and the state
@@ -52,19 +55,27 @@
 ++  argue
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
-  ~&  "prev-cmd be {<prev-cmd>} at the top of argue"
-  ~&  "prev-cmd be {<display>}"
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
   ::  ?:  =(mode %fin)
   ::    [%nav %clock]
-  ?:  (~(has by args) 'begin')
+  ~&  "or for begin-nav be like {<|((~(has by args) 'begin') (~(has by args) 'nav'))>}"
+  ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
-    ::  XX: gotta be a better way to create this tape.
+    ::
+    =+  display
+    ?:  =((~(got by args) 'nav') '?')
+      ::  allows my submit button value to be ? and not help
+      ::
+      =.  display  %help  ~
+    =.  display  (^display (slav %tas (~(got by args) 'nav')))
+    ::  these won't work unless nav produces h m s etc key and value
     ::
     =/  f-time  ^-  tape
     :~  '~h'
+        ::
         ?~(h=(~(got by args) 'h') '0' h)
+        ::
         '.m'
         ?~(m=(~(got by args) 'm') '0' m)
         '.s'
@@ -83,18 +94,13 @@
     =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') '1' num))
     =/  rest  `@dr`(slav %dr (crip r-time))
     =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
-    [%begin focus wrap reps rest wrep]
+    ::
+    ~&  "nav be {<(~(got by args) 'nav')>}"
+    ~&  "phew! we're in the begin-nav code."
+    [%maneuver [focus wrap reps rest wrep] display &]
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]
-  ?:  (~(has by args) 'nav')
-    ::  allows my submit button value to be ? and not help
-    ::
-    ~&  "nav be {<(~(got by args) 'nav')>}"
-    ?:  =((~(got by args) 'nav') '?')
-      =/  display  %help  [%nav display]
-    =/  display  (^display (slav %tas (~(got by args) 'nav')))
-    [%nav display]
   ~
 ::
 ++  build

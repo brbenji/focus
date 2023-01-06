@@ -12,13 +12,12 @@
 ::
 +$  display  ?(%form %help %clock)
 +$  mode  ?(%fin %rest %focus)
++$  begin  ?
 ::
 +$  command
-  $%  [%begin =gruv]
+  $%  [%maneuver =gruv =display =begin]
       [%pause ?]
       [%cont ?]
-      [%mod mod=gruv]  :: for changing wrap, rest, rewarp on the fly
-      [%nav =display]
   ==
 ::
 +$  update
@@ -27,8 +26,10 @@
   ==
 ::
 +$  then  [@da @da]
-+$  prev-cmd  ?(%begin %pause %cont %fresh)
++$  prev-cmd  ?(%maneuver %pause %cont %fresh)
++$  state-0  [%0 =then groove=gruv =prev-cmd =display =mode]
++$  state-1  [%1 =then groove=gruv =prev-cmd =display =mode =begin]
 ::  state for rudder, a copy of +.state-0
 ::
-+$  tack  [=then groove=gruv =prev-cmd =display =mode]
++$  tack  [=then groove=gruv =prev-cmd =display =mode =begin]
 --

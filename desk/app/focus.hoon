@@ -5,10 +5,10 @@
 |%
 +$  versioned-state
   $%  state-0
+      state-1
   ==
 ::  groove ex: ~s2 9 2 ~s5 8
 ::
-+$  state-0  [%0 =then groove=gruv =prev-cmd =display =mode]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -37,7 +37,11 @@
   ~&  ~(key by pages)
   ~&  "display be {<display>}"
   ~&  "mode be {<mode>}"
-  `this(state !<(versioned-state saved), mode %focus)
+  =/  old  !<(versioned-state saved)
+  ?-  -.saved
+    %1  `this(state old, mode %focus)
+    %0  `this(state [%1 [old |]])
+  ==
 ::
 ++  on-poke
   |=  [=mark =vase]
@@ -53,25 +57,18 @@
         %cont
       ~&  'oops all begins'
       `this
-        %mod
-      ~&  'no mod yet, give me time'
-      `this
-        %begin
+        %maneuver
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
+      ~&  "display might be {<display.command>}"
       =/  ease  (add now.bowl ~s4)
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
         groove.state  gruv.command
-        prev-cmd  %begin
+        prev-cmd  %maneuver
         then  [ease ease]
+        display  display.command
       ==
-        %nav
-      ~&  "we hit nav people, where going to {<+.command>}"
-      =/  next  (^display +.command)
-      ::
-      ::
-      `this(display next)
     ==
     ::
       %handle-http-request
