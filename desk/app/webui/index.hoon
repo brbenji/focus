@@ -53,6 +53,9 @@
     ::
     =/  wrep  wrap
     [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
+  ?:  (~(has by args) 'cont')
+    ~&  "we hit cont people"
+    [%cont &]
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]
@@ -271,7 +274,7 @@
       scale: 2;
       width: 0;
       position: relative;
-      left: 9.1em;
+      left: 9.2em;
       bottom: 2.1em;
     }
     .set {
@@ -309,7 +312,7 @@
       height: 2.66em;
       width: 2.66em;
       position: relative;
-      top: 1.66em;
+      top: .8em;
       left: .55em;
     }
     .label {
