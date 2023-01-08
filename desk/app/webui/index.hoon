@@ -1,13 +1,10 @@
-::  XX: attempt to make an eyre http-request from on-arvo
+::  XX:
 ::      create an svg that indicates wrap and is set in place based on
-::      the value of wrap range
+::      bubble up the value of wrap range
 ::      %form should pop up without rest inputs, but reps should be a
-::      button to turn rest on.
+::        button to turn rest on.
 ::      get us onclick() on a button to make autoplay work
 ::      collect the right sounds and play them at the right moment
-::
-::      try %e %request-local in app
-::        and see what's up here by making =order:rudder a thing
 ::
 /-  *focus
 /+  rudder
@@ -22,27 +19,22 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
-  ::  ?:  =(mode %fin)
-  ::    [%nav %clock]
-  ::
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
-    ::  this creates "~h0.m0.s0"
-    ::    converting null to '0'
-    ::
     ?:  =((~(got by args) 'nav') '?')
-      ~&  'nav ?'
       ::  allows my submit button value to be ? and not help
       ::
       [%maneuver groove (display.focus %help) |]
     ?:  =((~(got by args) 'nav') 'X')
-      ~&  'nav X'
       ::  exit help
       ::
       [%maneuver groove (display.focus %form) |]
     ?.  (~(has by args) 'h')
-      ~&  'h be nothin'
+      ::  the time setting code below won't work unless nav produces h m s etc
+      ::    this produces the existing groove instead
+      ::
       [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) |]
-    ::  these won't work unless nav produces h m s etc key and value
+    ::  this creates "~h0.m0.s0"
+    ::    converting null to '0'
     ::
     =/  f-time  ^-  tape
     :~  '~h'
@@ -62,6 +54,7 @@
         '.s'
         ?~(rs=(~(got by args) 'rs') '0' rs)
     ==
+    ::
     =/  focus  `@dr`(slav %dr (crip f-time))
     =/  wrap  `@ud`(slav %ud (~(got by args) 'wrap'))
     =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') '1' num))
@@ -87,13 +80,6 @@
           msg=(unit [o=? =@t])
       ==
   ^-  reply:rudder
-  ::  old buttons
-  ::
-  ::          ;form(method "post")
-  ::            ;input(type "submit", name "nav", value "clock");
-  ::            ;input(type "submit", name "nav", value "form");
-  ::            ;input(type "submit", name "nav", value "help");
-  ::          ==
   |^  [%page page]
   ++  page
     ^-  manx
@@ -203,16 +189,7 @@
   ::  this waits for the page to load before changing stroke-dashoffset
   ::    to "0", animating the wipe, timed to focus.groove
   ::
-  ::  failed idea for slow loading the nice ease-in-out 1s on everything
-  ::     document.getElementsByTagName("div").style.transition="ease-in-out 1s";
-  ::
-  ++  effect
-    ?:  =(display %enter)
-      "enter"
-    "wipe"
-
   ++  script
-    ::  another hacky moment
     """
     window.addEventListener('DOMContentLoaded', (event) => \{
        document.getElementById({<effect>}).style.strokeDashoffset="0";
@@ -220,24 +197,12 @@
        console.log('DOM fully loaded and parsed');
     });
     """
-  ::  mod-style is built in a tape for code insertion
-  ::
-  ++  seconds
-    ?:  =(prev-cmd %fresh)
-      0
-    ?:  =(mode %focus)
-      =/  sec  (yell focus.groove)
-      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    ?:  =(mode %rest)
-      =/  sec  (yell rest.groove)
-      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    0
-  ++  dashoffset
+  ++  effect
+    ::  another hacky moment
     ?:  =(display %enter)
-      201
-    314
-  ::  potential branch for clock vs form vs help for grid-template-rows
-  ::    (?:(=(display %clock) "auto" "10% auto auto"));
+      "enter"
+    "wipe"
+  ::  mod-style is built in a tape for code insertion
   ::
   ++  mod-style
     """
@@ -278,6 +243,20 @@
       visibility: hidden;
     }
     """
+  ++  seconds
+    ?:  =(prev-cmd %fresh)
+      0
+    ?:  =(mode %focus)
+      =/  sec  (yell focus.groove)
+      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    ?:  =(mode %rest)
+      =/  sec  (yell rest.groove)
+      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    0
+  ++  dashoffset
+    ?:  =(display %enter)
+      201
+    314
   ++  style
     '''
     * {
@@ -399,37 +378,21 @@
 ::        up. one fix for the /app was to remove state-0 from /sur
 ::        although maybe that was superstition. probably not.
 ::      some improvements but super messy with display.focus and
-::      displayify. I really don't get it.
-::      run this here in pages and in the app to figure out what's going
-::      on.
+::        displayify. I really don't get it.
+::        run this here in pages and in the app to figure out what's going
+::        on.
 ::          ~&  "state-p be {<state-p>}"
 ::          ~&  "display be {<display>}"
 ::          ~&  "displayify be {<displayify>}"
 ::          ~&  "state be {<state>}"
 ::          ~&  "state in pages be {<[then groove prev-cmd display mode begin]>}"
 ::
-::
-::    page refresh does not work as I suspect, doesn't a GET request
-::        produce a new page? maybe it requires a post?
 ::    x calc focus time and rest time in s, insert into css
 ::        inject css based on mode. requires understanding refresh
-::
-::      link the 'begin' button to submit the groove form
-::        even for wrap range on the clock face
-::      learn how to make an http-request from on-arvo doneskis.
-::
-::      craft the clock face (ticking down in numbers is a maybe)
 ::
 ::      build the rest functionality
 ::      every entry of reps input:number needs to make a post request
 ::        so that when it is (gte 2) it reveals/inserts the rest form
-::
-::      create the #enter display
-::        it will have the cool fade in, strokeDashoffset: 200, and wrap
-::        at 9, no dyno-butt or total
-::        it can also slowly get to the strokeDeshoffset, for a really
-::        cool opening, start at :300. (start 25% goto 33% on the wipe
-::        effect)
 ::
 ::      remove %mod command
 ::        the scenario for it doesn't seem too likely.
@@ -443,6 +406,7 @@
 ::      nav options
 ::        #enter -> %form
 ::        'help' -> %help
+::          'X'  -> %form
 ::        'begin' -> %clock
 ::        'pause' -> %clock with 'cont' button
 ::        .clock -> %form

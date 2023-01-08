@@ -11,14 +11,14 @@
 +$  gruv  [=focus =wrap =reps =rest =wrep]
 ::
 +$  then  [@da @da]
-::  these type unions are for ^- and applying %- to data, from within a
-::  gate?
 ::
 +$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  begin  ?
 +$  state-p  [=display =mode =prev-cmd =begin]
+::  type unions are eating my lunch!
+::    disaplyify was made to help out.
 ::
 ++  displayify
   |=  incoming=@tas
