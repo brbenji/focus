@@ -91,58 +91,75 @@
           ;+
           ?:  =(display %enter)
             ;div#enter.clock
-              ;div.face
-                ;svg(viewbox "0 0 100 100")
+              ;form.brothers(method "post")
+                ;input.to-form(type "submit", name "nav", value "form");
+              ==
+              ;div.face.brothers
+                ;svg.brothers(viewbox "0 0 100 100")
                   ;circle#wipe(cx "50", cy "50", r "3em");
                 ==
-                ;strong#focus.time: focus
+                ;strong#focus.time.brothers: focus
               ==
             ==
-          ;div.clock
-            ;+
-            ?:  =(display %clock)
-              ;div.face
-                ;svg(viewbox "0 0 100 100")
+          ?:  =(display %clock)
+            ;div.clock
+              ;div.face.brothers
+                ;form.brothers(method "post")
+                  ;input.to-form(type "submit", name "nav", value "form");
+                ==
+                ;svg.brothers(viewbox "0 0 100 100")
                   ;circle#wipe(cx "50", cy "50", r "3em");
                 ==
-                ;strong.time: {<focus.groove>}
+                ;strong.time.brothers: {<focus.groove>}
               ==
-            ?:  =(display %form)
+            ==
+          ?:  =(display %form)
+            ;div#form-display.clock
               ;form.set(method "post")
                 ;strong.label: focus
                 ;input(type "number", name "h", placeholder "h", min "0");
                 ;input(type "number", name "m", placeholder "m", min "0");
                 ;input(type "number", name "s", placeholder "s", min "0");
-                ;input.range(type "range", name "wrap", min "5", max "9", value ">");
+                ;input.range(type "range", name "wrap", min "5", max "9", value "9");
                 ;strong.label: rest
                 ;input(type "number", name "rh", placeholder "h", min "0");
                 ;input(type "number", name "rm", placeholder "m", min "0");
                 ;input(type "number", name "rs", placeholder "s", min "0");
-                ;input.range(type "hidden", name "wrep", min "5", max "9", value ">");
+                ;input.range(type "hidden", name "wrep", min "5", max "9", value "9");
                 ;input(type "hidden", name "nav", value "clock");
                 ;input#reps(type "number", name "reps", placeholder "x1", min "1");
-                ;input.form-end(type "submit", name "begin", value ">");
+                ;input#begin(type "submit", name "begin", value ">");
               ==
-            ?:  =(display %help)
-              ;p: here be help
-            ;audio(controls "", autoplay "")
-              ;source(src "https://raw.github.com/CodeExplainedRepo/Original-Flappy-bird-JavaScript/master/audio/sfx_point.wav", type "audio/mp3");
             ==
+          ?:  =(display %help)
+              ;div.clock
+                ;p: here be help
+              ==
+          ;audio(controls "", autoplay "")
+            ;source(src "https://raw.github.com/CodeExplainedRepo/Original-Flappy-bird-JavaScript/master/audio/sfx_point.wav", type "audio/mp3");
           ==
-          ;form.pause(method "post")
-            ;input#help(type "submit", name "nav", value "?");
-            ;+
-            ?:  =(prev-cmd %fresh)
-              ;input#button(type "submit", name "begin", value ">");
-            ?:  =(prev-cmd %begin)
+          ;+
+          ?:  =(display %enter)
+            ;div.footer.hide;
+          ?:  =(display %form)
+            ;div.footer
+              ;form#form-hack.pause(method "post")
+                ;input#help(type "submit", name "nav", value "?");
+              ==
+              ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+            ==
+          ;div.footer
+            ;form.pause(method "post")
+              ;input#help(type "submit", name "nav", value "?");
+              ;+
+              ?:  =(prev-cmd %pause)
+                ;input#button(type "submit", name "cont", value "|>");
+              ?:  =(prev-cmd %cont)
+                ;input#button(type "submit", name "pause", value "||");
               ;input#button(type "submit", name "pause", value "||");
-            ?:  =(prev-cmd %pause)
-              ;input#button(type "submit", name "cont", value "|>");
-            ?:  =(prev-cmd %cont)
-              ;input#button(type "submit", name "pause", value "||");
-            ;input#button(type "submit", name "begin", value ">");
+            ==
+            ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
           ==
-          ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
         ==
       ==
     ==
@@ -195,8 +212,6 @@
       font-size: 3em;
       color: white;
       mix-blend-mode: difference;
-      grid-row: 1;
-      grid-column: 1;
     }
     #focus \{
       font-size: 2em;
@@ -211,6 +226,9 @@
       stroke-dashoffset: 314; /* initial setting */
       filter: blur(.04em);
       transition: all {<seconds>}s;
+    }
+    .hide \{
+      visibility: hidden;
     }
     """
   ++  style
@@ -234,6 +252,28 @@
       display: grid;
       place-items: center;
     }
+    .to-form {
+      height: 5em;
+      width: 8em;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+    }
+    .brothers {
+      grid-row: 1;
+      grid-column: 1;
+    }
+    #form-display {
+      overflow: visible;
+    }
+    #form-hack {
+      display: grid;
+      scale: 2;
+      width: 0;
+      position: relative;
+      left: 9.1em;
+      bottom: 2.1em;
+    }
     .set {
       display: grid;
       grid-template-columns: 2.8em 3.1em 2.8em;
@@ -243,12 +283,13 @@
       margin-right: -.33em;
     }
     #reps {
-      grid-column: 2;
+      grid-column: 3;
     }
     #help {
       border-radius: 1em;
       border-style: solid;
-      width: 1.33em;
+      width: 1.66em;
+      height: 1.66em;
       place-self: end;
       position: relative;
       top: .33em;
@@ -262,8 +303,14 @@
       position: relative;
       top: -.66em;
     }
-    .form-end {
-      grid-column-end: 4;
+    #begin {
+      grid-column-end: 3;
+      grid-row: 7;
+      height: 2.66em;
+      width: 2.66em;
+      position: relative;
+      top: 1.66em;
+      left: .55em;
     }
     .label {
       grid-column: 1/span 4;
@@ -274,6 +321,7 @@
     }
     input {
       font-weight: 700;
+      cursor: pointer;
     }
     .pause {
       display: grid;
@@ -283,12 +331,14 @@
     svg {
       transform: rotate(-90deg);
       scale:2;
-      grid-row: 1;
-      grid-column: 1;
     }
     #total {
       position: relative;
-      left: 9em;
+      left: 13em;
+      top: 4em;
+    }
+    .footer {
+      margin-top: 1em;
     }
     '''
   --

@@ -53,7 +53,7 @@
       `this(prev-cmd.state-p %pause)
         %cont
       ~&  'oops all begins'
-      `this
+      `this(prev-cmd.state-p %cont)
       ::  XX: branch on begin
       ::      right now it starts a timer no matter what.
       ::
@@ -75,7 +75,7 @@
     ==
     ::
       %handle-http-request
-    ~&  "knock knock, http-request!"
+    ~&  "knock knock, http-request! {<!<(order:rudder vase)>}"
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
