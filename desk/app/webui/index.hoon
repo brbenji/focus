@@ -1,58 +1,3 @@
-::  XX: huge problem with names (display mold esp.) in these pages
-::        something about nesting state-p into tack that screwed things
-::        up. one fix for the /app was to remove state-0 from /sur
-::        although maybe that was superstition. probably not.
-::      some improvements but super messy with display.focus and
-::      displayify. I really don't get it.
-::      run this here in pages and in the app to figure out what's going
-::      on.
-::          ~&  "state-p be {<state-p>}"
-::          ~&  "display be {<display>}"
-::          ~&  "displayify be {<displayify>}"
-::          ~&  "state be {<state>}"
-::          ~&  "state in pages be {<[then groove prev-cmd display mode begin]>}"
-::
-::
-::    page refresh does not work as I suspect, doesn't a GET request
-::        produce a new page? maybe it requires a post?
-::    x calc focus time and rest time in s, insert into css
-::        inject css based on mode. requires understanding refresh
-::
-::      link the 'begin' button to submit the groove form
-::        even for wrap range on the clock face
-::      learn how to make an http-request from on-arvo doneskis.
-::
-::      craft the clock face (ticking down in numbers is a maybe)
-::
-::      build the rest functionality
-::      every entry of reps input:number needs to make a post request
-::        so that when it is (gte 2) it reveals/inserts the rest form
-::
-::      create the #enter display
-::        it will have the cool fade in, strokeDashoffset: 200, and wrap
-::        at 9, no dyno-butt or total
-::        it can also slowly get to the strokeDeshoffset, for a really
-::        cool opening, start at :300. (start 25% goto 33% on the wipe
-::        effect)
-::
-::      remove %mod command
-::        the scenario for it doesn't seem too likely.
-::        I love the thought of moving the wrap indicator around the
-::        clock to set it, but it's too much for now.
-::
-::        instead we will simply have nav to %form by clicking on the
-::        clock, which will %pause, and setting a new groove will start
-::        it all again.
-::
-::      nav options
-::        #enter -> %form
-::        'help' -> %help
-::        'begin' -> %clock
-::        'pause' -> %clock with 'cont' button
-::        .clock -> %form
-::
-::        help will only exit in %form
-::
 /-  *focus
 /+  rudder
 ::
@@ -103,8 +48,10 @@
     =/  wrap  `@ud`(slav %ud (~(got by args) 'wrap'))
     =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') '1' num))
     =/  rest  `@dr`(slav %dr (crip r-time))
-    =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
+    ::  wrep is just a copy of wrap for now
+    ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
     ::
+    =/  wrep  wrap
     ~&  "nav be {<(~(got by args) 'nav')>}"
     ~&  "phew! we're in the begin-nav code."
     [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
@@ -139,11 +86,19 @@
       ;body
         ;div#wrapper
           ;form(method "post")
+            ;input(type "submit", name "nav", value "enter");
             ;input(type "submit", name "nav", value "clock");
             ;input(type "submit", name "nav", value "form");
           ==
           ;div.clock
             ;+
+            ?:  =(display %enter)
+              ;div.face
+                ;svg(viewbox "0 0 100 100")
+                  ;circle#wipe(cx "50", cy "50", r "3em");
+                ==
+                ;strong.enter: focus
+              ==
             ?:  =(display %clock)
               ;div.face
                 ;svg(viewbox "0 0 100 100")
@@ -162,7 +117,7 @@
                 ;input(type "number", name "rh", placeholder "h", min "0");
                 ;input(type "number", name "rm", placeholder "m", min "0");
                 ;input(type "number", name "rs", placeholder "s", min "0");
-                ;input.range(type "range", name "wrep", min "5", max "9", value ">");
+                ;input.range(type "hidden", name "wrep", min "5", max "9", value ">");
                 ;input(type "hidden", name "nav", value "clock");
                 ;input#reps(type "number", name "reps", placeholder "x1", min "1");
                 ;input.form-end(type "submit", name "begin", value ">");
@@ -241,7 +196,15 @@
       mix-blend-mode: difference;
       grid-row: 1;
       grid-column: 1;
-      text-shadow: 1px 2px 2px rgba(255, 255, 255, 0.3);
+    }
+    .enter \{
+      font-size: 2em;
+      color: white;
+      mix-blend-mode: difference;
+      grid-row: 1;
+      grid-column: 1;
+      border: .1em solid white;
+      padding: .33em;
     }
     circle \{
       stroke: black;
@@ -277,6 +240,7 @@
     .set {
       display: grid;
       grid-template-columns: 2.8em 3.1em 2.8em;
+      grid-template-rows: auto auto auto auto auto 1.66em;
       grid-gap: .33em;
       accent-color: dimgray;
       margin-right: -.33em;
@@ -315,3 +279,59 @@
     '''
   --
 --
+::
+::  XX: huge problem with names (display mold esp.) in these pages
+::        something about nesting state-p into tack that screwed things
+::        up. one fix for the /app was to remove state-0 from /sur
+::        although maybe that was superstition. probably not.
+::      some improvements but super messy with display.focus and
+::      displayify. I really don't get it.
+::      run this here in pages and in the app to figure out what's going
+::      on.
+::          ~&  "state-p be {<state-p>}"
+::          ~&  "display be {<display>}"
+::          ~&  "displayify be {<displayify>}"
+::          ~&  "state be {<state>}"
+::          ~&  "state in pages be {<[then groove prev-cmd display mode begin]>}"
+::
+::
+::    page refresh does not work as I suspect, doesn't a GET request
+::        produce a new page? maybe it requires a post?
+::    x calc focus time and rest time in s, insert into css
+::        inject css based on mode. requires understanding refresh
+::
+::      link the 'begin' button to submit the groove form
+::        even for wrap range on the clock face
+::      learn how to make an http-request from on-arvo doneskis.
+::
+::      craft the clock face (ticking down in numbers is a maybe)
+::
+::      build the rest functionality
+::      every entry of reps input:number needs to make a post request
+::        so that when it is (gte 2) it reveals/inserts the rest form
+::
+::      create the #enter display
+::        it will have the cool fade in, strokeDashoffset: 200, and wrap
+::        at 9, no dyno-butt or total
+::        it can also slowly get to the strokeDeshoffset, for a really
+::        cool opening, start at :300. (start 25% goto 33% on the wipe
+::        effect)
+::
+::      remove %mod command
+::        the scenario for it doesn't seem too likely.
+::        I love the thought of moving the wrap indicator around the
+::        clock to set it, but it's too much for now.
+::
+::        instead we will simply have nav to %form by clicking on the
+::        clock, which will %pause, and setting a new groove will start
+::        it all again.
+::
+::      nav options
+::        #enter -> %form
+::        'help' -> %help
+::        'begin' -> %clock
+::        'pause' -> %clock with 'cont' button
+::        .clock -> %form
+::
+::        help will only exist in %form
+::

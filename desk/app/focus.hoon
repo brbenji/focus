@@ -28,7 +28,7 @@
   ::
   ::  XX: change clock to %enter when I create that display
   ::
-  :_  this(state [%0 [~m5 9 1 ~s30 8] [now.bowl now.bowl] [%clock %focus %fresh |]])
+  :_  this(state [%0 [~m5 9 1 ~s30 8] [now.bowl now.bowl] [%enter %focus %fresh |]])
   ~[(~(connect pass:io /eyre/connect) [[~ /[dap.bowl]] dap.bowl])]
 ::
 ++  on-save  !>(state)

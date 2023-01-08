@@ -14,7 +14,7 @@
 ::  these type unions are for ^- and applying %- to data, from within a
 ::  gate?
 ::
-+$  display  ?(%form %help %clock)
++$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  begin  ?
