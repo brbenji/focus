@@ -21,6 +21,10 @@
       ::  allows my submit button value to be ? and not help
       ::
       [%maneuver groove (display.focus %help) |]
+    ?:  =((~(got by args) 'nav') 'X')
+      ::  exit help
+      ::
+      [%maneuver groove (display.focus %form) |]
     ?.  (~(has by args) 'h')
       ~&  'h be nothin'
       [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) |]
@@ -82,7 +86,7 @@
         ;meta(charset "utf-8");
         ;meta(name "viewport", content "width=device-width, initial-scale=1");
         ;style:"{(weld (trip style) mod-style)}"
-        ;script:"{(trip script)}"
+        ;script:"{script}"
       ==
       ;body
         ;div#wrapper
@@ -99,7 +103,7 @@
               ==
               ;div.face.brothers
                 ;svg.brothers(viewbox "0 0 100 100")
-                  ;circle#wipe(cx "50", cy "50", r "3em");
+                  ;circle(cx "50", cy "50", r "3em");
                 ==
                 ;strong#focus.time.brothers: focus
               ==
@@ -144,6 +148,19 @@
           ;+
           ?:  =(display %enter)
             ;div.footer.hide;
+          ?:  =(display %help)
+          ;div.footer
+            ;form.pause(method "post")
+              ;input#help(type "submit", name "nav", value "X");
+              ;+
+              ?:  =(prev-cmd %pause)
+                ;input#button(type "submit", name "cont", value "|>");
+              ?:  =(prev-cmd %cont)
+                ;input#button(type "submit", name "pause", value "||");
+              ;input#button(type "submit", name "pause", value "||");
+            ==
+            ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+          ==
           ?:  =(display %form)
             ;div.footer
               ;form#form-hack.pause(method "post")
@@ -153,7 +170,7 @@
             ==
           ;div.footer
             ;form.pause(method "post")
-              ;input#help(type "submit", name "nav", value "?");
+              ;input#help.transparent(type "submit", name "nav", value "?");
               ;+
               ?:  =(prev-cmd %pause)
                 ;input#button(type "submit", name "cont", value "|>");
@@ -172,14 +189,20 @@
   ::  failed idea for slow loading the nice ease-in-out 1s on everything
   ::     document.getElementsByTagName("div").style.transition="ease-in-out 1s";
   ::
+  ++  effect
+    ?:  =(display %enter)
+      "enter"
+    "wipe"
+
   ++  script
-    '''
-    window.addEventListener('DOMContentLoaded', (event) => {
-       document.getElementById("wipe").style.strokeDashoffset="0";
-       document.getElementById("enter").style.opacity="100%";
+    ::  another hacky moment
+    """
+    window.addEventListener('DOMContentLoaded', (event) => \{
+       document.getElementById({<effect>}).style.strokeDashoffset="0";
+       document.getElementById({<effect>}).style.opacity="100%";
        console.log('DOM fully loaded and parsed');
     });
-    '''
+    """
   ::  mod-style is built in a tape for code insertion
   ::
   ++  seconds
@@ -192,6 +215,10 @@
       =/  sec  (yell rest.groove)
       (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     0
+  ++  dashoffset
+    ?:  =(display %enter)
+      201
+    314
   ::  potential branch for clock vs form vs help for grid-template-rows
   ::    (?:(=(display %clock) "auto" "10% auto auto"));
   ::
@@ -226,7 +253,7 @@
       fill: none;
       stroke-width: 6em;
       stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
-      stroke-dashoffset: 314; /* initial setting */
+      stroke-dashoffset: {<dashoffset>}; /* initial setting */
       filter: blur(.04em);
       transition: all {<seconds>}s;
     }
@@ -249,7 +276,7 @@
     }
     #enter {
       opacity: 0%;
-      transition: ease-in-out 1s;
+      transition: ease-in-out 2s;
     }
     .face {
       display: grid;
@@ -291,8 +318,8 @@
     #help {
       border-radius: 1em;
       border-style: solid;
-      width: 1.66em;
-      height: 1.66em;
+      width: 1.75em;
+      height: 1.75em;
       place-self: end;
       position: relative;
       top: .33em;
@@ -342,6 +369,9 @@
     }
     .footer {
       margin-top: 1em;
+    }
+    .transparent {
+      opacity: 0;
     }
     '''
   --
