@@ -344,7 +344,7 @@
       height: 2.66em;
       width: 2.66em;
       position: relative;
-      top: .8em;
+      top: 1.66em;
       left: .55em;
     }
     .label {
@@ -426,3 +426,16 @@
 ::
 ::        help will only exist in %form
 ::
+::    notes of hack
+::      #form-hack - in %form display we hide the help button's grid
+::      neighbor, the pause/cont button within footer and that moves the
+::      help button too far in.
+::
+::      +effect - because js and it's dynamic type scripting is garbage.
+::      this swaps the #ids based on display so that the top onload call
+::      can happen without the other id existing. js totally bails on
+::      %form display.
+::        a less hacky was would be to insert different full lines of js
+::        based on display, but inserting tapes/cords into tape and
+::        cords blocks is either not possible or very difficult to
+::        figure out.
