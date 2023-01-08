@@ -1,12 +1,24 @@
+::  XX: attempt to make an eyre http-request from on-arvo
+::      create an svg that indicates wrap and is set in place based on
+::      the value of wrap range
+::      %form should pop up without rest inputs, but reps should be a
+::      button to turn rest on.
+::      get us onclick() on a button to make autoplay work
+::      collect the right sounds and play them at the right moment
+::
+::      try %e %request-local in app
+::        and see what's up here by making =order:rudder a thing
+::
 /-  *focus
 /+  rudder
 ::
 ^-  (page:rudder tack command)
-|_  [=bowl:gall * tack]
+|_  [=bowl:gall =order:rudder tack]
 ::
 ++  final  (alert:rudder (cat 3 '/' dap.bowl) build)
 ::
 ++  argue
+  ~&  "order:rudder be {<order:rudder>}"
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))

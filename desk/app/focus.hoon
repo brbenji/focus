@@ -76,6 +76,10 @@
     ::
       %handle-http-request
     ~&  "knock knock, http-request! {<!<(order:rudder vase)>}"
+    ::  record these in state to be used by %request-local
+    ::
+    ~&  "secure ? {<=/(order !<(order:rudder vase) secure.order)>}"
+    ~&  "address ? {<=/(order !<(order:rudder vase) address.order)>}"
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
@@ -121,9 +125,26 @@
     =/  wrep  wrep.groove
     =/  setrest  (add now.bowl rest)
     =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
+    ::  +$  request
+    ::     $:  method=method
+    ::        url=@t
+    ::         =header-list
+    ::          body=(unit octs)
+    ::     ==
+    ::
+    =/  request
+      :^  %'GET'
+          url='/focus'
+      :~  [key='connection' value='keep-alive']
+          [key='cookie' value='urbauth-~zod=0v7.ptntr.plr05.mr750.hc4cd.vtjlf']
+      ==
+          body=~
     :_  this(then [setrest setwrep], mode.state-p %rest)
     :~  (~(wait pass:io /rest) setrest)
         (~(wait pass:io /wrap) setwrep)
+        [%pass /stern %arvo %e %request-local | [%ipv4 .127.0.0.1] request]
+        :: %e %request-local [?
+        ::  [%request-local secure=? =address =request:http]
     ==
       %rest
     ?>  ?=([%behn %wake *] sign)
