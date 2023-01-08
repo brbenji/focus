@@ -52,8 +52,6 @@
     ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
     ::
     =/  wrep  wrap
-    ~&  "nav be {<(~(got by args) 'nav')>}"
-    ~&  "phew! we're in the begin-nav code."
     [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
@@ -97,7 +95,7 @@
                 ;svg(viewbox "0 0 100 100")
                   ;circle#wipe(cx "50", cy "50", r "3em");
                 ==
-                ;strong.enter: focus
+                ;strong#enter.time: focus
               ==
             ?:  =(display %clock)
               ;div.face
@@ -129,17 +127,17 @@
             ==
           ==
           ;form.pause(method "post")
+            ;input#help(type "submit", name "nav", value "?");
             ;+
             ?:  =(prev-cmd %fresh)
-              ;input(type "submit", name "begin", value ">");
+              ;input#button(type "submit", name "begin", value ">");
             ?:  =(prev-cmd %begin)
-              ;input(type "submit", name "pause", value "||");
+              ;input#button(type "submit", name "pause", value "||");
             ?:  =(prev-cmd %pause)
-              ;input(type "submit", name "cont", value "|>");
+              ;input#button(type "submit", name "cont", value "|>");
             ?:  =(prev-cmd %cont)
-              ;input(type "submit", name "pause", value "||");
-             ;input(type "submit", name "begin", value ">");
-            ;input(type "submit", name "nav", value "?");
+              ;input#button(type "submit", name "pause", value "||");
+            ;input#button(type "submit", name "begin", value ">");
           ==
           ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
         ==
@@ -197,12 +195,8 @@
       grid-row: 1;
       grid-column: 1;
     }
-    .enter \{
+    #enter \{
       font-size: 2em;
-      color: white;
-      mix-blend-mode: difference;
-      grid-row: 1;
-      grid-column: 1;
       border: .1em solid white;
       padding: .33em;
     }
@@ -248,6 +242,22 @@
     #reps {
       grid-column: 2;
     }
+    #help {
+      border-radius: 1em;
+      border-style: solid;
+      width: 1.33em;
+      place-self: end;
+      position: relative;
+      right: 1em;
+      color: dimgrey;
+    }
+    #button {
+      width: 2.33em;
+      height: 2.332em;
+      place-self: center;
+      position: relative;
+      top: -.66em;
+    }
     .form-end {
       grid-column-end: 4;
     }
@@ -263,8 +273,8 @@
     }
     .pause {
       display: grid;
-      grid-template-columns: auto;
-      scale:2;
+      scale: 2;
+      width: 11em;
     }
     svg {
       transform: rotate(-90deg);
