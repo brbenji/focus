@@ -18,7 +18,7 @@
 ++  final  (alert:rudder (cat 3 '/' dap.bowl) build)
 ::
 ++  argue
-  ~&  "order:rudder be {<order:rudder>}"
+  ~&  "order:rudder be {<id.order>}"
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))

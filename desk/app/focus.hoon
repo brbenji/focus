@@ -75,11 +75,12 @@
     ==
     ::
       %handle-http-request
-    ~&  "knock knock, http-request! {<!<(order:rudder vase)>}"
+    ~&  "knock knock, http-request!" :: {<!<(order:rudder vase)>}"
     ::  record these in state to be used by %request-local
     ::
-    ~&  "secure ? {<=/(order !<(order:rudder vase) secure.order)>}"
-    ~&  "address ? {<=/(order !<(order:rudder vase) address.order)>}"
+    ~&  "secure be {<=/(order !<(order:rudder vase) secure.order)>}"
+    ~&  "address be {<=/(order !<(order:rudder vase) address.order)>}"
+    ~&  "method.request:http be {<=/(order !<(order:rudder vase) method.request.order)>}"
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
@@ -125,27 +126,18 @@
     =/  wrep  wrep.groove
     =/  setrest  (add now.bowl rest)
     =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-    ::  +$  request
-    ::     $:  method=method
-    ::        url=@t
-    ::         =header-list
-    ::          body=(unit octs)
-    ::     ==
-    ::
-    =/  request
-      :^  %'GET'
-          url='/focus'
-      :~  [key='connection' value='keep-alive']
-          [key='cookie' value='urbauth-~zod=0v7.ptntr.plr05.mr750.hc4cd.vtjlf']
-      ==
-          body=~
     :_  this(then [setrest setwrep], mode.state-p %rest)
     :~  (~(wait pass:io /rest) setrest)
         (~(wait pass:io /wrap) setwrep)
-        [%pass /stern %arvo %e %request-local | [%ipv4 .127.0.0.1] request]
-        :: %e %request-local [?
-        ::  [%request-local secure=? =address =request:http]
     ==
+    ::  stern is the back of a ship
+    ::    we're using a local http request to get "back door" access to
+    ::    rudder to trigger page rebuilds on arvo responses.
+    ::
+      %stern
+    ~&  "backdoor! there must be a backdoor!"
+    `this
+
       %rest
     ?>  ?=([%behn %wake *] sign)
     ::  focus mode
@@ -156,9 +148,20 @@
     =/  wrap  wrap.groove
     =/  setfocus  (add now.bowl focus)
     =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
+    ::
+    =/  request
+      :^  %'GET'
+          url='/focus'
+          header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='referer' value='http://localhost/focus?rmsg=Processed%20succesfully.'] [key='connection' value='keep-alive'] [key='cookie' value='urbauth-~zod=0v7.ptntr.plr05.mr750.hc4cd.vtjlf'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']]
+          body=~
+    ::  =/  cagey  [%handle-http-request !>((order:rudder [~.~.eyre_0v5.ddo5o.lgnk6.v7l84.k6e8c.97sn4 request]))]
     :-
     :~  (~(wait pass:io /focus) setfocus)
         (~(wait pass:io /wrap) setwrap)
+        ::  [%request-local secure=? =address =request:http]
+        ::
+        [%pass /stern %arvo %e %request-local | [%ipv4 .127.0.0.1] request]
+        :: (~(poke-self pass:io /stern) cagey)
     ==
     %=  this
       reps.groove  (dec reps.groove)
