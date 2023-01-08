@@ -98,7 +98,10 @@
     %.  [bowl !<(order:rudder vase) +.state]
     %:  (steer:rudder _+.state command)
       pages
-      (point:rudder /[dap.bowl] & ~(key by pages))
+      ::  it's public now!
+      ::    XX:figure out how to make it %enter at every load.
+      ::
+      (point:rudder /[dap.bowl] | ~(key by pages))
       (fours:rudder +.state)
       |=  cmd=command
       ^-  $@  brief:rudder

@@ -100,7 +100,7 @@
           ?:  =(display %enter)
             ;div#enter.clock
               ;form.brothers(method "post")
-                ;input.to-form(type "submit", name "nav", value "form");
+                ;input.to-form(type "submit", name "nav", value "form", autofocus "");
               ==
               ;div.face.brothers
                 ;svg.brothers(viewbox "0 0 100 100")
@@ -148,12 +148,12 @@
                 ;p: reps - run multiple sessions of focus
                 ;p: rest - relax a moment
               ==
-          ;audio(controls "", autoplay "")
-            ;source(src "https://raw.github.com/CodeExplainedRepo/Original-Flappy-bird-JavaScript/master/audio/sfx_point.wav", type "audio/mp3");
-          ==
+          ;p: oh-no! this is empty!;
           ;+
           ?:  =(display %enter)
-            ;div.footer.hide;
+            ;div.footer
+            ;button(name "nav", value "?");
+            ==
           ?:  =(display %help)
           ;div.footer
             ;form.pause(method "post")
@@ -174,7 +174,7 @@
               ==
               ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
             ==
-          ;div.footer
+          ;div.footer.hide
             ;form.pause(method "post")
               ;input#help.transparent(type "submit", name "nav", value "?");
               ;+
@@ -185,6 +185,9 @@
               ;input#button(type "submit", name "pause", value "||");
             ==
             ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+            ;audio(controls "", autoplay "")
+            ;source(src "https://raw.github.com/CodeExplainedRepo/Original-Flappy-bird-JavaScript/master/audio/sfx_point.wav", type "audio/mp3");
+          ==
           ==
         ==
       ==
@@ -215,7 +218,7 @@
       grid-template-rows: auto;
       margin: 1em;
       padding: .66em;
-      border: .1em solid black;
+      border: .09em solid black;
       border-radius: .66em;
       height: 11em;
       width: 11em;
@@ -275,7 +278,7 @@
     }
     #enter {
       opacity: 0%;
-      transition: ease-in-out 2s;
+      transition: ease-in-out 3s;
     }
     .face {
       display: grid;
@@ -291,6 +294,9 @@
     .brothers {
       grid-row: 1;
       grid-column: 1;
+    }
+    input[type=number]::-webkit-inner-spin-button {
+      opacity: 1
     }
     #form-display {
       overflow: visible;
