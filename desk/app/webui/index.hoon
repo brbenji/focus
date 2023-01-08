@@ -95,8 +95,6 @@
         ;div#wrapper
           ;form(method "post")
             ;input(type "submit", name "nav", value "enter");
-            ;input(type "submit", name "nav", value "clock");
-            ;input(type "submit", name "nav", value "form");
           ==
           ;+
           ?:  =(display %enter)
@@ -143,7 +141,12 @@
             ==
           ?:  =(display %help)
               ;div.clock
-                ;p: here be help
+                ;strong: an interval timer
+                ;br;
+                ;p: focus - ease into a time for flow
+                ;p: wrap - wrap-up signal based on percentage of time set
+                ;p: reps - run multiple sessions of focus
+                ;p: rest - relax a moment
               ==
           ;audio(controls "", autoplay "")
             ;source(src "https://raw.github.com/CodeExplainedRepo/Original-Flappy-bird-JavaScript/master/audio/sfx_point.wav", type "audio/mp3");
@@ -348,6 +351,10 @@
     input {
       font-weight: 700;
       cursor: pointer;
+    }
+    p {
+      scale: .66;
+      place-self: start;
     }
     .pause {
       display: grid;
