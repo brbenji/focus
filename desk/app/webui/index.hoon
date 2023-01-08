@@ -88,15 +88,18 @@
             ;input(type "submit", name "nav", value "clock");
             ;input(type "submit", name "nav", value "form");
           ==
-          ;div.clock
-            ;+
-            ?:  =(display %enter)
+          ;+
+          ?:  =(display %enter)
+            ;div#enter.clock
               ;div.face
                 ;svg(viewbox "0 0 100 100")
                   ;circle#wipe(cx "50", cy "50", r "3em");
                 ==
-                ;strong#enter.time: focus
+                ;strong#focus.time: focus
               ==
+            ==
+          ;div.clock
+            ;+
             ?:  =(display %clock)
               ;div.face
                 ;svg(viewbox "0 0 100 100")
@@ -195,7 +198,7 @@
       grid-row: 1;
       grid-column: 1;
     }
-    #enter \{
+    #focus \{
       font-size: 2em;
       border: .1em solid white;
       padding: .33em;
@@ -248,12 +251,13 @@
       width: 1.33em;
       place-self: end;
       position: relative;
+      top: .33em;
       right: 1em;
       color: dimgrey;
     }
     #button {
-      width: 2.33em;
-      height: 2.332em;
+      width: 2.66em;
+      height: 2.66em;
       place-self: center;
       position: relative;
       top: -.66em;
