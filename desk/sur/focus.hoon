@@ -28,6 +28,8 @@
   $%  [%maneuver =gruv =display =begin]
       [%pause ?]
       [%cont ?]
+      [%focus =gruv]
+      [%rest =gruv]
   ==
 ::
 +$  update

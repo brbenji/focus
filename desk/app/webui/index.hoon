@@ -18,7 +18,7 @@
 ++  final  (alert:rudder (cat 3 '/' dap.bowl) build)
 ::
 ++  argue
-  ~&  "order:rudder be {<id.order>}"
+  ~&  "order:rudder be {<[id.order method.request.order body.request.order]>}"
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
@@ -30,10 +30,12 @@
     ::    converting null to '0'
     ::
     ?:  =((~(got by args) 'nav') '?')
+      ~&  'nav ?'
       ::  allows my submit button value to be ? and not help
       ::
       [%maneuver groove (display.focus %help) |]
     ?:  =((~(got by args) 'nav') 'X')
+      ~&  'nav X'
       ::  exit help
       ::
       [%maneuver groove (display.focus %form) |]
@@ -75,6 +77,9 @@
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]
+  ?:  (~(has by args) 'stern')
+    ~&  "we wen't through the backdoor"
+    [%focus groove]
   ~
 ::
 ++  build

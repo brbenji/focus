@@ -29,7 +29,7 @@
   ::  XX: change clock to %enter when I create that display
   ::
   :_  this(state [%0 [~m5 9 1 ~s30 8] [now.bowl now.bowl] [%enter %focus %fresh |]])
-  ~[(~(connect pass:io /eyre/connect) [[~ /[dap.bowl]] dap.bowl])]
+  ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])]
 ::
 ++  on-save  !>(state)
 ::
@@ -63,7 +63,6 @@
         `this(display.state-p display.command)
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
-      ~&  "display might be {<display.command>}"
       =/  ease  (add now.bowl ~s4)
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
@@ -72,15 +71,33 @@
         then  [ease ease]
         display.state-p  display.command
       ==
+        %focus
+      ~&  'focus mode'
+      =/  focus  focus.groove
+      =/  wrap  wrap.groove
+      =/  setfocus  (add now.bowl focus)
+      =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
+      :-
+      :~  (~(wait pass:io /focus) setfocus)
+          (~(wait pass:io /wrap) setwrap)
+      ==
+      %=  this
+        reps.groove  (dec reps.groove)
+        then  [setfocus setwrap]
+        mode.state-p  %focus
+      ==
+        %rest
+      ~&  'focus mode'
+      `this
     ==
     ::
       %handle-http-request
-    ~&  "knock knock, http-request!" :: {<!<(order:rudder vase)>}"
+    ~&  "knock knock, http-request!" :: vase be {<!<(order:rudder vase)>}"
     ::  record these in state to be used by %request-local
     ::
+    ~&  "request:http be {<=/(order !<(order:rudder vase) [method.request.order body.request.order])>}"
     ~&  "secure be {<=/(order !<(order:rudder vase) secure.order)>}"
     ~&  "address be {<=/(order !<(order:rudder vase) address.order)>}"
-    ~&  "method.request:http be {<=/(order !<(order:rudder vase) method.request.order)>}"
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
@@ -136,6 +153,7 @@
     ::
       %stern
     ~&  "backdoor! there must be a backdoor!"
+    ~&  "show me a sign {<sign>}"
     `this
 
       %rest
@@ -149,31 +167,67 @@
     =/  setfocus  (add now.bowl focus)
     =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
     ::
+    =/  dumby-post  ~
+    =/  vase-copy  [id=~.~.eyre_local authenticated=%.y secure=%.n address=[%ipv4 .127.0.0.1] request=[method=%'POST' url='/focus?rmsg=Processed%20succesfully.' header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='referer' value='http://localhost/focus?rmsg=Processed%20succesfully.'] [key='connection' value='keep-alive'] [key='cookie' value='urbauth-~zod=0v7.ptntr.plr05.mr750.hc4cd.vtjlf'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']] body=[~ [p=60 q=67.544.574.948.467]]]]
+    =/  vasey  !>(vase-copy)
     =/  request
       :^  %'GET'
           url='/focus'
           header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='referer' value='http://localhost/focus?rmsg=Processed%20succesfully.'] [key='connection' value='keep-alive'] [key='cookie' value='urbauth-~zod=0v7.ptntr.plr05.mr750.hc4cd.vtjlf'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']]
           body=~
-    ::  =/  cagey  [%handle-http-request !>((order:rudder [~.~.eyre_0v5.ddo5o.lgnk6.v7l84.k6e8c.97sn4 request]))]
-    :-
-    :~  (~(wait pass:io /focus) setfocus)
-        (~(wait pass:io /wrap) setwrap)
-        ::  [%request-local secure=? =address =request:http]
-        ::
-        [%pass /stern %arvo %e %request-local | [%ipv4 .127.0.0.1] request]
-        :: (~(poke-self pass:io /stern) cagey)
+    =;  out=(quip card _+.state)
+      [-.out this(+.state +.out)]
+    %.  [bowl !<(order:rudder vasey) +.state]
+    %:  (steer:rudder _+.state command)
+      pages
+      (point:rudder /[dap.bowl] & ~(key by pages))
+      (fours:rudder +.state)
+      ::  the +solve handler, which is this gate below, is called on a
+      ::  post request that has a successful +argue command
+      ::  might not be useful for on-arvo. I just want to pass wait
+      ::  timers
+      ::
+      |=  cmd=command
+      ~&  'here I am in the on-arvo +solve! dont step on me! Im back from pages!'
+      ^-  $@  brief:rudder
+          [brief:rudder (list card) _+.state]
+      =^  caz  this
+        (on-poke %focus-command !>(cmd))
+      ['Processed succesfully.' caz +.state]
     ==
-    %=  this
-      reps.groove  (dec reps.groove)
-      then  [setfocus setwrap]
-      mode.state-p  %focus
-    ==
+    ::  move this to a new command %focus and one for %rest
+    ::  arvo will now receive the wake up calls from %b shoot down a
+    ::  phoney http post request, with +argue values for %timers, which
+    ::  will produce a proper command which will be sent to on-poke
+    ::  around here.
+    ::
+    ::  I don't think I can change this state from the +solve handler,
+    ::  only command.
+    ::
+    ::  :-
+    ::  :~  (~(wait pass:io /focus) setfocus)
+    ::      (~(wait pass:io /wrap) setwrap)
+    ::      ::  [%request-local secure=? =address =request:http]
+    ::      ::
+    ::      [%pass /stern %arvo %e %request-local | [%ipv4 .127.0.0.1] request]
+    ::      :: (~(poke-self pass:io /stern) cagey)
+    ::  ==
+    ::  %=  this
+    ::    reps.groove  (dec reps.groove)
+    ::    then  [setfocus setwrap]
+    ::    mode.state-p  %focus
+    ::  ==
     ::
       %wrap
     ?>  ?=([%behn %wake *] sign)
     ~&  'wrap up'
     `this
     ::
+      %connect
+    ?>  ?=([%behn %wake *] sign)
+    ~&  'did we stop our install eyre response problem?'
+    `this
+
    ::   %bind-focus
    :: ~?  !accepted.sign
    ::   [dap.bowl 'eyre bind rejected!' binding.sign-arvo]
