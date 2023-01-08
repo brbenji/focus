@@ -8,6 +8,7 @@
   ==
 ::  groove ex: ~s2 9 2 ~s5 8
 ::
++$  state-0  [%0 groove=gruv =then =state-p]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -27,7 +28,7 @@
   ::
   ::  XX: change clock to %enter when I create that display
   ::
-  :_  this(state [%0 [now.bowl now.bowl] [~m5 9 1 ~s30 8] %fresh %clock %focus |])
+  :_  this(state [%0 [~m5 9 1 ~s30 8] [now.bowl now.bowl] [%clock %focus %fresh |]])
   ~[(~(connect pass:io /eyre/connect) [[~ /[dap.bowl]] dap.bowl])]
 ::
 ++  on-save  !>(state)
@@ -40,7 +41,6 @@
   `this(state ole)
 ::
 ++  on-poke
-  ~&  "state be {<state>}"
   |=  [=mark =vase]
   ^-  (quip card _this)
   ?>  (team:title our.bowl src.bowl)
@@ -50,7 +50,7 @@
     ?-    -.command
         %pause
       ~&  'oops no pause'
-      `this(prev-cmd %pause)
+      `this(prev-cmd.state-p %pause)
         %cont
       ~&  'oops all begins'
       `this
@@ -58,9 +58,9 @@
       ::      right now it starts a timer no matter what.
       ::
         %maneuver
-      ?.  begin
+      ?.  begin.command
         ~&  'begin aint true'
-        `this(display display.command)
+        `this(display.state-p display.command)
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
       ~&  "display might be {<display.command>}"
@@ -68,9 +68,9 @@
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
         groove.state  gruv.command
-        prev-cmd  %maneuver
+        prev-cmd.state-p  %begin
         then  [ease ease]
-        display  display.command
+        display.state-p  display.command
       ==
     ==
     ::
@@ -116,12 +116,12 @@
       `this
     ::  rest mode
     ::
-    ~&  "{<mode>} mode"
+    ~&  "{<mode.state-p>} mode"
     =/  rest  rest.groove
     =/  wrep  wrep.groove
     =/  setrest  (add now.bowl rest)
     =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-    :_  this(then [setrest setwrep], mode %rest)
+    :_  this(then [setrest setwrep], mode.state-p %rest)
     :~  (~(wait pass:io /rest) setrest)
         (~(wait pass:io /wrap) setwrep)
     ==
@@ -129,7 +129,7 @@
     ?>  ?=([%behn %wake *] sign)
     ::  focus mode
     ::
-    ~&  "{<mode>} mode"
+    ~&  "{<mode.state-p>} mode"
     ~&  "groove be {<groove>}"
     =/  focus  focus.groove
     =/  wrap  wrap.groove
@@ -142,7 +142,7 @@
     %=  this
       reps.groove  (dec reps.groove)
       then  [setfocus setwrap]
-      mode  %focus
+      mode.state-p  %focus
     ==
     ::
       %wrap

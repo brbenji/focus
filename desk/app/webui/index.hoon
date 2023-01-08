@@ -1,4 +1,19 @@
-::  XX: page refresh does not work as I suspect, doesn't a GET request
+::  XX: huge problem with names (display mold esp.) in these pages
+::        something about nesting state-p into tack that screwed things
+::        up. one fix for the /app was to remove state-0 from /sur
+::        although maybe that was superstition. probably not.
+::      some improvements but super messy with display.focus and
+::      displayify. I really don't get it.
+::      run this here in pages and in the app to figure out what's going
+::      on.
+::          ~&  "state-p be {<state-p>}"
+::          ~&  "display be {<display>}"
+::          ~&  "displayify be {<displayify>}"
+::          ~&  "state be {<state>}"
+::          ~&  "state in pages be {<[then groove prev-cmd display mode begin]>}"
+::
+::
+::    page refresh does not work as I suspect, doesn't a GET request
 ::        produce a new page? maybe it requires a post?
 ::    x calc focus time and rest time in s, insert into css
 ::        inject css based on mode. requires understanding refresh
@@ -29,14 +44,7 @@
 ::        clock, which will %pause, and setting a new groove will start
 ::        it all again.
 ::
-::      create a %move cmd that sets groove, changes display, and gives
-::        a loobean for a new %begin ? type.
-::
 ::      nav options
-::        first =display will now be apart of %begin cmd
-::          +argue will branch on or |('begin' 'nav') and the state
-::          groove will go into =gruv
-::
 ::        #enter -> %form
 ::        'help' -> %help
 ::        'begin' -> %clock
@@ -47,6 +55,7 @@
 ::
 /-  *focus
 /+  rudder
+::
 ^-  (page:rudder tack command)
 |_  [=bowl:gall * tack]
 ::
@@ -55,7 +64,6 @@
 ++  argue
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
-  ~&  "state in pages be {<[then groove prev-cmd display mode begin]>}"
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
   ::  ?:  =(mode %fin)
   ::    [%nav %clock]
@@ -64,16 +72,13 @@
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
     ::
-    =+  display
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
-      =.  display  %help
-      [%maneuver groove display |]
-    =.  display  (^display (slav %tas (~(got by args) 'nav')))
+      [%maneuver groove (display.focus %help) |]
     ?.  (~(has by args) 'h')
       ~&  'h be nothin'
-      [%maneuver groove display |]
+      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) |]
     ::  these won't work unless nav produces h m s etc key and value
     ::
     =/  f-time  ^-  tape
@@ -102,7 +107,7 @@
     ::
     ~&  "nav be {<(~(got by args) 'nav')>}"
     ~&  "phew! we're in the begin-nav code."
-    [%maneuver [focus wrap reps rest wrep] display &]
+    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]

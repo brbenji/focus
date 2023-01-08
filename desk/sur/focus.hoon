@@ -10,9 +10,19 @@
 +$  wrep  @ud  :: wrap for the rest periods
 +$  gruv  [=focus =wrap =reps =rest =wrep]
 ::
++$  then  [@da @da]
+::  these type unions are for ^- and applying %- to data, from within a
+::  gate?
+::
 +$  display  ?(%form %help %clock)
 +$  mode  ?(%fin %rest %focus)
++$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  begin  ?
++$  state-p  [=display =mode =prev-cmd =begin]
+::
+++  displayify
+  |=  incoming=@tas
+  %-  display  incoming
 ::
 +$  command
   $%  [%maneuver =gruv =display =begin]
@@ -24,11 +34,7 @@
   $%  command
       [%blank def=gruv]
   ==
-::
-+$  then  [@da @da]
-+$  prev-cmd  ?(%maneuver %pause %cont %fresh)
-+$  state-0  [%0 =then groove=gruv =prev-cmd =display =mode =begin]
 ::  state for rudder, a copy of +.state-0
 ::
-+$  tack  [=then groove=gruv =prev-cmd =display =mode =begin]
++$  tack  [groove=gruv then state-p]
 --
