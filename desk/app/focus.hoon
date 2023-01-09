@@ -53,32 +53,6 @@
       ~&  'oops all begins'
       `this(prev-cmd.state-p %cont)
         %maneuver
-      ?:  =(mode.state-p %focus)
-        ~&  'focus mode'
-        =/  focus  focus.groove
-        =/  wrap  wrap.groove
-        =/  setfocus  (add now.bowl focus)
-        =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
-        :-
-        :~  (~(wait pass:io /focus) setfocus)
-            (~(wait pass:io /wrap) setwrap)
-        ==
-        %=  this
-          reps.groove  (dec reps.groove)
-          then  [setfocus setwrap]
-          mode.state-p  %focus
-          display.state-p  %next
-        ==
-      ?:  =(mode %rest)
-        ~&  'rest mode'
-        =/  rest  rest.groove
-        =/  wrep  wrep.groove
-        =/  setrest  (add now.bowl rest)
-        =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-        :_  this(then [setrest setwrep], mode.state-p %rest, display.state-p %next)
-        :~  (~(wait pass:io /rest) setrest)
-            (~(wait pass:io /wrap) setwrep)
-        ==
       ?.  begin.command
         ~&  'begin aint true'
         `this(display.state-p display.command)
@@ -108,7 +82,6 @@
         reps.groove  (dec reps.groove)
         then  [setfocus setwrap]
         mode.state-p  %focus
-        display.state-p  %next
       ==
         %rest
       ::  rest mode
@@ -118,7 +91,7 @@
       =/  wrep  wrep.groove
       =/  setrest  (add now.bowl rest)
       =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-      :_  this(then [setrest setwrep], mode.state-p %rest, display.state-p %next)
+      :_  this(then [setrest setwrep], mode.state-p %rest)
       :~  (~(wait pass:io /rest) setrest)
           (~(wait pass:io /wrap) setwrep)
       ==
@@ -158,7 +131,8 @@
     ?>  ?=([%behn %wake *] sign)
     ?:  =(reps.groove 0)
       ~&  'doneskis!'
-      ::  XX: what display, mode, prev-cmd should be set after doneskis!?
+      ::  XX: what display, mode, prev-cmd should be set after
+      ::  doneskis!?
       ::
       ::  `this(mode %fin)
       `this

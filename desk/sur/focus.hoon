@@ -12,7 +12,7 @@
 ::
 +$  then  [@da @da]
 ::
-+$  display  ?(%form %help %clock %next %enter)
++$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  begin  ?

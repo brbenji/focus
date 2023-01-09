@@ -18,7 +18,7 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
-  ?:  |((~(has by args) 'begin') (~(has by args) 'nav') (~(has by args) 'stern'))
+  ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
@@ -74,7 +74,6 @@
   ::
   ?:  (~(has by args) 'stern')
     ~&  "we wen't through the backdoor"
-    ~&  "mode {<mode>}"
     ?:  =((~(got by args) 'stern') 'focus')
       [%focus groove]
     [%rest groove]
@@ -138,18 +137,6 @@
                 ;strong#focus.time.brothers: focus
               ==
             ==
-          ?:  =(display %next)
-            ;div.clock
-              ;div.face.brothers
-                ;form.brothers(method "post")
-                  ;input.to-form(type "submit", name "nav", value "form");
-                ==
-                ;svg.brothers(viewbox "0 0 100 100")
-                  ;circle#wipe(cx "50", cy "50", r "3em");
-                ==
-                ;strong.time.brothers: {<mode>}
-              ==
-            ==
           ?:  =(display %clock)
             ;div.clock
               ;div.face.brothers
@@ -169,7 +156,7 @@
                 ;input(type "number", name "h", placeholder "h", min "0");
                 ;input(type "number", name "m", placeholder "m", min "0");
                 ;input(type "number", name "s", placeholder "s", min "0");
-                ;input.range(type "range", name "wrap", min "5", max "9", value "9");
+                ;input.range.transparent(type "range", name "wrap", min "5", max "9", value "9");
                 ;strong.label: rest
                 ;input(type "number", name "rh", placeholder "h", min "0");
                 ;input(type "number", name "rm", placeholder "m", min "0");
@@ -218,8 +205,8 @@
             ==
             ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
           ==
-          ;div.footer.hide
-            ;form.pause(method "post")
+          ;div.footer
+            ;form.pause.hide(method "post")
               ;input#help.transparent(type "submit", name "nav", value "?");
               ;+
               ?:  =(prev-cmd %pause)
@@ -421,7 +408,8 @@
     #total {
       position: relative;
       left: 13em;
-      top: 4em;
+      top: -4em;
+      scale: 1;
     }
     .footer {
       margin-top: 1em;
