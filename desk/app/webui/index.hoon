@@ -113,9 +113,7 @@
             ;audio.hide(controls "", autoplay "")
               ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_PAUSE_TO_NEXT.wav", type "audio/mp3");
              ==
-          ;form(method "post")
-            ;input(type "submit", name "nav", value "enter");
-          ==
+          ;div;
           ;+
           ?:  =(display %enter)
             ;div#enter.clock
@@ -170,9 +168,7 @@
           ;p: oh-no! this is empty!;
           ;+
           ?:  =(display %enter)
-            ;div.footer
-            ;button(name "nav", value "?");
-            ==
+            ;div.footer;
           ?:  =(display %form)
             ;div.footer
               ;form#form-hack.pause(method "post")
