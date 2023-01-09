@@ -65,10 +65,10 @@
     [%pause &]
   ::  internal http post from on-arvo
   ::  behn wake gifts triggers this
+  ::    stern is the back of the ship
+  ::    and this feels like using a back door.
   ::
   ?:  (~(has by args) 'stern')
-    ~&  "we wen't through the backdoor"
-    ~&  "stern is the back of ship"
     ?:  =((~(got by args) 'stern') 'focus')
       [%focus groove]
     [%rest groove]

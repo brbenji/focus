@@ -57,7 +57,6 @@
       ::
         %maneuver
       ?.  begin.command
-        ~&  'begin aint true'
         `this(display.state-p display.command)
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
