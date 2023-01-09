@@ -3,7 +3,6 @@
 ::      bubble up the value of wrap range
 ::      %form should pop up without rest inputs, but reps should be a
 ::        button to turn rest on.
-::      get us onclick() on a button to make autoplay work
 ::      collect the right sounds and play them at the right moment
 ::
 /-  *focus
@@ -154,26 +153,29 @@
             ;div.footer
             ;button(name "nav", value "?");
             ==
-          ?:  =(display %help)
-          ;div.footer
-            ;form.pause(method "post")
-              ;input#help(type "submit", name "nav", value "X");
-              ;+
-              ?:  =(prev-cmd %pause)
-                ;input#button(type "submit", name "cont", value "|>");
-              ?:  =(prev-cmd %cont)
-                ;input#button(type "submit", name "pause", value "||");
-              ;input#button(type "submit", name "pause", value "||");
-            ==
-            ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
-          ==
           ?:  =(display %form)
             ;div.footer
               ;form#form-hack.pause(method "post")
                 ;input#help(type "submit", name "nav", value "?");
               ==
               ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+              ;audio.hide(controls "", autoplay "")
+                ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
+              ==
             ==
+          ?:  =(display %help)
+            ;div.footer
+              ;form.pause(method "post")
+              ;input#help(type "submit", name "nav", value "X");
+              ;+
+              ?:  =(prev-cmd %pause)
+                ;input#button.transparent(type "submit", name "cont", value "|>");
+              ?:  =(prev-cmd %cont)
+                ;input#button.transparent(type "submit", name "pause", value "||");
+              ;input#button.transparent(type "submit", name "pause", value "||");
+            ==
+            ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+          ==
           ;div.footer.hide
             ;form.pause(method "post")
               ;input#help.transparent(type "submit", name "nav", value "?");
@@ -185,13 +187,15 @@
               ;input#button(type "submit", name "pause", value "||");
             ==
             ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
-            ;audio(controls "", autoplay "")
-            ;source(src "https://raw.github.com/CodeExplainedRepo/Original-Flappy-bird-JavaScript/master/audio/sfx_point.wav", type "audio/mp3");
+          ;audio(controls "", autoplay "")
+            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
           ==
           ==
         ==
       ==
     ==
+  ::  rest or doneskis sound
+  ::    https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP2.wav
   ::  this waits for the page to load before changing stroke-dashoffset
   ::    to "0", animating the wipe, timed to focus.groove
   ::
@@ -304,10 +308,10 @@
     #form-hack {
       display: grid;
       scale: 2;
-      width: 0;
       position: relative;
-      left: 9.2em;
-      bottom: 2.1em;
+      left: 3.9em;
+      bottom: 2.2em;
+      height: 0;
     }
     .set {
       display: grid;
@@ -323,13 +327,24 @@
     #help {
       border-radius: 1em;
       border-style: solid;
-      width: 1.75em;
-      height: 1.75em;
+      width: 2em;
+      height: 2em;
       place-self: end;
       position: relative;
-      top: .33em;
-      right: 1em;
+      top: .66em;
       color: dimgrey;
+      scale:.8;
+    }
+    #begin {
+      grid-column-end: 3;
+      grid-row: 7;
+      height: 2.33em;
+      width: 3em;
+      position: relative;
+      top: 1.66em;
+      left: .55em;
+      border: 0.09em solid rgb(60,60,60);
+      border-radius: 0.33em;
     }
     #button {
       width: 2.66em;
@@ -337,15 +352,6 @@
       place-self: center;
       position: relative;
       top: -.66em;
-    }
-    #begin {
-      grid-column-end: 3;
-      grid-row: 7;
-      height: 2.66em;
-      width: 2.66em;
-      position: relative;
-      top: 1.66em;
-      left: .55em;
     }
     .label {
       grid-column: 1/span 4;
@@ -430,6 +436,9 @@
 ::      #form-hack - in %form display we hide the help button's grid
 ::      neighbor, the pause/cont button within footer and that moves the
 ::      help button too far in.
+::        changing z-index only made the help button non-functional.
+::        this was a possible solution when considering just making the
+::        pause/cont button invisible instead of non-existent.
 ::
 ::      +effect - because js and it's dynamic type scripting is garbage.
 ::      this swaps the #ids based on display so that the top onload call
