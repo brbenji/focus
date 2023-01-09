@@ -1,10 +1,3 @@
-::  XX:
-::      create an svg that indicates wrap and is set in place based on
-::      bubble up the value of wrap range
-::      %form should pop up without rest inputs, but reps should be a
-::        button to turn rest on.
-::      collect the right sounds and play them at the right moment
-::
 /-  *focus
 /+  rudder
 ::
@@ -14,7 +7,6 @@
 ++  final  (alert:rudder (cat 3 '/' dap.bowl) build)
 ::
 ++  argue
-  ~&  "order:rudder be {<[id.order method.request.order body.request.order]>}"
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
@@ -63,6 +55,8 @@
     ::
     =/  wrep  wrap
     [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
+  ::  XX: add this functionality
+  ::
   ?:  (~(has by args) 'cont')
     ~&  "we hit cont people"
     [%cont &]
@@ -74,13 +68,11 @@
   ::
   ?:  (~(has by args) 'stern')
     ~&  "we wen't through the backdoor"
+    ~&  "stern is the back of ship"
     ?:  =((~(got by args) 'stern') 'focus')
       [%focus groove]
     [%rest groove]
   ~
-::  lap for a complete focus
-::  lap2 for a complete rest/ aka new focus
-::  wrap needs something, maybe kinda alarming
 ::
 ++  build
   |=  $:  arg=(list [k=@t v=@t])
@@ -172,9 +164,8 @@
                 ;strong: an interval timer
                 ;br;
                 ;p: focus - ease into a time for flow
-                ;p: wrap - wrap-up signal based on percentage of time set
-                ;p: reps - run multiple sessions of focus
                 ;p: rest - relax a moment
+                ;p: reps - run multiple sessions of focus
               ==
           ;p: oh-no! this is empty!;
           ;+
@@ -220,10 +211,12 @@
         ==
       ==
     ==
-  ::  rest or doneskis sound
-  ::    https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP2.wav
   ::  this waits for the page to load before changing stroke-dashoffset
   ::    to "0", animating the wipe, timed to focus.groove
+  ::
+  ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
+  ::  I hope these post load animations can actually be handles by scss
+  ::  or some other pure css solution.
   ::
   ++  script
     """
@@ -235,6 +228,7 @@
     """
   ++  effect
     ::  another hacky moment
+    ::
     ?:  =(display %enter)
       "enter"
     "wipe"
@@ -420,46 +414,6 @@
     '''
   --
 --
-::
-::  XX: huge problem with names (display mold esp.) in these pages
-::        something about nesting state-p into tack that screwed things
-::        up. one fix for the /app was to remove state-0 from /sur
-::        although maybe that was superstition. probably not.
-::      some improvements but super messy with display.focus and
-::        displayify. I really don't get it.
-::        run this here in pages and in the app to figure out what's going
-::        on.
-::          ~&  "state-p be {<state-p>}"
-::          ~&  "display be {<display>}"
-::          ~&  "displayify be {<displayify>}"
-::          ~&  "state be {<state>}"
-::          ~&  "state in pages be {<[then groove prev-cmd display mode begin]>}"
-::
-::    x calc focus time and rest time in s, insert into css
-::        inject css based on mode. requires understanding refresh
-::
-::      build the rest functionality
-::      every entry of reps input:number needs to make a post request
-::        so that when it is (gte 2) it reveals/inserts the rest form
-::
-::      remove %mod command
-::        the scenario for it doesn't seem too likely.
-::        I love the thought of moving the wrap indicator around the
-::        clock to set it, but it's too much for now.
-::
-::        instead we will simply have nav to %form by clicking on the
-::        clock, which will %pause, and setting a new groove will start
-::        it all again.
-::
-::      nav options
-::        #enter -> %form
-::        'help' -> %help
-::          'X'  -> %form
-::        'begin' -> %clock
-::        'pause' -> %clock with 'cont' button
-::        .clock -> %form
-::
-::        help will only exist in %form
 ::
 ::    notes of hack
 ::      #form-hack - in %form display we hide the help button's grid

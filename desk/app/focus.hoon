@@ -46,12 +46,15 @@
       %focus-command
     =/  command  !<(command vase)
     ?-    -.command
+      ::  XX: add this functionality
+      ::
         %pause
       ~&  'oops no pause'
       `this(prev-cmd.state-p %pause)
         %cont
-      ~&  'oops all begins'
+      ~&  'oops all maneuvers'
       `this(prev-cmd.state-p %cont)
+      ::
         %maneuver
       ?.  begin.command
         ~&  'begin aint true'
@@ -98,12 +101,6 @@
     ==
     ::
       %handle-http-request
-    ~&  "knock knock, http-request!" :: vase be {<!<(order:rudder vase)>}"
-    ::  XX: record these in state to be used by %request-local
-    ::
-    ~&  "request:http be {<=/(order !<(order:rudder vase) [method.request.order body.request.order])>}"
-    ~&  "secure be {<=/(order !<(order:rudder vase) secure.order)>}"
-    ~&  "address be {<=/(order !<(order:rudder vase) address.order)>}"
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
@@ -130,16 +127,13 @@
       %focus
     ?>  ?=([%behn %wake *] sign)
     ?:  =(reps.groove 0)
+      ::  no more reps means...
       ~&  'doneskis!'
-      ::  XX: what display, mode, prev-cmd should be set after
-      ::  doneskis!?
+      ::  XX: what display, mode, prev-cmd should be set after doneskis!?
       ::
-      ::  `this(mode %fin)
       `this
-    ::  rest mode
-    ::  http post body says 'stern='
+    ::  start up rest mode
     ::
-    ~&  "{<mode.state-p>} mode"
     =/  stern  `@`'stern='
     =/  local-post
       :*  id=~.~.eyre_local
@@ -157,12 +151,11 @@
       (point:rudder /[dap.bowl] | ~(key by pages))
       (fours:rudder +.state)
       |=  cmd=command
-      ~&  'here I am in the on-arvo +solve! dont step on me! Im back from pages!'
       ^-  $@  brief:rudder
           [brief:rudder (list card) _+.state]
       =^  caz  this
         (on-poke %focus-command !>(cmd))
-      ['Processed from on-arvo succesfully.' caz +.state]
+      [~ caz +.state]
     ==
     ::  ease from on-poke leads into here
     ::  confusingly on the /rest wire
@@ -170,10 +163,8 @@
     ::
       %rest
     ?>  ?=([%behn %wake *] sign)
-    ::  focus mode begins
-    ::  http post body says 'stern=focus'
+    ::  start up focus mode
     ::
-    ~&  "{<mode.state-p>} mode"
     =/  stern  `@`'stern=focus'
     =/  local-post
       :*  id=~.~.eyre_local
@@ -191,12 +182,11 @@
       (point:rudder /[dap.bowl] | ~(key by pages))
       (fours:rudder +.state)
       |=  cmd=command
-      ~&  'here I am in the on-arvo +solve! dont step on me! Im back from pages!'
       ^-  $@  brief:rudder
           [brief:rudder (list card) _+.state]
       =^  caz  this
         (on-poke %focus-command !>(cmd))
-      ['Processed from on-arvo succesfully.' caz +.state]
+      [~ caz +.state]
     ==
     ::
       %wrap
@@ -222,3 +212,9 @@
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
 --
+::  note of hack
+::    local-post in on-arvo would be better as an arm somewhere. a
+::    nested core might be best. but it was a late and complex addition
+::    to the app. it still doesn't unlock page refreshing from on-arvo
+::    like I hoped. I can't get the behn wake gift to initiate a new
+::    page with the %rest timers clock.
