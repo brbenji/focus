@@ -18,7 +18,7 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
-  ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
+  ?:  |((~(has by args) 'begin') (~(has by args) 'nav') (~(has by args) 'stern'))
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
@@ -69,10 +69,19 @@
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]
+  ::  internal http post from on-arvo
+  ::  behn wake gifts triggers this
+  ::
   ?:  (~(has by args) 'stern')
     ~&  "we wen't through the backdoor"
-    [%focus groove]
+    ~&  "mode {<mode>}"
+    ?:  =((~(got by args) 'stern') 'focus')
+      [%focus groove]
+    [%rest groove]
   ~
+::  lap for a complete focus
+::  lap2 for a complete rest/ aka new focus
+::  wrap needs something, maybe kinda alarming
 ::
 ++  build
   |=  $:  arg=(list [k=@t v=@t])
@@ -92,6 +101,27 @@
       ==
       ;body
         ;div#wrapper
+          ;+
+          ?:  =(display %form)
+            ;audio.hide(controls "", autoplay "")
+              ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
+             ==
+          ?:  =(display %clock)
+            ?:  &(=(mode %focus) (gte reps 2))
+              ;audio.hide(controls "", autoplay "")
+                ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP2.wav", type "audio/mp3");
+               ==
+            ?:  =(mode %rest)
+              ;audio.hide(controls "", autoplay "")
+                ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP.wav", type "audio/mp3");
+               ==
+            ;audio.hide(controls "", autoplay "")
+              ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
+             ==
+          ?:  =(display %help)
+            ;audio.hide(controls "", autoplay "")
+              ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_PAUSE_TO_NEXT.wav", type "audio/mp3");
+             ==
           ;form(method "post")
             ;input(type "submit", name "nav", value "enter");
           ==
@@ -106,6 +136,18 @@
                   ;circle(cx "50", cy "50", r "3em");
                 ==
                 ;strong#focus.time.brothers: focus
+              ==
+            ==
+          ?:  =(display %next)
+            ;div.clock
+              ;div.face.brothers
+                ;form.brothers(method "post")
+                  ;input.to-form(type "submit", name "nav", value "form");
+                ==
+                ;svg.brothers(viewbox "0 0 100 100")
+                  ;circle#wipe(cx "50", cy "50", r "3em");
+                ==
+                ;strong.time.brothers: {<mode>}
               ==
             ==
           ?:  =(display %clock)
@@ -159,8 +201,8 @@
                 ;input#help(type "submit", name "nav", value "?");
               ==
               ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
-              ;audio.hide(controls "", autoplay "")
-                ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
+              ;audio.hide(controls "")
+                ;source(src "", type "audio/mp3");
               ==
             ==
           ?:  =(display %help)
@@ -187,9 +229,6 @@
               ;input#button(type "submit", name "pause", value "||");
             ==
             ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
-          ;audio(controls "", autoplay "")
-            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
-          ==
           ==
         ==
       ==
@@ -253,6 +292,8 @@
       visibility: hidden;
     }
     """
+  ::  mod-style helper arms
+  ::
   ++  seconds
     ?:  =(prev-cmd %fresh)
       0
@@ -282,7 +323,7 @@
     }
     #enter {
       opacity: 0%;
-      transition: ease-in-out 3s;
+      transition: ease-in-out 2.5s;
     }
     .face {
       display: grid;

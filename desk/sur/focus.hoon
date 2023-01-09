@@ -12,7 +12,7 @@
 ::
 +$  then  [@da @da]
 ::
-+$  display  ?(%form %help %clock %enter)
++$  display  ?(%form %help %clock %next %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  begin  ?
@@ -38,5 +38,5 @@
   ==
 ::  state for rudder, a copy of +.state-0
 ::
-+$  tack  [groove=gruv then state-p]
++$  tack  [groove=gruv =reps then state-p]
 --

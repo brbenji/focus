@@ -11,7 +11,7 @@
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
-+$  state-0  [%0 groove=gruv =then =state-p]
++$  state-0  [%0 groove=gruv =reps =then =state-p]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -26,7 +26,7 @@
 ::
 ++  on-init
   ^-  (quip card _this)
-  :_  this(state [%0 [~m5 9 1 ~s30 8] [now.bowl now.bowl] [%enter %focus %fresh |]])
+  :_  this(state [%0 [~m5 9 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus %fresh |]])
   ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])]
 ::
 ++  on-save  !>(state)
@@ -53,12 +53,40 @@
       ~&  'oops all begins'
       `this(prev-cmd.state-p %cont)
         %maneuver
+      ?:  =(mode.state-p %focus)
+        ~&  'focus mode'
+        =/  focus  focus.groove
+        =/  wrap  wrap.groove
+        =/  setfocus  (add now.bowl focus)
+        =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
+        :-
+        :~  (~(wait pass:io /focus) setfocus)
+            (~(wait pass:io /wrap) setwrap)
+        ==
+        %=  this
+          reps.groove  (dec reps.groove)
+          then  [setfocus setwrap]
+          mode.state-p  %focus
+          display.state-p  %next
+        ==
+      ?:  =(mode %rest)
+        ~&  'rest mode'
+        =/  rest  rest.groove
+        =/  wrep  wrep.groove
+        =/  setrest  (add now.bowl rest)
+        =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
+        :_  this(then [setrest setwrep], mode.state-p %rest, display.state-p %next)
+        :~  (~(wait pass:io /rest) setrest)
+            (~(wait pass:io /wrap) setwrep)
+        ==
       ?.  begin.command
         ~&  'begin aint true'
         `this(display.state-p display.command)
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
-      =/  ease  (add now.bowl ~s4)
+      ::  XX: integrate an actual ease in later
+      ::
+      =/  ease  (add now.bowl ~s0)
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
         groove.state  gruv.command
@@ -80,10 +108,20 @@
         reps.groove  (dec reps.groove)
         then  [setfocus setwrap]
         mode.state-p  %focus
+        display.state-p  %next
       ==
         %rest
-      ~&  'focus mode'
-      `this
+      ::  rest mode
+      ::
+      ~&  'rest mode'
+      =/  rest  rest.groove
+      =/  wrep  wrep.groove
+      =/  setrest  (add now.bowl rest)
+      =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
+      :_  this(then [setrest setwrep], mode.state-p %rest, display.state-p %next)
+      :~  (~(wait pass:io /rest) setrest)
+          (~(wait pass:io /wrap) setwrep)
+      ==
     ==
     ::
       %handle-http-request
@@ -108,7 +146,7 @@
           [brief:rudder (list card) _+.state]
       =^  caz  this
         (on-poke %focus-command !>(cmd))
-      ['Processed succesfully.' caz +.state]
+      [~ caz +.state]
     ==
   ==
 ::
@@ -120,42 +158,63 @@
     ?>  ?=([%behn %wake *] sign)
     ?:  =(reps.groove 0)
       ~&  'doneskis!'
-      ::  XX: what display, mode, prev-cmd should be set after
-      ::  doneskis!?
+      ::  XX: what display, mode, prev-cmd should be set after doneskis!?
       ::
       ::  `this(mode %fin)
       `this
     ::  rest mode
+    ::  http post body says 'stern='
     ::
     ~&  "{<mode.state-p>} mode"
-    =/  rest  rest.groove
-    =/  wrep  wrep.groove
-    =/  setrest  (add now.bowl rest)
-    =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-    :_  this(then [setrest setwrep], mode.state-p %rest)
-    :~  (~(wait pass:io /rest) setrest)
-        (~(wait pass:io /wrap) setwrep)
-    ==
-    ::
-      %rest
-    ?>  ?=([%behn %wake *] sign)
-    ::  focus mode
-    ::
-    ~&  "{<mode.state-p>} mode"
-    =/  dumby-post  ~
-    =/  vase-copy  [id=~.~.eyre_local authenticated=%.y secure=%.n address=[%ipv4 .127.0.0.1] request=[method=%'POST' url='/focus?rmsg=Processed%20succesfully.' header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='referer' value='http://localhost/focus?rmsg=Processed%20succesfully.'] [key='connection' value='keep-alive'] [key='cookie' value='urbauth-~zod=0v7.ptntr.plr05.mr750.hc4cd.vtjlf'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']] body=[~ [p=60 q=67.544.574.948.467]]]]
-    =/  vasey  !>(vase-copy)
-    =/  request
-      :^  %'GET'
-          url='/focus'
-          header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='referer' value='http://localhost/focus?rmsg=Processed%20succesfully.'] [key='connection' value='keep-alive'] [key='cookie' value='urbauth-~zod=0v7.ptntr.plr05.mr750.hc4cd.vtjlf'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']]
-          body=~
+    =/  stern  `@`'stern='
+    =/  local-post
+      :*  id=~.~.eyre_local
+          authenticated=%.y
+          secure=%.n
+          address=[%ipv4 .127.0.0.1]
+          [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
+      ==
+    =/  vasey  !>(local-post)
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vasey) +.state]
     %:  (steer:rudder _+.state command)
       pages
-      (point:rudder /[dap.bowl] & ~(key by pages))
+      (point:rudder /[dap.bowl] | ~(key by pages))
+      (fours:rudder +.state)
+      |=  cmd=command
+      ~&  'here I am in the on-arvo +solve! dont step on me! Im back from pages!'
+      ^-  $@  brief:rudder
+          [brief:rudder (list card) _+.state]
+      =^  caz  this
+        (on-poke %focus-command !>(cmd))
+      ['Processed from on-arvo succesfully.' caz +.state]
+    ==
+    ::  ease from on-poke leads into here
+    ::  confusingly on the /rest wire
+    ::
+    ::
+      %rest
+    ?>  ?=([%behn %wake *] sign)
+    ::  focus mode begins
+    ::  http post body says 'stern=focus'
+    ::
+    ~&  "{<mode.state-p>} mode"
+    =/  stern  `@`'stern=focus'
+    =/  local-post
+      :*  id=~.~.eyre_local
+          authenticated=%.y
+          secure=%.n
+          address=[%ipv4 .127.0.0.1]
+          [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
+      ==
+    =/  vasey  !>(local-post)
+    =;  out=(quip card _+.state)
+      [-.out this(+.state +.out)]
+    %.  [bowl !<(order:rudder vasey) +.state]
+    %:  (steer:rudder _+.state command)
+      pages
+      (point:rudder /[dap.bowl] | ~(key by pages))
       (fours:rudder +.state)
       |=  cmd=command
       ~&  'here I am in the on-arvo +solve! dont step on me! Im back from pages!'
@@ -172,8 +231,8 @@
     `this
     ::
       %connect
-    ?>  ?=([%behn %wake *] sign)
-    ~&  'did we stop our install eyre response problem?'
+    ~&  'eyre connect'
+    ~&  ~(key by pages)
     `this
   ==
 ++  on-watch
