@@ -217,16 +217,13 @@
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
 --
-|_  [bowl=bowl:gall dek=(list card)]
-+*  dat  .
-++  emit  |=(=card dat(dek [card dek]))
-++  emil  |=(lac=(list card) dat(dek (welp lac dek)))
-++  abet
-  ^-  (quip card _state)
-  [(flop dek) state]
+|_  bowl=bowl:gall
+::  what does refresh produce? (quip card _this)?
+::  what should go into refresh if it was a gate?
+::    a breif or [brief cards this]
 ::
 ++  refresh
-    |=  =vase
+    |=  refresh=~
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vasey) +.state]
@@ -234,12 +231,15 @@
       pages
       (point:rudder /[dap.bowl] | ~(key by pages))
       (fours:rudder +.state)
+      ::  if http is a post and +argue finds a commands in the body
+      ::
       |=  cmd=command
       ^-  $@  brief:rudder
           [brief:rudder (list card) _+.state]
-      =^  caz  this
-        (on-poke %focus-command !>(cmd))
-      [~ caz +.state]
+      refresh
+      ::  =^  caz  this
+      ::    (on-poke %focus-command !>(cmd))
+      ::  [~ caz +.state]
     ==
 --
 ::  note of hack
