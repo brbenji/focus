@@ -19,10 +19,13 @@
 %-  agent:dbug
 %+  verb  |
 ^-  agent:gall
+::
+=<
 |_  bowl=bowl:gall
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
     io    ~(. agentio bowl)
+    eng   ~(. +> [bowl ~])
 ::
 ++  on-init
   ^-  (quip card _this)
@@ -69,6 +72,7 @@
         prev-cmd.state-p  %begin
         then  [ease ease]
         display.state-p  display.command
+        reps  reps.gruv.command
       ==
         %focus
       ~&  'focus mode'
@@ -100,23 +104,25 @@
     ==
     ::
       %handle-http-request
-    =;  out=(quip card _+.state)
-      [-.out this(+.state +.out)]
-    %.  [bowl !<(order:rudder vase) +.state]
-    %:  (steer:rudder _+.state command)
-      pages
-      ::  it's public now!
-      ::    XX:figure out how to make it %enter at every load.
-      ::
-      (point:rudder /[dap.bowl] | ~(key by pages))
-      (fours:rudder +.state)
-      |=  cmd=command
-      ^-  $@  brief:rudder
-          [brief:rudder (list card) _+.state]
-      =^  caz  this
-        (on-poke %focus-command !>(cmd))
-      [~ caz +.state]
-    ==
+    =^  cards  state
+      abet:(refresh:eng vase)
+    [cards this]
+    ::  =;  out=(quip card _+.state)
+    ::    [-.out this(+.state +.out)]
+    ::  %.  [bowl !<(order:rudder vase) +.state]
+    ::  %:  (steer:rudder _+.state command)
+    ::    pages
+    ::    ::  it's public now!
+    ::    ::    XX:figure out how to make it %enter at every load.
+    ::    ::
+    ::    (point:rudder /[dap.bowl] | ~(key by pages))
+    ::    (fours:rudder +.state)
+    ::    |=  cmd=command
+    ::    ^-  $@  brief:rudder
+    ::        [brief:rudder (list card) _+.state]
+    ::    =^  caz  this
+    ::      (on-poke %focus-command !>(cmd))
+    ::    [~ caz +.state]
   ==
 ::
 ++  on-arvo
@@ -130,7 +136,7 @@
       ~&  'doneskis!'
       ::  XX: what display, mode, prev-cmd should be set after doneskis!?
       ::
-      `this
+      `this(display.state-p %enter)
     ::  start up rest mode
     ::
     =/  stern  `@`'stern='
@@ -210,6 +216,31 @@
 ++  on-peek   on-peek:def
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
+--
+|_  [bowl=bowl:gall dek=(list card)]
++*  dat  .
+++  emit  |=(=card dat(dek [card dek]))
+++  emil  |=(lac=(list card) dat(dek (welp lac dek)))
+++  abet
+  ^-  (quip card _state)
+  [(flop dek) state]
+::
+++  refresh
+    |=  =vase
+    =;  out=(quip card _+.state)
+      [-.out this(+.state +.out)]
+    %.  [bowl !<(order:rudder vasey) +.state]
+    %:  (steer:rudder _+.state command)
+      pages
+      (point:rudder /[dap.bowl] | ~(key by pages))
+      (fours:rudder +.state)
+      |=  cmd=command
+      ^-  $@  brief:rudder
+          [brief:rudder (list card) _+.state]
+      =^  caz  this
+        (on-poke %focus-command !>(cmd))
+      [~ caz +.state]
+    ==
 --
 ::  note of hack
 ::    local-post in on-arvo would be better as an arm somewhere. a

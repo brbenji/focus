@@ -75,6 +75,11 @@
   ~
 ::
 ++  build
+  ~&  'easy my lord. building...'
+  ~&  'things I want to know'
+  ~&  "reps be {<reps>}"
+  ~&  "mode be {<mode>}"
+  ~&  "display be {<display>}"
   |=  $:  arg=(list [k=@t v=@t])
           msg=(unit [o=? =@t])
       ==
@@ -83,130 +88,129 @@
   ++  page
     ^-  manx
     ;hmtl
-      ;head
-        ;title:"%focus"
-        ;meta(charset "utf-8");
-        ;meta(name "viewport", content "width=device-width, initial-scale=1");
-        ;style:"{(weld (trip style) mod-style)}"
-        ;script:"{script}"
-      ==
-      ;body
-        ;div#wrapper
+    ;head
+      ;title:"%focus"
+      ;meta(charset "utf-8");
+      ;meta(name "viewport", content "width=device-width, initial-scale=1");
+      ;style:"{(weld (trip style) mod-style)}"
+      ;script:"{script}"
+    ==
+    ;body
+    ;+
+    ?:  =(display %clock)
+      ;div#wrapper
+        ;audio.hide(controls "", autoplay "")
           ;+
-          ?:  =(display %form)
-            ;audio.hide(controls "", autoplay "")
-              ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
-             ==
-          ?:  =(display %clock)
+          ?:  &(=(mode %focus) (gte reps 2))
+            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP2.wav", type "audio/mp3");
+          ?:  =(mode %rest)
+            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP.wav", type "audio/mp3");
+          ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
+        ==
+        ;div.clock
+          ;div.face.brothers
+            ;form.brothers(method "post")
+              ;input.to-form(type "submit", name "nav", value "form");
+            ==
+            ;svg.brothers(viewbox "0 0 100 100")
+              ;circle#wipe(cx "50", cy "50", r "3em");
+            ==
+            ;+
             ?:  &(=(mode %focus) (gte reps 2))
-              ;audio.hide(controls "", autoplay "")
-                ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP2.wav", type "audio/mp3");
-               ==
+              ;strong.time.brothers: {<focus.groove>}
             ?:  =(mode %rest)
-              ;audio.hide(controls "", autoplay "")
-                ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP.wav", type "audio/mp3");
-               ==
-            ;audio.hide(controls "", autoplay "")
-              ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
-             ==
-          ?:  =(display %help)
-            ;audio.hide(controls "", autoplay "")
-              ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_PAUSE_TO_NEXT.wav", type "audio/mp3");
-             ==
-          ;div;
-          ;+
-          ?:  =(display %enter)
-            ;div#enter.clock
-              ;form.brothers(method "post")
-                ;input.to-form(type "submit", name "nav", value "form", autofocus "");
-              ==
-              ;div.face.brothers
-                ;svg.brothers(viewbox "0 0 100 100")
-                  ;circle(cx "50", cy "50", r "3em");
-                ==
-                ;strong#focus.time.brothers: focus
-              ==
-            ==
-          ?:  =(display %clock)
-            ;div.clock
-              ;div.face.brothers
-                ;form.brothers(method "post")
-                  ;input.to-form(type "submit", name "nav", value "form");
-                ==
-                ;svg.brothers(viewbox "0 0 100 100")
-                  ;circle#wipe(cx "50", cy "50", r "3em");
-                ==
-                ;strong.time.brothers: {<focus.groove>}
-              ==
-            ==
-          ?:  =(display %form)
-            ;div#form-display.clock
-              ;form.set(method "post")
-                ;strong.label: focus
-                ;input(type "number", name "h", placeholder "h", min "0");
-                ;input(type "number", name "m", placeholder "m", min "0");
-                ;input(type "number", name "s", placeholder "s", min "0");
-                ;input.range.transparent(type "range", name "wrap", min "5", max "9", value "9");
-                ;strong.label: rest
-                ;input(type "number", name "rh", placeholder "h", min "0");
-                ;input(type "number", name "rm", placeholder "m", min "0");
-                ;input(type "number", name "rs", placeholder "s", min "0");
-                ;input.range(type "hidden", name "wrep", min "5", max "9", value "9");
-                ;input(type "hidden", name "nav", value "clock");
-                ;input#reps(type "number", name "reps", placeholder "x1", min "1");
-                ;input#begin(type "submit", name "begin", value ">");
-              ==
-            ==
-          ?:  =(display %help)
-              ;div.clock
-                ;strong: an interval timer
-                ;br;
-                ;p: focus - ease into a time for flow
-                ;p: rest - relax a moment
-                ;p: reps - run multiple sessions of focus
-              ==
-          ;p: oh-no! this is empty!;
-          ;+
-          ?:  =(display %enter)
-            ;div.footer;
-          ?:  =(display %form)
-            ;div.footer
-              ;form#form-hack.pause(method "post")
-                ;input#help(type "submit", name "nav", value "?");
-              ==
-              ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
-              ;audio.hide(controls "")
-                ;source(src "", type "audio/mp3");
-              ==
-            ==
-          ?:  =(display %help)
-            ;div.footer
-              ;form.pause(method "post")
-              ;input#help(type "submit", name "nav", value "X");
-              ;+
-              ?:  =(prev-cmd %pause)
-                ;input#button.transparent(type "submit", name "cont", value "|>");
-              ?:  =(prev-cmd %cont)
-                ;input#button.transparent(type "submit", name "pause", value "||");
-              ;input#button.transparent(type "submit", name "pause", value "||");
-            ==
-            ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+              ;strong.time.brothers: {<focus.groove>}
+            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
           ==
-          ;div.footer
-            ;form.pause.hide(method "post")
-              ;input#help.transparent(type "submit", name "nav", value "?");
-              ;+
-              ?:  =(prev-cmd %pause)
-                ;input#button(type "submit", name "cont", value "|>");
-              ?:  =(prev-cmd %cont)
-                ;input#button(type "submit", name "pause", value "||");
+        ==
+        ;div.footer
+          ;form.pause.hide(method "post")
+            ;input#help.transparent(type "submit", name "nav", value "?");
+            ;+
+            ?:  =(prev-cmd %pause)
+              ;input#button(type "submit", name "cont", value "|>");
+            ?:  =(prev-cmd %cont)
               ;input#button(type "submit", name "pause", value "||");
-            ==
-            ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+            ;input#button(type "submit", name "pause", value "||");
+          ==
+          ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+        ==
+      ==
+    ?:  =(display %form)
+      ;div#wrapper
+        ;audio.hide(controls "", autoplay "")
+          ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
+        ==
+        ;div#form-display.clock
+          ;form.set(method "post")
+            ;strong.label: focus
+            ;input(type "number", name "h", placeholder "h", min "0");
+            ;input(type "number", name "m", placeholder "m", min "0");
+            ;input(type "number", name "s", placeholder "s", min "0");
+            ;input.range.transparent(type "range", name "wrap", min "5", max "9", value "9");
+            ;strong.label: rest
+            ;input(type "number", name "rh", placeholder "h", min "0");
+            ;input(type "number", name "rm", placeholder "m", min "0");
+            ;input(type "number", name "rs", placeholder "s", min "0");
+            ;input.range(type "hidden", name "wrep", min "5", max "9", value "9");
+            ;input(type "hidden", name "nav", value "clock");
+            ;input#reps(type "number", name "reps", placeholder "x1", min "1");
+            ;input#begin(type "submit", name "begin", value ">");
+          ==
+        ==
+        ;div.footer
+          ;form#form-hack.pause(method "post")
+            ;input#help(type "submit", name "nav", value "?");
+          ==
+          ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+          ;audio.hide(controls "")
+            ;source(src "", type "audio/mp3");
           ==
         ==
       ==
+    ?:  =(display %help)
+      ;div#wrapper
+        ;audio.hide(controls "", autoplay "")
+          ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_PAUSE_TO_NEXT.wav", type "audio/mp3");
+         ==
+        ;div.clock
+          ;strong: an interval timer
+          ;br;
+          ;p: focus - ease into a time for flow
+          ;p: rest - relax a moment
+          ;p: reps - run multiple sessions of focus
+        ==
+        ;div.footer
+          ;form.pause(method "post")
+            ;input#help(type "submit", name "nav", value "X");
+            ;+
+            ?:  =(prev-cmd %pause)
+              ;input#button.transparent(type "submit", name "cont", value "|>");
+            ?:  =(prev-cmd %cont)
+              ;input#button.transparent(type "submit", name "pause", value "||");
+            ;input#button.transparent(type "submit", name "pause", value "||");
+          ==
+          ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+        ==
+      ==
+    ;div#wrapper
+      ;audio.hide(controls "", autoplay "")
+        ;source(src "", type "audio/mp3");
+      ==
+      ;div#enter.clock
+        ;form.brothers(method "post")
+          ;input.to-form(type "submit", name "nav", value "form", autofocus "");
+        ==
+        ;div.face.brothers
+          ;svg.brothers(viewbox "0 0 100 100")
+            ;circle(cx "50", cy "50", r "3em");
+          ==
+          ;strong#focus.time.brothers: focus
+        ==
+      ==
+      ;div.footer;
     ==
+    ==  ==
   ::  this waits for the page to load before changing stroke-dashoffset
   ::    to "0", animating the wipe, timed to focus.groove
   ::
