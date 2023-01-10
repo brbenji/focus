@@ -17,10 +17,10 @@
 =|  state-0
 =*  state  -
 %-  agent:dbug
-%+  verb  |
+%+  verb  &
 ^-  agent:gall
 ::
-=<
+
 |_  bowl=bowl:gall
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
@@ -65,7 +65,7 @@
       ~&  "groove be {<gruv.command>}"
       ::  XX: integrate an actual ease in later
       ::
-      =/  ease  (add now.bowl ~s0)
+      =/  ease  (add now.bowl ~s2)
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
         groove.state  gruv.command
@@ -73,6 +73,7 @@
         then  [ease ease]
         display.state-p  display.command
         reps  reps.gruv.command
+        mode.state-p  %focus
       ==
         %focus
       ~&  'focus mode'
@@ -87,7 +88,7 @@
       %=  this
         reps.groove  (dec reps.groove)
         then  [setfocus setwrap]
-        mode.state-p  %focus
+        mode.state-p  %rest
       ==
         %rest
       ::  rest mode
@@ -97,32 +98,38 @@
       =/  wrep  wrep.groove
       =/  setrest  (add now.bowl rest)
       =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-      :_  this(then [setrest setwrep], mode.state-p %rest)
+      :_  this(then [setrest setwrep], mode.state-p %focus)
       :~  (~(wait pass:io /rest) setrest)
           (~(wait pass:io /wrap) setwrep)
       ==
+        %wrap
+      `this
+      ::
+        %done
+      ::  XX: what display, mode, prev-cmd should be set after doneskis!?
+      ::
+      `this(display.state-p %enter)
     ==
     ::
       %handle-http-request
-    =^  cards  state
-      abet:(refresh:eng vase)
-    [cards this]
-    ::  =;  out=(quip card _+.state)
-    ::    [-.out this(+.state +.out)]
-    ::  %.  [bowl !<(order:rudder vase) +.state]
-    ::  %:  (steer:rudder _+.state command)
-    ::    pages
-    ::    ::  it's public now!
-    ::    ::    XX:figure out how to make it %enter at every load.
-    ::    ::
-    ::    (point:rudder /[dap.bowl] | ~(key by pages))
-    ::    (fours:rudder +.state)
-    ::    |=  cmd=command
-    ::    ^-  $@  brief:rudder
-    ::        [brief:rudder (list card) _+.state]
-    ::    =^  caz  this
-    ::      (on-poke %focus-command !>(cmd))
-    ::    [~ caz +.state]
+    ~&  "vase be {<!<(order:rudder vase)>}"
+    =;  out=(quip card _+.state)
+      [-.out this(+.state +.out)]
+    %.  [bowl !<(order:rudder vase) +.state]
+    %:  (steer:rudder _+.state command)
+      pages
+      ::  it's public now!
+      ::    XX:figure out how to make it %enter at every load.
+      ::
+      (point:rudder /[dap.bowl] | ~(key by pages))
+      (fours:rudder +.state)
+      |=  cmd=command
+      ^-  $@  brief:rudder
+          [brief:rudder (list card) _+.state]
+      =^  caz  this
+        (on-poke %focus-command !>(cmd))
+      [~ caz +.state]
+    ==
   ==
 ::
 ++  on-arvo
@@ -134,12 +141,32 @@
     ?:  =(reps.groove 0)
       ::  no more reps means...
       ~&  'doneskis!'
-      ::  XX: what display, mode, prev-cmd should be set after doneskis!?
-      ::
-      `this(display.state-p %enter)
+      =/  stern  `@`'stern='
+      =/  local-post
+        :*  id=~.~.eyre_local
+            authenticated=%.y
+            secure=%.n
+            address=[%ipv4 .127.0.0.1]
+            [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
+        ==
+      =/  vasey  !>(local-post)
+      =;  out=(quip card _+.state)
+        [-.out this(+.state +.out)]
+      %.  [bowl !<(order:rudder vasey) +.state]
+      %:  (steer:rudder _+.state command)
+        pages
+        (point:rudder /[dap.bowl] | ~(key by pages))
+        (fours:rudder +.state)
+        |=  cmd=command
+        ^-  $@  brief:rudder
+            [brief:rudder (list card) _+.state]
+        =^  caz  this
+          (on-poke %focus-command !>(cmd))
+        [~ caz +.state]
+      ==
     ::  start up rest mode
     ::
-    =/  stern  `@`'stern='
+    =/  stern  `@`'stern=rest'
     =/  local-post
       :*  id=~.~.eyre_local
           authenticated=%.y
@@ -186,18 +213,46 @@
       pages
       (point:rudder /[dap.bowl] | ~(key by pages))
       (fours:rudder +.state)
+      ::  +argue poops out commands here
+      ::     attempted to change on-poke are to %handle-http-request
+      ::     but the types are mismatched between these casted commands
+      ::     and order:rudder.
       |=  cmd=command
       ^-  $@  brief:rudder
           [brief:rudder (list card) _+.state]
+      ~&  "argue commands tail {<+.cmd>}"
+      =/  local-get  (order:rudder [~.~eyre_local +.cmd])
       =^  caz  this
-        (on-poke %focus-command !>(cmd))
+        (on-poke %handle-http-request !>(local-get))
       [~ caz +.state]
     ==
     ::
       %wrap
     ?>  ?=([%behn %wake *] sign)
     ~&  'wrap up'
-    `this
+    =/  stern  `@`'stern=wrap'
+    =/  local-post
+      :*  id=~.~.eyre_local
+          authenticated=%.y
+          secure=%.n
+          address=[%ipv4 .127.0.0.1]
+          [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
+      ==
+    =/  vasey  !>(local-post)
+    =;  out=(quip card _+.state)
+      [-.out this(+.state +.out)]
+    %.  [bowl !<(order:rudder vasey) +.state]
+    %:  (steer:rudder _+.state command)
+      pages
+      (point:rudder /[dap.bowl] | ~(key by pages))
+      (fours:rudder +.state)
+      |=  cmd=command
+      ^-  $@  brief:rudder
+          [brief:rudder (list card) _+.state]
+      =^  caz  this
+        (on-poke %handle-http-request !>(cmd))
+      [~ caz +.state]
+    ==
     ::
       %connect
     ~&  'eyre connect'
@@ -216,31 +271,6 @@
 ++  on-peek   on-peek:def
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
---
-|_  bowl=bowl:gall
-::  what does refresh produce? (quip card _this)?
-::  what should go into refresh if it was a gate?
-::    a breif or [brief cards this]
-::
-++  refresh
-    |=  refresh=~
-    =;  out=(quip card _+.state)
-      [-.out this(+.state +.out)]
-    %.  [bowl !<(order:rudder vasey) +.state]
-    %:  (steer:rudder _+.state command)
-      pages
-      (point:rudder /[dap.bowl] | ~(key by pages))
-      (fours:rudder +.state)
-      ::  if http is a post and +argue finds a commands in the body
-      ::
-      |=  cmd=command
-      ^-  $@  brief:rudder
-          [brief:rudder (list card) _+.state]
-      refresh
-      ::  =^  caz  this
-      ::    (on-poke %focus-command !>(cmd))
-      ::  [~ caz +.state]
-    ==
 --
 ::  note of hack
 ::    local-post in on-arvo would be better as an arm somewhere. a

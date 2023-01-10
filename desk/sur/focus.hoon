@@ -2,6 +2,7 @@
 ::  +$  ease  @dr  :: def ~s4 before focus begins, a delay on begin
 ::  +$  name  @t
 ::
+/+  rudder
 |%
 +$  focus  @dr
 +$  wrap  @ud  :: signal before time ends
@@ -28,8 +29,10 @@
   $%  [%maneuver =gruv =display =begin]
       [%pause ?]
       [%cont ?]
-      [%focus =gruv]
-      [%rest =gruv]
+      [%focus get=inbound-request:eyre]
+      [%rest inbound-request:eyre]
+      [%wrap inbound-request:eyre]
+      [%done inbound-request:eyre]
   ==
 ::
 +$  update

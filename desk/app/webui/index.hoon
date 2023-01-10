@@ -45,6 +45,8 @@
         '.s'
         ?~(rs=(~(got by args) 'rs') '0' rs)
     ==
+    ::  also calc wrap to focus time diff
+    ::    and grab pos: of strokedashoff
     ::
     =/  focus  `@dr`(slav %dr (crip f-time))
     =/  wrap  `@ud`(slav %ud (~(got by args) 'wrap'))
@@ -69,17 +71,25 @@
   ::    and this feels like using a back door.
   ::
   ?:  (~(has by args) 'stern')
+    =/  local-get
+      :*  authenticated=%.y
+          secure=%.n
+          address=[%ipv4 .127.0.0.1]
+          [method=%'GET' url='/focus' ~ body=[~]]
+      ==
     ?:  =((~(got by args) 'stern') 'focus')
-      [%focus groove]
-    [%rest groove]
+      ::  insert a local-http request here
+      ::
+      [%focus local-get]
+    ?:  =((~(got by args) 'stern') 'wrap')
+      [%wrap local-get]
+    ?:  =((~(got by args) 'stern') 'rest')
+      [%rest local-get]
+    [%done local-get]
   ~
 ::
 ++  build
-  ~&  'easy my lord. building...'
-  ~&  'things I want to know'
-  ~&  "reps be {<reps>}"
-  ~&  "mode be {<mode>}"
-  ~&  "display be {<display>}"
+  ~&  "refresh display {<display>} mode {<mode>}"
   |=  $:  arg=(list [k=@t v=@t])
           msg=(unit [o=? =@t])
       ==
@@ -116,11 +126,9 @@
               ;circle#wipe(cx "50", cy "50", r "3em");
             ==
             ;+
-            ?:  &(=(mode %focus) (gte reps 2))
-              ;strong.time.brothers: {<focus.groove>}
             ?:  =(mode %rest)
-              ;strong.time.brothers: {<focus.groove>}
-            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
+              ;strong.time.brothers: {<rest.groove>}
+            ;strong.time.brothers: {<focus.groove>}
           ==
         ==
         ;div.footer
