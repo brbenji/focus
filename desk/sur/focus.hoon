@@ -29,10 +29,6 @@
   $%  [%maneuver =gruv =display =begin]
       [%pause ?]
       [%cont ?]
-      [%focus get=order:rudder]
-      [%rest order:rudder]
-      [%wrap order:rudder]
-      [%done order:rudder]
   ==
 ::
 +$  update

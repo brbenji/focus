@@ -17,15 +17,13 @@
 =|  state-0
 =*  state  -
 %-  agent:dbug
-%+  verb  &
+%+  verb  |
 ^-  agent:gall
 ::
-
 |_  bowl=bowl:gall
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
     io    ~(. agentio bowl)
-    eng   ~(. +> [bowl ~])
 ::
 ++  on-init
   ^-  (quip card _this)
@@ -64,6 +62,8 @@
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
       ::  XX: integrate an actual ease in later
+      ::    for now we'll use this hardcoded number in the pages to
+      ::    line-up timers as best as we can. look at transition.circle
       ::
       =/  ease  (add now.bowl ~s2)
       :-  ~[(~(wait pass:io /rest) ease)]
@@ -75,44 +75,9 @@
         reps  reps.gruv.command
         mode.state-p  %focus
       ==
-        %focus
-      ~&  'focus mode'
-      =/  focus  focus.groove
-      =/  wrap  wrap.groove
-      =/  setfocus  (add now.bowl focus)
-      =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
-      :-
-      :~  (~(wait pass:io /focus) setfocus)
-          (~(wait pass:io /wrap) setwrap)
-      ==
-      %=  this
-        reps.groove  (dec reps.groove)
-        then  [setfocus setwrap]
-        mode.state-p  %rest
-      ==
-        %rest
-      ::  rest mode
-      ::
-      ~&  'rest mode'
-      =/  rest  rest.groove
-      =/  wrep  wrep.groove
-      =/  setrest  (add now.bowl rest)
-      =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-      :_  this(then [setrest setwrep], mode.state-p %focus)
-      :~  (~(wait pass:io /rest) setrest)
-          (~(wait pass:io /wrap) setwrep)
-      ==
-        %wrap
-      `this
-      ::
-        %done
-      ::  XX: what display, mode, prev-cmd should be set after doneskis!?
-      ::
-      `this(display.state-p %enter)
     ==
     ::
       %handle-http-request
-    ~&  "vase be {<!<(order:rudder vase)>}"
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
@@ -141,54 +106,19 @@
     ?:  =(reps.groove 0)
       ::  no more reps means...
       ~&  'doneskis!'
-      =/  stern  `@`'stern='
-      =/  local-post
-        :*  id=~.~.eyre_local
-            authenticated=%.y
-            secure=%.n
-            address=[%ipv4 .127.0.0.1]
-            [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
-        ==
-      =/  vasey  !>(local-post)
-      =;  out=(quip card _+.state)
-        [-.out this(+.state +.out)]
-      %.  [bowl !<(order:rudder vasey) +.state]
-      %:  (steer:rudder _+.state command)
-        pages
-        (point:rudder /[dap.bowl] | ~(key by pages))
-        (fours:rudder +.state)
-        |=  cmd=command
-        ^-  $@  brief:rudder
-            [brief:rudder (list card) _+.state]
-        =^  caz  this
-          (on-poke %focus-command !>(cmd))
-        [~ caz +.state]
-      ==
+      `this(display.state-p %clock, mode.state-p %fin)
     ::  start up rest mode
     ::
-    =/  stern  `@`'stern=rest'
-    =/  local-post  [id=~.~.eyre_0v7.lv5he.ab48e.gsnjs.jrcc7.rksid authenticated=%.y secure=%.n address=[%ipv4 .127.0.0.1] request=[method=%'POST' url='/focus' header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='content-type' value='application/x-www-form-urlencoded'] [key='origin' value='http://localhost'] [key='connection' value='keep-alive'] [key='referer' value='http://localhost/focus'] [key='cookie' value='urbauth-~zod=0v4.4hr4c.o244r.ns75b.4m4su.n4h80'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']] body=[~ [p=61 q=stern]]]]
-    ::  =/  local-post
-    ::    :*  id=~.~.eyre_local
-    ::        authenticated=%.y
-    ::        secure=%.n
-    ::        address=[%ipv4 .127.0.0.1]
-    ::        [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
-    ::    ==
-    =/  vasey  !>(local-post)
-    =;  out=(quip card _+.state)
-      [-.out this(+.state +.out)]
-    %.  [bowl !<(order:rudder vasey) +.state]
-    %:  (steer:rudder _+.state command)
-      pages
-      (point:rudder /[dap.bowl] | ~(key by pages))
-      (fours:rudder +.state)
-      |=  cmd=command
-      ^-  $@  brief:rudder
-          [brief:rudder (list card) _+.state]
-      =^  caz  this
-        (on-poke %focus-command !>(cmd))
-      [~ caz +.state]
+    ::  rest mode
+    ::
+    ~&  'rest mode'
+    =/  rest  rest.groove
+    =/  wrep  wrep.groove
+    =/  setrest  (add now.bowl rest)
+    =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
+    :_  this(then [setrest setwrep], mode.state-p %focus)
+    :~  (~(wait pass:io /rest) setrest)
+        (~(wait pass:io /wrap) setwrep)
     ==
     ::  ease from on-poke leads into here
     ::  confusingly on the /rest wire
@@ -198,68 +128,25 @@
     ?>  ?=([%behn %wake *] sign)
     ::  start up focus mode
     ::
-    =/  stern  `@`'stern=focus'
-    =/  local-post  [id=~.~.eyre_0v7.lv5he.ab48e.gsnjs.jrcc7.rksid authenticated=%.y secure=%.n address=[%ipv4 .127.0.0.1] request=[method=%'POST' url='/focus' header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='content-type' value='application/x-www-form-urlencoded'] [key='origin' value='http://localhost'] [key='connection' value='keep-alive'] [key='referer' value='http://localhost/focus'] [key='cookie' value='urbauth-~zod=0v4.4hr4c.o244r.ns75b.4m4su.n4h80'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']] body=[~ [p=61 q=stern]]]]
-    ::  =/  local-post
-    ::    :*  id=~.~.eyre_local
-    ::        authenticated=%.y
-    ::        secure=%.n
-    ::        address=[%ipv4 .127.0.0.1]
-    ::        [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
-    ::    ==
-    =/  vasey  !>(local-post)
-    =;  out=(quip card _+.state)
-      [-.out this(+.state +.out)]
-    %.  [bowl !<(order:rudder vasey) +.state]
-    %:  (steer:rudder _+.state command)
-      pages
-      (point:rudder /[dap.bowl] | ~(key by pages))
-      (fours:rudder +.state)
-      ::  +argue poops out commands here
-      ::
-      ::  taking commands, converting to order:rudder then sending to
-      ::  %handle-http-request, but now they don't reach their on-poke
-      ::  branch. and I still don't see any POST or GET requests on the
-      ::  browser perhaps I need more of the inbound-request header
-      ::  info? perhaps I need to read the eyre guide again.
-      ::  perhaps I fix all the other things I do understand right now.
-      ::
-      |=  cmd=command
-      ^-  $@  brief:rudder
-          [brief:rudder (list card) _+.state]
-      ~&  "argue commands tail {<+.cmd>}"
-      =/  local-get  (order:rudder [~.~eyre_local +.cmd])
-      =^  caz  this
-        (on-poke %handle-http-request !>(local-get))
-      [~ caz +.state]
+    ~&  'focus mode'
+    =/  focus  focus.groove
+    =/  wrap  wrap.groove
+    =/  setfocus  (add now.bowl focus)
+    =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
+    :-
+    :~  (~(wait pass:io /focus) setfocus)
+        (~(wait pass:io /wrap) setwrap)
+    ==
+    %=  this
+      reps.groove  (dec reps.groove)
+      then  [setfocus setwrap]
+      mode.state-p  %rest
     ==
     ::
       %wrap
     ?>  ?=([%behn %wake *] sign)
     ~&  'wrap up'
-    =/  stern  `@`'stern=wrap'
-    =/  local-post
-      :*  id=~.~.eyre_local
-          authenticated=%.y
-          secure=%.n
-          address=[%ipv4 .127.0.0.1]
-          [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
-      ==
-    =/  vasey  !>(local-post)
-    =;  out=(quip card _+.state)
-      [-.out this(+.state +.out)]
-    %.  [bowl !<(order:rudder vasey) +.state]
-    %:  (steer:rudder _+.state command)
-      pages
-      (point:rudder /[dap.bowl] | ~(key by pages))
-      (fours:rudder +.state)
-      |=  cmd=command
-      ^-  $@  brief:rudder
-          [brief:rudder (list card) _+.state]
-      =^  caz  this
-        (on-poke %handle-http-request !>(cmd))
-      [~ caz +.state]
-    ==
+    `this
     ::
       %connect
     ~&  'eyre connect'
