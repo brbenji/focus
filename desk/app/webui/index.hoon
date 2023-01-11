@@ -111,7 +111,7 @@
           ==
         ==
         ;div.footer
-          ;form.pause.hide(method "post")
+          ;form.pause.hide(method "post", autocomplete "off")
             ;input#help.transparent(type "submit", name "nav", value "?");
             ;+
             ?:  =(prev-cmd %pause)
@@ -129,7 +129,7 @@
           ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
         ==
         ;div#form-display.clock
-          ;form.set(method "post")
+          ;form.set(method "post", autocomplete "off")
             ;strong.label: focus
             ;input(type "number", name "h", placeholder "h", min "0");
             ;input(type "number", name "m", placeholder "m", min "0");
