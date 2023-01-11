@@ -7,6 +7,15 @@ run through as many **repititions** as you wish.
 
 I built this to time out my work sessions, meditations, and exercises.
 
+> ### note to hackathon
+> at the time of deadline (before midnight jan 8) this app was incomplete, and a little disappointing. since the deadline I've worked on a separate branch > called [post-deadline](https://github.com/brbenji/focus/tree/post-deadline) and was able to craft a much more functional version.
+> 
+> this more complete version is live and public at [moon.howm.art/focus](https://moon.howm.art/focus) and the version of **%focus** being distributed by my > moon **~sogtux-bolmel-nordus-mocwyl**. 
+> 
+> I just wanted to clear and obvious about the difference between the on-time and submitted version of **%focus** versus the latest version live and > > > > distributed.
+> 
+> thank you for your time!
+
 ### screenshots
 ![urbit-timer-screenshots](https://user-images.githubusercontent.com/42229058/211255392-a66f36bd-3e17-4d0a-86d5-4f4613246a54.jpg)
 
@@ -24,6 +33,7 @@ writing *basically* in 100% hoon, is a wonderful experiece. using hoon for scrip
 most difficult challenges
 1. inserting strings into tape blocks for dynamically changing css.  
    *there could be an answer for this but I couldn't find it. instead I could only inject numbers dynamically.*
+   **answer:** manual interpolation with `{hoon}` as seen in the [strings guide on urbit.org](https://developers.urbit.org/guides/additional/strings#interpolation).
    
 2. managing state for manipulating the pages rudder facilitates.  
    *because of the rapidly growing need for state for the frontend, I ended up nesting a larger state-p into my state-0.*  
