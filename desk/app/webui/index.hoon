@@ -1,3 +1,7 @@
+::  XX: add wrap and wrep sounds and their triggers
+::      recreate the wipe animation with css @keyframes and animation
+::        property
+::
 /-  *focus
 /+  rudder
 ::
@@ -88,8 +92,6 @@
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
           ;+
-          ?:  =(display %enter)
-            ;source(src "{base-url}+SE_RC_LAP.wav", type "audio/mp3");
           ?:  &(=(mode %focus) (gte reps 2))
             ;source(src "{base-url}+SE_SYS_WIFI_MATCH_COMPLETE_rest.wav", type "audio/mp3");
           ?:  =(mode %rest)
@@ -184,7 +186,7 @@
       ==
     ;div#wrapper
       ;audio.hide(controls "", autoplay "")
-        ;source(src "", type "audio/mp3");
+        ;source(src "{base-url}+SE_RC_LAP.wav", type "audio/mp3");
       ==
       ;div#enter.clock
         ;form.brothers(method "post")
@@ -227,6 +229,36 @@
     ?:  =(display %enter)
       "enter"
     "wipe"
+  ++  seconds
+    |=  rel=@dr
+    ^-  tape
+    ::  yell produces [d= h= m= s=] from @dr
+    ::
+    =/  sec  (yell rel)
+    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    =/  delay-s  (div delay 1.000)
+    (a-co:co (add total delay-s))
+  ++  delay
+    ::  naive adjustment for delay
+    ::    in ms
+    ::
+    1.500
+  ++  total
+    ^-  tape
+    =/  combo  (add focus.groove rest.groove)
+    =/  sets  ?~(reps 1 reps)
+    =/  total  `@dr`(mul combo sets)
+    "{<total>}"
+  ++  refresh
+    ::  refresh is redundant with seconds
+    ::    but this can be deleted if we can go 0% js
+    ::
+    |=  rel=@dr
+    ^-  tape
+    =/  sec  (yell rel)
+    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    =/  ms  (mul total 1.000)
+    (a-co:co ms)
   ++  handle-refresh
     ?:  =(display %clock)
       ?:  =(mode %focus)
@@ -238,33 +270,6 @@
     ::  "86460"
     ::
     (a-co:co (mul day:yo 1.000))
-  ++  refresh
-    ::  refresh is redundant with seconds
-    ::    but this can be deleted if we can go 0% js
-    ::
-    |=  rel=@dr
-    ^-  tape
-    =/  sec  (yell rel)
-    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    =/  ms  (mul total 1.000)
-    ::  naive adjustment for delay
-    ::
-    =/  delay  800
-    (a-co:co (add ms delay))
-  ++  seconds
-    |=  rel=@dr
-    ^-  tape
-    ::  yell produces [d= h= m= s=] from @dr
-    ::
-    =/  sec  (yell rel)
-    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    (a-co:co total)
-++  total
-    ^-  tape
-    =/  combo  (add focus.groove rest.groove)
-    =/  sets  ?~(reps 1 reps)
-    =/  total  `@dr`(mul combo sets)
-    "{<total>}"
   ::  mod-style is built in a tape for code insertion
   ::
   ++  mod-style
