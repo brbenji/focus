@@ -62,10 +62,8 @@
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
       ::  XX: integrate an actual ease in later
-      ::    for now we'll use this hardcoded number in the pages to
-      ::    line-up timers as best as we can. look at transition.circle
       ::
-      =/  ease  (add now.bowl ~s2)
+      =/  ease  (add now.bowl ~s0)
       :-  ~[(~(wait pass:io /rest) ease)]
       %=  this
         groove.state  gruv.command
@@ -106,7 +104,7 @@
     ?:  =(reps.groove 0)
       ::  no more reps means...
       ~&  'doneskis!'
-      `this(display.state-p %clock, mode.state-p %fin)
+      `this(display.state-p %enter, mode.state-p %fin)
     ::  start up rest mode
     ::
     ::  rest mode
@@ -116,9 +114,13 @@
     =/  wrep  wrep.groove
     =/  setrest  (add now.bowl rest)
     =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-    :_  this(then [setrest setwrep], mode.state-p %focus)
+    :-
     :~  (~(wait pass:io /rest) setrest)
         (~(wait pass:io /wrap) setwrep)
+    ==
+    %=  this
+      then  [setrest setwrep]
+      mode.state-p  %rest
     ==
     ::  ease from on-poke leads into here
     ::  confusingly on the /rest wire
@@ -140,7 +142,7 @@
     %=  this
       reps.groove  (dec reps.groove)
       then  [setfocus setwrap]
-      mode.state-p  %rest
+      mode.state-p  %focus
     ==
     ::
       %wrap

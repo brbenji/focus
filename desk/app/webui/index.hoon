@@ -29,9 +29,7 @@
     ::
     =/  f-time  ^-  tape
     :~  '~h'
-        ::
         ?~(h=(~(got by args) 'h') '0' h)
-        ::
         '.m'
         ?~(m=(~(got by args) 'm') '0' m)
         '.s'
@@ -105,6 +103,8 @@
               ;circle#wipe(cx "50", cy "50", r "3em");
             ==
             ;+
+            ?:  =(display %fin)
+              ;strong.time.brothers: {<display>}
             ?:  =(mode %rest)
               ;strong.time.brothers: {<rest.groove>}
             ;strong.time.brothers: {<focus.groove>}
@@ -120,7 +120,7 @@
               ;input#button(type "submit", name "pause", value "||");
             ;input#button(type "submit", name "pause", value "||");
           ==
-          ;p#total: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+          ;p#total: {total}
         ==
       ==
     ?:  =(display %form)
@@ -177,7 +177,7 @@
               ;input#button.transparent(type "submit", name "pause", value "||");
             ;input#button.transparent(type "submit", name "pause", value "||");
           ==
-          ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
+          ;p#total.hide: {<total>}
         ==
       ==
     ;div#wrapper
@@ -243,7 +243,10 @@
     =/  sec  (yell rel)
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     =/  ms  (mul total 1.000)
-    (a-co:co ms)
+    ::  naive adjustment for delay
+    ::
+    =/  delay  500
+    (a-co:co (add ms delay))
   ++  seconds
     |=  rel=@dr
     ^-  tape
@@ -252,6 +255,12 @@
     =/  sec  (yell rel)
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     (a-co:co total)
+++  total
+    ^-  tape
+    =/  combo  (add focus.groove rest.groove)
+    =/  sets  ?~(reps 1 reps)
+    =/  total  `@dr`(mul combo sets)
+    "{<total>}"
   ::  mod-style is built in a tape for code insertion
   ::
   ++  mod-style
