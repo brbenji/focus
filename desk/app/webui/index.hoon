@@ -221,6 +221,10 @@
        document.getElementById({<effect>}).style.opacity="100%";
        console.log('DOM fully loaded and parsed');
     });
+    setTimeout(() => \{
+      document.location.reload();
+      console.log('re-re-refresh!');
+    }, {handle-refresh});
     """
   ++  effect
     ::  another hacky moment
@@ -228,6 +232,35 @@
     ?:  =(display %enter)
       "enter"
     "wipe"
+  ++  handle-refresh
+    ?:  =(display %clock)
+      ?:  =(mode %focus)
+        (refresh focus.groove)
+      ?:  =(mode %rest)
+        (refresh rest.groove)
+      (a-co:co day:yo)
+    ::  sounds like poetry but it's just a day in seconds in a tape
+    ::  "86460"
+    ::
+    (a-co:co day:yo)
+  ++  refresh
+    ::  refresh is redundant with seconds
+    ::    but this can be deleted if we can go 0% js
+    ::
+    |=  rel=@dr
+    ^-  tape
+    =/  sec  (yell rel)
+    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    =/  ms  (mul total 1.000)
+    (a-co:co ms)
+  ++  seconds
+    |=  rel=@dr
+    ^-  tape
+    ::  yell produces [d= h= m= s=] from @dr
+    ::
+    =/  sec  (yell rel)
+    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    (a-co:co total)
   ::  mod-style is built in a tape for code insertion
   ::
   ++  mod-style
@@ -263,7 +296,7 @@
       stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
       stroke-dashoffset: {<dashoffset>}; /* initial setting */
       filter: blur(.04em);
-      transition: all {<seconds>}s;
+      transition: all {?:(=(mode %rest) (seconds rest.groove) (seconds focus.groove))}s;
     }
     .hide \{
       visibility: hidden;
@@ -271,16 +304,6 @@
     """
   ::  mod-style helper arms
   ::
-  ++  seconds
-    ?:  =(prev-cmd %fresh)
-      0
-    ?:  =(mode %focus)
-      =/  sec  (yell focus.groove)
-      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    ?:  =(mode %rest)
-      =/  sec  (yell rest.groove)
-      (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    0
   ++  dashoffset
     ?:  =(display %enter)
       201
