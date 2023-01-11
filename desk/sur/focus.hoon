@@ -29,10 +29,10 @@
   $%  [%maneuver =gruv =display =begin]
       [%pause ?]
       [%cont ?]
-      [%focus get=inbound-request:eyre]
-      [%rest inbound-request:eyre]
-      [%wrap inbound-request:eyre]
-      [%done inbound-request:eyre]
+      [%focus get=order:rudder]
+      [%rest order:rudder]
+      [%wrap order:rudder]
+      [%done order:rudder]
   ==
 ::
 +$  update

@@ -71,12 +71,13 @@
   ::    and this feels like using a back door.
   ::
   ?:  (~(has by args) 'stern')
-    =/  local-get
-      :*  authenticated=%.y
-          secure=%.n
-          address=[%ipv4 .127.0.0.1]
-          [method=%'GET' url='/focus' ~ body=[~]]
-      ==
+    =/  local-get  [id=~.~.eyre_0v3.nukv0.smtl3.rpkoe.s26qn.muvfk authenticated=%.y secure=%.n address=[%ipv4 .127.0.0.1] request=[method=%'GET' url='/focus' header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='referer' value='http://localhost/focus'] [key='connection' value='keep-alive'] [key='cookie' value='urbauth-~zod=0v4.4hr4c.o244r.ns75b.4m4su.n4h80'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']] body=~]]
+    ::  =/  local-get
+    ::    :*  authenticated=%.y
+    ::        secure=%.n
+    ::        address=[%ipv4 .127.0.0.1]
+    ::        [method=%'GET' url='/focus' ~ body=[~]]
+    ::    ==
     ?:  =((~(got by args) 'stern') 'focus')
       ::  insert a local-http request here
       ::

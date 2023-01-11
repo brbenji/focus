@@ -167,13 +167,14 @@
     ::  start up rest mode
     ::
     =/  stern  `@`'stern=rest'
-    =/  local-post
-      :*  id=~.~.eyre_local
-          authenticated=%.y
-          secure=%.n
-          address=[%ipv4 .127.0.0.1]
-          [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
-      ==
+    =/  local-post  [id=~.~.eyre_0v7.lv5he.ab48e.gsnjs.jrcc7.rksid authenticated=%.y secure=%.n address=[%ipv4 .127.0.0.1] request=[method=%'POST' url='/focus' header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='content-type' value='application/x-www-form-urlencoded'] [key='origin' value='http://localhost'] [key='connection' value='keep-alive'] [key='referer' value='http://localhost/focus'] [key='cookie' value='urbauth-~zod=0v4.4hr4c.o244r.ns75b.4m4su.n4h80'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']] body=[~ [p=61 q=stern]]]]
+    ::  =/  local-post
+    ::    :*  id=~.~.eyre_local
+    ::        authenticated=%.y
+    ::        secure=%.n
+    ::        address=[%ipv4 .127.0.0.1]
+    ::        [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
+    ::    ==
     =/  vasey  !>(local-post)
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
@@ -198,13 +199,14 @@
     ::  start up focus mode
     ::
     =/  stern  `@`'stern=focus'
-    =/  local-post
-      :*  id=~.~.eyre_local
-          authenticated=%.y
-          secure=%.n
-          address=[%ipv4 .127.0.0.1]
-          [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
-      ==
+    =/  local-post  [id=~.~.eyre_0v7.lv5he.ab48e.gsnjs.jrcc7.rksid authenticated=%.y secure=%.n address=[%ipv4 .127.0.0.1] request=[method=%'POST' url='/focus' header-list=~[[key='host' value='localhost'] [key='user-agent' value='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0'] [key='accept' value='text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'] [key='accept-language' value='en-US,en;q=0.5'] [key='accept-encoding' value='gzip, deflate, br'] [key='content-type' value='application/x-www-form-urlencoded'] [key='origin' value='http://localhost'] [key='connection' value='keep-alive'] [key='referer' value='http://localhost/focus'] [key='cookie' value='urbauth-~zod=0v4.4hr4c.o244r.ns75b.4m4su.n4h80'] [key='upgrade-insecure-requests' value='1'] [key='sec-fetch-dest' value='document'] [key='sec-fetch-mode' value='navigate'] [key='sec-fetch-site' value='same-origin'] [key='sec-fetch-user' value='?1']] body=[~ [p=61 q=stern]]]]
+    ::  =/  local-post
+    ::    :*  id=~.~.eyre_local
+    ::        authenticated=%.y
+    ::        secure=%.n
+    ::        address=[%ipv4 .127.0.0.1]
+    ::        [method=%'POST' url='/focus' ~ body=[~ [p=60 q=stern]]]
+    ::    ==
     =/  vasey  !>(local-post)
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
@@ -214,9 +216,14 @@
       (point:rudder /[dap.bowl] | ~(key by pages))
       (fours:rudder +.state)
       ::  +argue poops out commands here
-      ::     attempted to change on-poke are to %handle-http-request
-      ::     but the types are mismatched between these casted commands
-      ::     and order:rudder.
+      ::
+      ::  taking commands, converting to order:rudder then sending to
+      ::  %handle-http-request, but now they don't reach their on-poke
+      ::  branch. and I still don't see any POST or GET requests on the
+      ::  browser perhaps I need more of the inbound-request header
+      ::  info? perhaps I need to read the eyre guide again.
+      ::  perhaps I fix all the other things I do understand right now.
+      ::
       |=  cmd=command
       ^-  $@  brief:rudder
           [brief:rudder (list card) _+.state]
