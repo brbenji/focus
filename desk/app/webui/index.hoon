@@ -88,11 +88,13 @@
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
           ;+
+          ?:  =(display %enter)
+            ;source(src "{base-url}+SE_RC_LAP.wav", type "audio/mp3");
           ?:  &(=(mode %focus) (gte reps 2))
-            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP2.wav", type "audio/mp3");
+            ;source(src "{base-url}+SE_SYS_WIFI_MATCH_COMPLETE_rest.wav", type "audio/mp3");
           ?:  =(mode %rest)
-            ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_LAP.wav", type "audio/mp3");
-          ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
+            ;source(src "{base-url}+SE_SYS_WIFI_FRIEND_START_focus.wav", type "audio/mp3");
+          ;source(src "{base-url}+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
         ==
         ;div.clock
           ;div.face.brothers
@@ -126,7 +128,7 @@
     ?:  =(display %form)
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
-          ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_SYS_RACE_OK.wav", type "audio/mp3");
+          ;source(src "{base-url}+SE_SYS_RACE_OK.wav", type "audio/mp3");
         ==
         ;div#form-display.clock
           ;form.set(method "post", autocomplete "off")
@@ -158,7 +160,7 @@
     ?:  =(display %help)
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
-          ;source(src "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/+SE_RC_PAUSE_TO_NEXT.wav", type "audio/mp3");
+          ;source(src "{base-url}+SE_RC_PAUSE_TO_NEXT.wav", type "audio/mp3");
          ==
         ;div.clock
           ;strong: an interval timer
@@ -198,6 +200,8 @@
       ;div.footer;
     ==
     ==  ==
+  ++  base-url
+      "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/"
   ::  this waits for the page to load before changing stroke-dashoffset
   ::    to "0", animating the wipe, timed to focus.groove
   ::
@@ -229,11 +233,11 @@
         (refresh focus.groove)
       ?:  =(mode %rest)
         (refresh rest.groove)
-      (a-co:co day:yo)
+      (a-co:co (mul day:yo 1.000))
     ::  sounds like poetry but it's just a day in seconds in a tape
     ::  "86460"
     ::
-    (a-co:co day:yo)
+    (a-co:co (mul day:yo 1.000))
   ++  refresh
     ::  refresh is redundant with seconds
     ::    but this can be deleted if we can go 0% js
@@ -245,7 +249,7 @@
     =/  ms  (mul total 1.000)
     ::  naive adjustment for delay
     ::
-    =/  delay  500
+    =/  delay  800
     (a-co:co (add ms delay))
   ++  seconds
     |=  rel=@dr
