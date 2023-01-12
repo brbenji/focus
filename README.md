@@ -6,13 +6,13 @@ receive a "**wrap** up" call for each period.
 run through as many **repititions** as you wish.
 
 I built this to time out my work sessions, meditations, and exercises.
-
+ q234
 > ### note to hackathon
-> at the time of deadline (before midnight jan 8) this app was incomplete, and a little disappointing. since the deadline I've worked on a separate branch > called [post-deadline](https://github.com/brbenji/focus/tree/post-deadline) and was able to craft a much more functional version.
+> at the time of deadline, midnight jan 8, this app was incomplete and a little disappointing. since the deadline I've worked on a separate branch  called [post-deadline](https://github.com/brbenji/focus/tree/post-deadline) and was able to craft a much more functional version.
 > 
-> this more complete version is live and public at [moon.howm.art/focus](https://moon.howm.art/focus) and the version of **%focus** being distributed by my > moon **~sogtux-bolmel-nordus-mocwyl**. 
+> this more complete version is live and public at [moon.howm.art/focus](https://moon.howm.art/focus) and the version of **%focus** being distributed by my  moon **~sogtux-bolmel-nordus-mocwyl**. 
 > 
-> I just wanted to clear and obvious about the difference between the on-time and submitted version of **%focus** versus the latest version live and > > > > distributed.
+> I just wanted to be clear and obvious about the difference between the on-time and submitted version of **%focus** versus the latest version live and distributed. beyond today, jan 11th, I won't reflect any new changes in the live or distributed version, until after the hackathon finale.
 > 
 > thank you for your time!
 
@@ -32,7 +32,7 @@ writing *basically* in 100% hoon, is a wonderful experiece. using hoon for scrip
 
 most difficult challenges
 1. inserting strings into tape blocks for dynamically changing css.  
-   *there could be an answer for this but I couldn't find it. instead I could only inject numbers dynamically.*
+   *there could be an answer for this but I couldn't find it. instead I could only inject numbers dynamically.*  
    **answer:** manual interpolation with `{hoon}` as seen in the [strings guide on urbit.org](https://developers.urbit.org/guides/additional/strings#interpolation).
    
 2. managing state for manipulating the pages rudder facilitates.  
