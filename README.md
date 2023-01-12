@@ -14,6 +14,8 @@ I built this to time out my work sessions, meditations, and exercises.
 > 
 > I just wanted to be clear and obvious about the difference between the on-time and submitted version of **%focus** versus the latest version live and distributed. beyond today, jan 11th, I won't reflect any new changes in the live or distributed version, until after the hackathon finale.
 > 
+> _special thanks to ~palfun-foslup and ~niblyx-malnus, both for generously answering my questions and for making rudder and sailbox, respectively._
+> 
 > thank you for your time!
 
 ### screenshots
