@@ -70,7 +70,6 @@
   ~
 ::
 ++  build
-  ~&  "refresh display {<display>} mode {<mode>}"
   |=  $:  arg=(list [k=@t v=@t])
           msg=(unit [o=? =@t])
       ==
@@ -194,7 +193,7 @@
         ==
         ;div.face.brothers
           ;svg.brothers(viewbox "0 0 100 100")
-            ;circle(cx "50", cy "50", r "3em");
+            ;circle#enter(cx "50", cy "50", r "3em");
           ==
           ;strong#focus.time.brothers: focus
         ==
@@ -218,36 +217,26 @@
   ::
   ++  script
     """
-    window.addEventListener('DOMContentLoaded', (event) => \{
-       document.getElementById({<effect>}).style.strokeDashoffset="0";
-       document.getElementById({<effect>}).style.opacity="100%";
-       console.log('DOM fully loaded and parsed');
-    });
     setTimeout(() => \{
       document.location.reload();
       console.log('re-re-refresh!');
     }, {handle-refresh});
     """
-  ++  effect
-    ::  another hacky moment
+  ++  delay
+    ::  naive adjustment for delay in ms
+    ::    we delay the vfx but not js refresh
+    ::    refresh needs to occur asap
     ::
-    ?:  =(display %enter)
-      "enter"
-    "wipe"
-  ++  seconds
+    120
+  ++  duration
     |=  rel=@dr
     ^-  tape
     ::  yell produces [d= h= m= s=] from @dr
     ::
     =/  sec  (yell rel)
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    =/  delay-s  (div delay 1.000)
-    (a-co:co (add total delay-s))
-  ++  delay
-    ::  naive adjustment for delay
-    ::    in ms
-    ::
-    1.500
+    =/  ms  (mul total 1.000)
+    (a-co:co (add ms delay))
   ++  total
     ^-  tape
     =/  sets  ?~(reps 1 reps)
@@ -256,7 +245,7 @@
     =/  total  `@dr`(add f-total r-total)
     "{<total>}"
   ++  refresh
-    ::  refresh is redundant with seconds
+    ::  refresh is redundant with duration
     ::    but this can be deleted if we can go 0% js
     ::
     |=  rel=@dr
@@ -309,9 +298,30 @@
       fill: none;
       stroke-width: 6em;
       stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
-      stroke-dashoffset: {<dashoffset>}; /* initial setting */
+      stroke-dashoffset: 201; /* initial setting */
       filter: blur(.04em);
-      transition: all {?:(=(mode %rest) (seconds rest.groove) (seconds focus.groove))}s;
+      animation: wipe {?:(=(mode %rest) (duration rest.groove) (duration focus.groove))}ms infinite linear;
+    }
+    @keyframes wipe \{
+      0% \{
+        stroke-dashoffset: 314;
+      }
+      100% \{
+        stroke-dashoffset: 0;
+      }
+    }
+    #enter \{
+      animation: enter 2.5s;
+    }
+    @keyframes enter \{
+      0% \{
+        opacity: 0;
+        stroke-dashoffset: 221;
+      }
+      100% \{
+        opacity: 1;
+        stroke-dashoffset: 201;
+      }
     }
     .hide \{
       visibility: hidden;
@@ -319,10 +329,6 @@
     """
   ::  mod-style helper arms
   ::
-  ++  dashoffset
-    ?:  =(display %enter)
-      201
-    314
   ++  style
     '''
     * {
@@ -335,10 +341,6 @@
       grid-template-rows: 6em 20em 7em auto;
       grid-gap: 1em;
       height: 100vh;
-    }
-    #enter {
-      opacity: 0%;
-      transition: ease-in-out 2.5s;
     }
     .face {
       display: grid;
@@ -444,68 +446,6 @@
     }
     .transparent {
       opacity: 0;
-    }
-
-    .circle {
-      width: 300px;
-      height: 300px;
-      border-radius: 300px;
-      background: whitesmoke;
-      border: 4px solid #666;
-      position: relative;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .circle:before {
-      content: "";
-      position: absolute;
-      top: 10px;
-      left: 146px;
-      width: 8px;
-      height: 140px;
-      border-radius: 5px;
-      background: #444;
-      transform-origin: bottom;
-      animation: time {<(add 500 100)>}s infinite linear;
-    }
-    .circle:after {
-      content: "";
-      position: absolute;
-      top: 5px;
-      left: 149px;
-      width: 2px;
-      height: 145px;
-      border-radius: 5px;
-      background: red;
-      transform-origin: bottom;
-      animation: time 60s infinite linear;
-    }
-    .center {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 20px;
-      top: 140px;
-      left: 140px;
-      background: #444;
-      z-index: 2;
-    }
-    .hours {
-      position: absolute;
-      top: 70px;
-      left: 145px;
-      width: 10px;
-      height: 80px;
-      border-radius: 5px;
-      background: #444;
-      transform-origin: bottom;
-      animation: time 216000s infinite linear;
-    }
-    @keyframes time {
-      100% {
-        transform: rotate(360deg);
-      }
     }
     '''
   --
