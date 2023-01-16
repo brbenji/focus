@@ -199,7 +199,12 @@
           ;strong#focus.time.brothers: focus
         ==
       ==
-      ;div.footer;
+      ;div.footer
+        ;div.circle
+          ;div.center;
+          ;div.hours;
+        ==
+      ==
     ==
     ==  ==
   ++  base-url
@@ -245,9 +250,10 @@
     1.500
   ++  total
     ^-  tape
-    =/  combo  (add focus.groove rest.groove)
     =/  sets  ?~(reps 1 reps)
-    =/  total  `@dr`(mul combo sets)
+    =/  f-total  (mul focus.groove sets)
+    =/  r-total  (mul rest.groove (dec sets))
+    =/  total  `@dr`(add f-total r-total)
     "{<total>}"
   ++  refresh
     ::  refresh is redundant with seconds
@@ -438,6 +444,68 @@
     }
     .transparent {
       opacity: 0;
+    }
+
+    .circle {
+      width: 300px;
+      height: 300px;
+      border-radius: 300px;
+      background: whitesmoke;
+      border: 4px solid #666;
+      position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .circle:before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 146px;
+      width: 8px;
+      height: 140px;
+      border-radius: 5px;
+      background: #444;
+      transform-origin: bottom;
+      animation: time {<(add 500 100)>}s infinite linear;
+    }
+    .circle:after {
+      content: "";
+      position: absolute;
+      top: 5px;
+      left: 149px;
+      width: 2px;
+      height: 145px;
+      border-radius: 5px;
+      background: red;
+      transform-origin: bottom;
+      animation: time 60s infinite linear;
+    }
+    .center {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 20px;
+      top: 140px;
+      left: 140px;
+      background: #444;
+      z-index: 2;
+    }
+    .hours {
+      position: absolute;
+      top: 70px;
+      left: 145px;
+      width: 10px;
+      height: 80px;
+      border-radius: 5px;
+      background: #444;
+      transform-origin: bottom;
+      animation: time 216000s infinite linear;
+    }
+    @keyframes time {
+      100% {
+        transform: rotate(360deg);
+      }
     }
     '''
   --
