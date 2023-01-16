@@ -1,6 +1,6 @@
 ::  XX: add wrap and wrep sounds and their triggers
-::      recreate the wipe animation with css @keyframes and animation
-::        property
+::      make a reps button [x2] that reveals the rest portion of the
+::      form
 ::
 /-  *focus
 /+  rudder
@@ -138,13 +138,14 @@
             ;input(type "number", name "m", placeholder "m", min "0");
             ;input(type "number", name "s", placeholder "s", min "0");
             ;input.range.transparent(type "range", name "wrap", min "5", max "9", value "9");
-            ;strong.label: rest
-            ;input(type "number", name "rh", placeholder "h", min "0");
-            ;input(type "number", name "rm", placeholder "m", min "0");
-            ;input(type "number", name "rs", placeholder "s", min "0");
-            ;input.range(type "hidden", name "wrep", min "5", max "9", value "9");
+            ;strong.label.hide: rest
+            ;input.rest(type "number", name "rh", placeholder "h", min "0");
+            ;input.rest(type "number", name "rm", placeholder "m", min "0");
+            ;input.rest(type "number", name "rs", placeholder "s", min "0");
+            ;input.range.rest(type "hidden", name "wrep", min "5", max "9", value "9");
             ;input(type "hidden", name "nav", value "clock");
-            ;input#reps(type "number", name "reps", placeholder "x1", min "1");
+            ;input#reps.rest(type "number", name "reps", placeholder "x2", min "2");
+            ;input#reps(type "submit", name "reps", value "x2");
             ;input#begin(type "submit", name "begin", value ">");
           ==
         ==
@@ -322,6 +323,9 @@
         opacity: 1;
         stroke-dashoffset: 201;
       }
+    }
+    .rest \{
+      visibility: hidden;
     }
     .hide \{
       visibility: hidden;

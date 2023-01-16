@@ -13,6 +13,8 @@
 ::
 +$  then  [@da @da]
 ::
++$  public  ?
+::
 +$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
@@ -29,6 +31,7 @@
   $%  [%maneuver =gruv =display =begin]
       [%pause ?]
       [%cont ?]
+      [%public public=?]
   ==
 ::
 +$  update
@@ -36,6 +39,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
+::  +$  state-0  [%0 groove=gruv =reps =then =state-p]
 ::
-+$  tack  [groove=gruv =reps then state-p]
++$  tack  [groove=gruv =reps then state-p public]
 --

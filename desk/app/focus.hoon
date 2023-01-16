@@ -11,7 +11,7 @@
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
-+$  state-0  [%0 groove=gruv =reps =then =state-p]
++$  state-0  [%0 groove=gruv =reps =then =state-p =public]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -27,7 +27,7 @@
 ::
 ++  on-init
   ^-  (quip card _this)
-  :_  this(state [%0 [~m5 9 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus %fresh |]])
+  :_  this(state [%0 [~m5 9 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus %fresh |] &])
   ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])]
 ::
 ++  on-save  !>(state)
@@ -56,6 +56,9 @@
       ~&  'oops all maneuvers'
       `this(prev-cmd.state-p %cont)
       ::
+        %public
+      `this(public public.command)
+      ::
         %maneuver
       ?.  begin.command
         `this(display.state-p display.command)
@@ -82,9 +85,11 @@
     %:  (steer:rudder _+.state command)
       pages
       ::  it's public now!
-      ::    XX:figure out how to make it %enter at every load.
+      ::  we use ?! to flip the loobean because this setting is really
+      ::  private ?, but public seems easier to understand and opt in
+      ::  to from a terminal command.
       ::
-      (point:rudder /[dap.bowl] | ~(key by pages))
+      (point:rudder /[dap.bowl] !public ~(key by pages))
       (fours:rudder +.state)
       |=  cmd=command
       ^-  $@  brief:rudder
