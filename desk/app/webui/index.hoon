@@ -1,7 +1,3 @@
-::  XX: add wrap and wrep sounds and their triggers
-::      make a reps button [x2] that reveals the rest portion of the
-::      form
-::
 /-  *focus
 /+  rudder
 ::
@@ -15,6 +11,8 @@
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
+    ?:  (~(has by args) 'reveal')
+      [%reveal &]
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
@@ -52,7 +50,7 @@
     ::
     =/  focus  `@dr`(slav %dr (crip f-time))
     =/  wrap  `@ud`(slav %ud (~(got by args) 'wrap'))
-    =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') '1' num))
+    =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') ?.(reveal '1' '2') num))
     =/  rest  `@dr`(slav %dr (crip r-time))
     ::  wrep is just a copy of wrap for now
     ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
@@ -74,6 +72,69 @@
           msg=(unit [o=? =@t])
       ==
   ^-  reply:rudder
+::  ++  audio
+    ::  XX: look at %flap example and see if the 'GET' in
+    ::  +handle-http-request can be managed here instead?
+    ::  here's what I learned reading %flap:
+    ::    pokes with mark %handle-http-request can have their vase
+    ::    cast to a [@ta =inbound-request:eyre] in the end it needs to
+    ::    poop out (quip card _this).
+    ::    in %flap, the url.request.inboud-request is sent to server for
+    ::    parsing out the url. like /focus/webui/asset/focus/wav.
+    ::    then there is a fence for authenticated requests only with
+    ::      ?.  (authenticated.inbound-request) which "sends" the
+    ::      login page. otherwise branches on method.inbound-request to
+    ::      determine if it's a POST or GET.
+    ::
+    ::    "send" is applying response:schooner to the @ta along with
+    ::    info for status-code, header and a custom resource data.
+    ::    (which is what hoon-school modified for audio).
+    ::    +response will eventually poop out a (quip card _this), but
+    ::    not before it branches on the resource type and constructs
+    ::    appropriate $simple-payload:http for each.
+    ::
+    ::    the simple-payloads are goobled up by
+    ::    +give-simple-payload:server which eats [@ta
+    ::    simple-payload:http] and poops a (list card:agent:gall), the
+    ::    list is three %give %fact on /http-response wire cards built
+    ::    with the @ta and header plus data info in the simple-payload.
+    ::
+    ::     ++  give-simple-payload
+    ::       |=  [eyre-id=@ta =simple-payload:http]
+    ::       ^-  (list card:agent:gall)
+    ::       =/  header-cage
+    ::         [%http-response-header !>(response-header.simple-payload)]
+    ::       =/  data-cage
+    ::         [%http-response-data !>(data.simple-payload)]
+    ::       :~  [%give %fact ~[/http-response/[eyre-id]] header-cage]
+    ::           [%give %fact ~[/http-response/[eyre-id]] data-cage]
+    ::           [%give %kick ~[/http-response/[eyre-id]] ~]
+    ::       ==
+    ::
+    ::    spout:rudder is the same dang thing!
+    ::    ++  spout  ::  build full response cards
+    ::      |=  [eyre-id=@ta simple-payload:http]
+    ::      ^-  (list card)
+    ::      =/  =path  /http-response/[eyre-id]
+    ::      :~  [%give %fact ~[path] [%http-response-header !>(response-header)]]
+    ::          [%give %fact ~[path] [%http-response-data !>(data)]]
+    ::          [%give %kick ~[path] ~]
+    ::      ==
+    ::    +apply:rudder and +serve:rudder use spout
+    ::
+    ::    the only thing left to do when this comes out of server is to
+    ::    add this to them for a proper (quip card this).
+    ::
+    ::    how do a shortcircuit this with rudder? just add those cards
+    ::    feeling good about my simple-payload from +paint:rudder.
+    ::    XX: figure out where to get +spout:rudder involved and learn
+    ::    to branch on something like a site from server, but with
+    ::    rudder. maybe +point:rudder.
+    ::      pages =trail:rudder is definitely involved. it destructures
+    ::      the url and has an option extension at the end for files
+    ::
+    ::    from the frontend perspective let's go over sequence:
+    ::      1:
   |^  [%page page]
   ++  page
     ^-  manx
@@ -92,10 +153,10 @@
         ;audio.hide(controls "", autoplay "")
           ;+
           ?:  &(=(mode %focus) (gte reps 2))
-            ;source(src "{base-url}+SE_SYS_WIFI_MATCH_COMPLETE_rest.wav", type "audio/mp3");
+            ;source(src "focus/assets/rest/wav", type "audio/wav");
           ?:  =(mode %rest)
-            ;source(src "{base-url}+SE_SYS_WIFI_FRIEND_START_focus.wav", type "audio/mp3");
-          ;source(src "{base-url}+SE_RSLT_NEW_RECORD.wav", type "audio/mp3");
+            ;source(src "focus/assets/focus/wav", type "audio/wav");
+          ;source(src "focus/assets/begin/wav", type "audio/wav");
         ==
         ;div.clock
           ;div.face.brothers
@@ -104,16 +165,26 @@
             ==
             ;svg.brothers(viewbox "0 0 100 100")
               ;circle#wipe(cx "50", cy "50", r "3em");
+              ;polygon#wrap-icon(style "fill:lime", points "{(~(got by wrap-icon) wrap.groove)}");
             ==
             ;+
-            ?:  =(display %fin)
+            ?:  =(mode %fin)
               ;strong.time.brothers: {<display>}
             ?:  =(mode %rest)
-              ;strong.time.brothers: {<rest.groove>}
-            ;strong.time.brothers: {<focus.groove>}
+              ?.  reveal  ;strong.time.brothers: {<rest.groove>}
+              ;div.brothers
+                ;strong.time: {<rest.groove>}
+                ;p#rep-count: {<reps>} of {<reps.groove>}
+              ==
+            ?.  reveal  ;strong.time.brothers: {<focus.groove>}
+            ;div.brothers
+              ;strong.time: {<focus.groove>}
+              ;p#rep-count: {<reps>} of {<reps.groove>}
+            ==
           ==
         ==
         ;div.footer
+          ;p#total: {total}
           ;form.pause.hide(method "post", autocomplete "off")
             ;input#help.transparent(type "submit", name "nav", value "?");
             ;+
@@ -123,46 +194,50 @@
               ;input#button(type "submit", name "pause", value "||");
             ;input#button(type "submit", name "pause", value "||");
           ==
-          ;p#total: {total}
+          ;+  ?:  =(mode %rest)
+            ;audio#wrep-wav.hide(controls "")
+              ;source(src "focus/assets/wrep/wav", type "audio/wav");
+            ==
+          ;audio#wrap-wav.hide(controls "")
+            ;source(src "focus/assets/wrap/wav", type "audio/wav");
+          ==
         ==
       ==
     ?:  =(display %form)
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
-          ;source(src "{base-url}+SE_SYS_RACE_OK.wav", type "audio/mp3");
+          ;source(src "focus/assets/form/wav", type "audio/wav");
         ==
         ;div#form-display.clock
-          ;form.set(method "post", autocomplete "off")
-            ;strong.label: focus
+          ;form.set.reveal(method "post", autocomplete "off")
+            ;strong.label(style "{?:(reveal "" "margin-top: 2em")}"): focus
             ;input(type "number", name "h", placeholder "h", min "0");
             ;input(type "number", name "m", placeholder "m", min "0");
             ;input(type "number", name "s", placeholder "s", min "0");
-            ;input.range.transparent(type "range", name "wrap", min "5", max "9", value "9");
-            ;strong.label.hide: rest
-            ;input.rest(type "number", name "rh", placeholder "h", min "0");
-            ;input.rest(type "number", name "rm", placeholder "m", min "0");
-            ;input.rest(type "number", name "rs", placeholder "s", min "0");
-            ;input.range.rest(type "hidden", name "wrep", min "5", max "9", value "9");
+            ;input.range(type "range", name "wrap", min "5", max "9", value "8");
+            ;+  ?.  reveal  ;div;
+              ;strong.label: rest
+            ;input(type "{reveal-rest}", name "rh", placeholder "h", min "0");
+            ;input(type "{reveal-rest}", name "rm", placeholder "m", min "0");
+            ;input(type "{reveal-rest}", name "rs", placeholder "s", min "0");
+            ;input.range(type "hidden", name "wrep", min "5", max "9", value "8");
             ;input(type "hidden", name "nav", value "clock");
-            ;input#reps.rest(type "number", name "reps", placeholder "x2", min "2");
-            ;input#reps(type "submit", name "reps", value "x2");
+            ;input#reps(type "{reveal-rest}", name "reps", placeholder "x2", min "1");
+            ;+  ?:  reveal  ;div;
+              ;input#reps-btn(type "submit", name "reveal", value "x2");
             ;input#begin(type "submit", name "begin", value ">");
           ==
         ==
         ;div.footer
-          ;form#form-hack.pause(method "post")
+          ;form.pause(method "post")
             ;input#help(type "submit", name "nav", value "?");
-          ==
-          ;p#total.hide: {<`@dr`(mul (add focus.groove rest.groove) ?~(reps=reps.groove 1 reps))>}
-          ;audio.hide(controls "")
-            ;source(src "", type "audio/mp3");
           ==
         ==
       ==
     ?:  =(display %help)
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
-          ;source(src "{base-url}+SE_RC_PAUSE_TO_NEXT.wav", type "audio/mp3");
+          ;source(src "focus/assets/help/wav", type "audio/wav");
          ==
         ;div.clock
           ;strong: an interval timer
@@ -173,20 +248,13 @@
         ==
         ;div.footer
           ;form.pause(method "post")
-            ;input#help(type "submit", name "nav", value "X");
-            ;+
-            ?:  =(prev-cmd %pause)
-              ;input#button.transparent(type "submit", name "cont", value "|>");
-            ?:  =(prev-cmd %cont)
-              ;input#button.transparent(type "submit", name "pause", value "||");
-            ;input#button.transparent(type "submit", name "pause", value "||");
+            ;input#help-x(type "submit", name "nav", value "X");
           ==
-          ;p#total.hide: {<total>}
         ==
       ==
     ;div#wrapper
       ;audio.hide(controls "", autoplay "")
-        ;source(src "{base-url}+SE_RC_LAP.wav", type "audio/mp3");
+        ;source(src "focus/assets/enter/wav", type "audio/wav");
       ==
       ;div#enter.clock
         ;form.brothers(method "post")
@@ -207,14 +275,36 @@
       ==
     ==
     ==  ==
-  ++  base-url
-      "https://birds-nest.sfo3.digitaloceanspaces.com/focus-audio/"
-  ::  this waits for the page to load before changing stroke-dashoffset
-  ::    to "0", animating the wipe, timed to focus.groove
-  ::
+  ++  wrap-icon
+    ::  a map connecting wrap to the five different points
+    ::  of the polygon svg of the wrap-icon
+    ::
+    =/  icon  %-  malt
+    :~  [9 "100,25 100,35 50,50"]
+        [8 "75,0 75,10 50,50"]
+        [7 "50,0 40,0 50,50"]
+        [6 "5,0 0,5 50,50"]
+        [5 "0,40 0,45 50,50"]
+    ==
+    `(map wrap tape)`icon
+  ++  reveal-rest
+    :: branch on a loobean for reveal within a new structure for
+    :: display which now includes resting=? and reveal=? when
+    :: appropriate.
+    ::
+    ?:  reveal
+      :: when true
+      ::
+      "number"
+    :: when false
+    ::
+    "hidden"
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
-  ::  I hope these post load animations can actually be handles by scss
-  ::  or some other pure css solution.
+  ::  XX: add another Timeout that play() the wrap and wrep
+  ::  wav in their proper place.
+  ::    calc wrap and wrep times
+  ::    potentially dynamically swap the target of the js
+  ::    play({<heads-up>})
   ::
   ++  script
     """
@@ -222,6 +312,11 @@
       document.location.reload();
       console.log('re-re-refresh!');
     }, {handle-refresh});
+
+    setTimeout(() => \{
+      document.getElementById({<?:(=(mode %rest) "wrep-wav" "wrap-wav")>}).play();
+      console.log('wrap it up!');
+    }, {handle-wrap});
     """
   ++  delay
     ::  naive adjustment for delay in ms
@@ -240,7 +335,7 @@
     (a-co:co (add ms delay))
   ++  total
     ^-  tape
-    =/  sets  ?~(reps 1 reps)
+    =/  sets  ?~(reps.groove 1 reps.groove)
     =/  f-total  (mul focus.groove sets)
     =/  r-total  (mul rest.groove (dec sets))
     =/  total  `@dr`(add f-total r-total)
@@ -261,6 +356,24 @@
         (refresh focus.groove)
       ?:  =(mode %rest)
         (refresh rest.groove)
+      (a-co:co (mul day:yo 1.000))
+    ::  sounds like poetry but it's just a day in seconds in a tape
+    ::  "86460"
+    ::
+    (a-co:co (mul day:yo 1.000))
+  ++  wrap-up
+    |=  rel=@dr
+    ^-  @dr
+    ?:  =(mode %focus)
+      `@dr`(mul wrap.groove (div rel 10))
+    ?>  =(mode %rest)
+      `@dr`(mul wrep.groove (div rel 10))
+  ++  handle-wrap
+    ?:  =(display %clock)
+      ?:  =(mode %focus)
+        (refresh (wrap-up focus.groove))
+      ?:  =(mode %rest)
+        (refresh (wrap-up rest.groove))
       (a-co:co (mul day:yo 1.000))
     ::  sounds like poetry but it's just a day in seconds in a tape
     ::  "86460"
@@ -288,6 +401,24 @@
       font-size: 3em;
       color: white;
       mix-blend-mode: difference;
+    }
+    .set \{
+      display: grid;
+      grid-template-columns: 2.8em 3.1em 2.8em;
+      grid-gap: .33em;
+      accent-color: dimgray;
+      margin-right: -.33em;
+    }
+    #begin \{
+      grid-column-end: 3;
+      grid-row: {<?.(reveal 3 7)>};
+      height: 2.33em;
+      width: 3em;
+      position: relative;
+      top: {?:(reveal "1.45" "6.66")}em;
+      left: .55em;
+      border: 0.09em solid rgb(60,60,60);
+      border-radius: 0.33em;
     }
     #focus \{
       font-size: 2em;
@@ -323,6 +454,9 @@
         opacity: 1;
         stroke-dashoffset: 201;
       }
+    }
+    .reveal \{
+      animation: enter 1s;
     }
     .rest \{
       visibility: hidden;
@@ -364,27 +498,34 @@
     input[type=number]::-webkit-inner-spin-button {
       opacity: 1
     }
+    #wrap-icon {
+      filter: blur(.04em);
+    }
     #form-display {
       overflow: visible;
     }
-    #form-hack {
-      display: grid;
-      scale: 2;
-      position: relative;
-      left: 3.9em;
-      bottom: 2.2em;
-      height: 0;
-    }
-    .set {
-      display: grid;
-      grid-template-columns: 2.8em 3.1em 2.8em;
-      grid-template-rows: auto auto auto auto auto 1.66em;
-      grid-gap: .33em;
-      accent-color: dimgray;
-      margin-right: -.33em;
-    }
     #reps {
       grid-column: 3;
+      height: 1.75em;
+      position: relative;
+      top: 0.2em;
+    }
+    #reps-btn {
+      grid-column: 3;
+      height: 1.75em;
+      position: relative;
+      top: .66em;
+      color:dimgrey;
+    }
+    #rep-count {
+      display: flex;
+      justify-content: flex-end;
+      height: 0em;
+      position: relative;
+      top: 2.33em;
+      left: 2.8em;
+      color: rgb(225, 225, 225);
+      mix-blend-mode: difference;
     }
     #help {
       border-radius: 1em;
@@ -393,20 +534,22 @@
       height: 2em;
       place-self: end;
       position: relative;
-      top: .66em;
+      top: -1.5em;
+      left: 5em;
       color: dimgrey;
       scale:.8;
     }
-    #begin {
-      grid-column-end: 3;
-      grid-row: 7;
-      height: 2.33em;
-      width: 3em;
+    #help-x {
+      border-radius: 1em;
+      border-style: solid;
+      width: 2em;
+      height: 2em;
+      place-self: end;
       position: relative;
-      top: 1.66em;
-      left: .55em;
-      border: 0.09em solid rgb(60,60,60);
-      border-radius: 0.33em;
+      top: -1.5em;
+      left: 5em;
+      color: dimgrey;
+      scale:.8;
     }
     #button {
       width: 2.66em;
@@ -418,9 +561,12 @@
     .label {
       grid-column: 1/span 4;
       place-self: center;
+      margin-top: .2em;
     }
     .range {
       grid-column: 1/span 3;
+      grid-row: 3;
+      scale: .75;
     }
     input {
       font-weight: 700;
@@ -432,21 +578,24 @@
     }
     .pause {
       display: grid;
+      place-content: center;
+      height: 0em;
       scale: 2;
-      width: 11em;
+      margin-right: -.5em;
     }
     svg {
       transform: rotate(-90deg);
       scale:2;
     }
     #total {
-      position: relative;
-      left: 13em;
-      top: -4em;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -3em;
       scale: 1;
     }
     .footer {
-      margin-top: 1em;
+      margin-top: 2em;
+      width: 22em;
     }
     .transparent {
       opacity: 0;
@@ -454,20 +603,3 @@
     '''
   --
 --
-::
-::    notes of hack
-::      #form-hack - in %form display we hide the help button's grid
-::      neighbor, the pause/cont button within footer and that moves the
-::      help button too far in.
-::        changing z-index only made the help button non-functional.
-::        this was a possible solution when considering just making the
-::        pause/cont button invisible instead of non-existent.
-::
-::      +effect - because js and it's dynamic type scripting is garbage.
-::      this swaps the #ids based on display so that the top onload call
-::      can happen without the other id existing. js totally bails on
-::      %form display.
-::        a less hacky was would be to insert different full lines of js
-::        based on display, but inserting tapes/cords into tape and
-::        cords blocks is either not possible or very difficult to
-::        figure out.

@@ -18,8 +18,9 @@
 +$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
++$  reveal  ?
 +$  begin  ?
-+$  state-p  [=display =mode =prev-cmd =begin]
++$  state-p  [=display =mode =reveal =prev-cmd =begin]
 ::  type unions are eating my lunch!
 ::    disaplyify was made to help out.
 ::
@@ -32,6 +33,7 @@
       [%pause ?]
       [%cont ?]
       [%public public=?]
+      [%reveal reveal]
   ==
 ::
 +$  update
@@ -39,7 +41,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
-::  +$  state-0  [%0 groove=gruv =reps =then =state-p]
+::  +$  state-0  [%0 groove=gruv =reps =then =state-p =public]
 ::
 +$  tack  [groove=gruv =reps then state-p public]
 --

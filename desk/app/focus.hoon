@@ -1,6 +1,14 @@
 /-  *focus
 /+  rudder, agentio, verb, dbug, default-agent
 /~  pages  (page:rudder tack command)  /app/webui
+/*  enter-wav  %wav  /app/webui/assets/enter-lap/wav
+/*  form-wav  %wav  /app/webui/assets/form-race-ok/wav
+/*  help-wav  %wav  /app/webui/assets/help-pause-to-next/wav
+/*  begin-wav  %wav  /app/webui/assets/begin-new-record/wav
+/*  focus-wav  %wav  /app/webui/assets/focus-friend-start/wav
+/*  wrap-wav  %wav  /app/webui/assets/wrap-pause-on/wav
+/*  rest-wav  %wav  /app/webui/assets/rest-match-complete/wav
+/*  wrep-wav  %wav  /app/webui/assets/wrep-pause-exit-game/wav
 ::
 |%
 +$  versioned-state
@@ -27,8 +35,8 @@
 ::
 ++  on-init
   ^-  (quip card _this)
-  :_  this(state [%0 [~m5 9 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus %fresh |] &])
-  ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])]
+  :-  ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])]
+  this(state [%0 [~m5 8 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus | %fresh |] |])
 ::
 ++  on-save  !>(state)
 ::
@@ -59,6 +67,9 @@
         %public
       `this(public public.command)
       ::
+        %reveal
+      `this(reveal.state-p +.command)
+      ::
         %maneuver
       ?.  begin.command
         `this(display.state-p display.command)
@@ -73,7 +84,7 @@
         prev-cmd.state-p  %begin
         then  [ease ease]
         display.state-p  display.command
-        reps  reps.gruv.command
+        reps  0
         mode.state-p  %focus
       ==
     ==
@@ -83,14 +94,55 @@
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
     %:  (steer:rudder _+.state command)
+      ::  map of pages
+      ::
       pages
       ::  it's public now!
       ::  we use ?! to flip the loobean because this setting is really
       ::  private ?, but public seems easier to understand and opt in
       ::  to from a terminal command.
       ::
-      (point:rudder /[dap.bowl] !public ~(key by pages))
+      ::  (point:rudder /[dap.bowl] !public ~(key by pages))
+      ::
+      ::  route
+      ::
+      |=  =trail:rudder
+      ::  trail has an optional ext at the head, it's [ext=(unit @ta)
+      ::  site=(list @ta)]
+      ::  I think this means if the url is /focus/assets/form.wav
+      ::  it could manage the .wav extension. and that means here I
+      ::  would deal with u.ext.trail and process however I needed.
+      ::
+      ^-  (unit place:rudder)
+      ?~  site=(decap:rudder /[dap.bowl] site.trail)  ~
+      ?+  u.site  ~
+        ~            `[%page !public %index]
+        [%index ~]   `[%away (snip site.trail)]
+        [%assets %enter %wav ~]  `[%asset %wav enter-wav]
+        [%assets %form %wav ~]   `[%asset %wav form-wav]
+        [%assets %help %wav ~]   `[%asset %wav help-wav]
+        [%assets %begin %wav ~]  `[%asset %wav begin-wav]
+        [%assets %focus %wav ~]  `[%asset %wav focus-wav]
+        [%assets %wrap %wav ~]   `[%asset %wav wrap-wav]
+        [%assets %rest %wav ~]   `[%asset %wav rest-wav]
+        [%assets %wrep %wav ~]   `[%asset %wav wrep-wav]
+      ==
       (fours:rudder +.state)
+      ::  custom fallback / adlib
+      ::    XX: this might be where long-polling will occur
+      ::
+      ::  |=  =order:rudder
+      ::  ^-  [[(unit reply:rudder) (list card)] _+.state]
+      ::  =;  msg=@t  [[`[%code 404 msg] ~] +.state]
+      ::  %+  rap  3
+      ::  :~  'as of '
+      ::      (scot %da (div now.bowl ~d1))
+      ::      ', '
+      ::      url.request.order
+      ::      ' is still mia...'
+      ::  ==
+      ::  actions / solve
+      ::
       |=  cmd=command
       ^-  $@  brief:rudder
           [brief:rudder (list card) _+.state]
@@ -106,10 +158,10 @@
   ?+  -.wire  (on-arvo:def wire sign)
       %focus
     ?>  ?=([%behn %wake *] sign)
-    ?:  =(reps.groove 0)
+    ?:  (gte reps reps.groove)
       ::  no more reps means...
       ~&  'doneskis!'
-      `this(display.state-p %enter, mode.state-p %fin)
+      `this(display.state-p %enter, mode.state-p %fin, reveal.state-p |)
     ::  start up rest mode
     ::
     ::  rest mode
@@ -145,7 +197,7 @@
         (~(wait pass:io /wrap) setwrap)
     ==
     %=  this
-      reps.groove  (dec reps.groove)
+      reps  +(reps)
       then  [setfocus setwrap]
       mode.state-p  %focus
     ==
