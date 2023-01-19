@@ -1,9 +1,10 @@
 :~
   title+'focus'
-  info+'interval timer'
-  color+0x30.935d
+  info+'an interval timer'
+  color+0xff.ffff
   version+[1 0 0]
-  website+'https://howm.art'
+  website+'https://github.com/brbenji/focus'
   license+'MIT'
+  image+'/focus/assets/tile/png'
   site+/focus
 ==

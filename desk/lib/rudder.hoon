@@ -71,6 +71,7 @@
       [%code cod=@ud msg=brief]                         ::  error code page
       [%full ful=simple-payload:http]                   ::  full payload
       [%audio-wav wav=@]
+      [%image-png png=@]
   ==
 ::
 +$  place
@@ -141,8 +142,10 @@
     ?:  ?=(%asset -.u.target)
       ::  add %img or other asset types as needed with a ?-
       ::
-      ?>  ?=(%wav typ.u.target)
-      [(spout id (paint %audio-wav ass.u.target)) dat]
+      ?:  ?=(%wav typ.u.target)
+        [(spout id (paint %audio-wav ass.u.target)) dat]
+      ?>  ?=(%png typ.u.target)
+      [(spout id (paint %image-png ass.u.target)) dat]
     ::  route might be a redirect
     ::
     ?:  ?=(%away -.u.target)
@@ -235,6 +238,7 @@
   ^-  simple-payload:http
   ?-  -.reply
     %audio-wav  [[200 ['content-type' 'audio/wav']~] `(as-octs:mimes:html wav.reply)]
+    %image-png  [[200 ['content-type' 'image/png']~] `(as-octs:mimes:html png.reply)]
     %page  [[200 ['content-type' 'text/html']~] `(press bod.reply)]
     %xtra  =?  hed.reply  ?=(~ (get-header:http 'content-type' hed.reply))
              ['content-type'^'text/html' hed.reply]

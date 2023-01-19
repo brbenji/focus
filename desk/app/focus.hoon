@@ -1,6 +1,7 @@
 /-  *focus
 /+  rudder, agentio, verb, dbug, default-agent
 /~  pages  (page:rudder tack command)  /app/webui
+::
 /*  enter-wav  %wav  /app/webui/assets/enter-lap/wav
 /*  form-wav  %wav  /app/webui/assets/form-race-ok/wav
 /*  reps-wav  %wav  /app/webui/assets/reps-pause-off/wav
@@ -10,6 +11,8 @@
 /*  wrap-wav  %wav  /app/webui/assets/wrap-pause-on/wav
 /*  rest-wav  %wav  /app/webui/assets/rest-match-complete/wav
 /*  wrep-wav  %wav  /app/webui/assets/wrep-pause-exit-game/wav
+::
+/*  tile  %png  /app/webui/assets/tile/png
 ::
 |%
 +$  versioned-state
@@ -128,6 +131,7 @@
         [%assets %wrap %wav ~]   `[%asset %wav wrap-wav]
         [%assets %rest %wav ~]   `[%asset %wav rest-wav]
         [%assets %wrep %wav ~]   `[%asset %wav wrep-wav]
+        [%assets %tile %png ~]   `[%asset %png tile]
       ==
       (fours:rudder +.state)
       ::  custom fallback / adlib
