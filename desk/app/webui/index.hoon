@@ -72,69 +72,6 @@
           msg=(unit [o=? =@t])
       ==
   ^-  reply:rudder
-::  ++  audio
-    ::  XX: look at %flap example and see if the 'GET' in
-    ::  +handle-http-request can be managed here instead?
-    ::  here's what I learned reading %flap:
-    ::    pokes with mark %handle-http-request can have their vase
-    ::    cast to a [@ta =inbound-request:eyre] in the end it needs to
-    ::    poop out (quip card _this).
-    ::    in %flap, the url.request.inboud-request is sent to server for
-    ::    parsing out the url. like /focus/webui/asset/focus/wav.
-    ::    then there is a fence for authenticated requests only with
-    ::      ?.  (authenticated.inbound-request) which "sends" the
-    ::      login page. otherwise branches on method.inbound-request to
-    ::      determine if it's a POST or GET.
-    ::
-    ::    "send" is applying response:schooner to the @ta along with
-    ::    info for status-code, header and a custom resource data.
-    ::    (which is what hoon-school modified for audio).
-    ::    +response will eventually poop out a (quip card _this), but
-    ::    not before it branches on the resource type and constructs
-    ::    appropriate $simple-payload:http for each.
-    ::
-    ::    the simple-payloads are goobled up by
-    ::    +give-simple-payload:server which eats [@ta
-    ::    simple-payload:http] and poops a (list card:agent:gall), the
-    ::    list is three %give %fact on /http-response wire cards built
-    ::    with the @ta and header plus data info in the simple-payload.
-    ::
-    ::     ++  give-simple-payload
-    ::       |=  [eyre-id=@ta =simple-payload:http]
-    ::       ^-  (list card:agent:gall)
-    ::       =/  header-cage
-    ::         [%http-response-header !>(response-header.simple-payload)]
-    ::       =/  data-cage
-    ::         [%http-response-data !>(data.simple-payload)]
-    ::       :~  [%give %fact ~[/http-response/[eyre-id]] header-cage]
-    ::           [%give %fact ~[/http-response/[eyre-id]] data-cage]
-    ::           [%give %kick ~[/http-response/[eyre-id]] ~]
-    ::       ==
-    ::
-    ::    spout:rudder is the same dang thing!
-    ::    ++  spout  ::  build full response cards
-    ::      |=  [eyre-id=@ta simple-payload:http]
-    ::      ^-  (list card)
-    ::      =/  =path  /http-response/[eyre-id]
-    ::      :~  [%give %fact ~[path] [%http-response-header !>(response-header)]]
-    ::          [%give %fact ~[path] [%http-response-data !>(data)]]
-    ::          [%give %kick ~[path] ~]
-    ::      ==
-    ::    +apply:rudder and +serve:rudder use spout
-    ::
-    ::    the only thing left to do when this comes out of server is to
-    ::    add this to them for a proper (quip card this).
-    ::
-    ::    how do a shortcircuit this with rudder? just add those cards
-    ::    feeling good about my simple-payload from +paint:rudder.
-    ::    XX: figure out where to get +spout:rudder involved and learn
-    ::    to branch on something like a site from server, but with
-    ::    rudder. maybe +point:rudder.
-    ::      pages =trail:rudder is definitely involved. it destructures
-    ::      the url and has an option extension at the end for files
-    ::
-    ::    from the frontend perspective let's go over sequence:
-    ::      1:
   |^  [%page page]
   ++  page
     ^-  manx
@@ -173,10 +110,10 @@
             ?:  =(mode %fin)
               ;strong.time.brothers: {<display>}
             ?:  =(mode %rest)
-              ;div.brothers
+              ;div.time-rest.brothers
                 ;strong.time(style "font-size: 2.33em"): {(face rest.groove)}
                 ;strong#rest: rest
-                ;p#rep-count(style "top: 3em; left: 3.1em"): {<reps>} of {<reps.groove>}
+                ;p#rep-count(style "top: 3em; left: 2.8em"): {<reps>} of {<reps.groove>}
               ==
             ?.  reveal  ;strong.time.brothers: {(face focus.groove)}
             ;div.brothers
@@ -243,13 +180,16 @@
         ;audio.hide(controls "", autoplay "")
           ;source(src "focus/assets/help/wav", type "audio/wav");
          ==
-        ;div.clock
-          ;strong: an interval timer
-          ;br;
-          ;p: focus - set a time for flow
-            ; with a wrap-up call based on percentage
-          ;p: x2 - run multiple sessions of focus
-          ;p: rest - relax a moment
+        ;div.clock.help
+          ;strong#title: an interval timer
+          ;p.sm.bold: focus
+          ;p.sm: set a time for flow
+          ;input#range-help(type "range", min "5", max "9", value "8");
+          ;p.sm: receive a wrap-up call
+          ;p.sm.bold: rest
+          ;p.sm: relax a moment
+          ;input#btn-help(type "submit", value "x2");
+          ;p.sm: focus more than once
         ==
         ;div.footer
           ;form.pause(method "post")
@@ -278,28 +218,10 @@
       ;div.footer;
     ==
     ==  ==
-  ++  wrap-icon
-    ::  a map connecting wrap to five different points
-    ::  for creating the wrap-icon with a polygon svg
-    ::
-    =;  icon  `(map wrap tape)`icon
-    %-  malt
-    :~  [9 "100,25 100,33 76,37"]
-        [8 "75,0 84,0 64,22"]
-        [7 "47,0 39,0 46,24"]
-        [6 "5,0 0,6 20,24"]
-        [5 "0,39 0,46 27,47"]
-    ==
-  ++  reveal-rest
-    ?:  reveal
-      "number"
-    "hidden"
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
-  ::  XX: add another Timeout that play() the wrap and wrep
-  ::  wav in their proper place.
-  ::    calc wrap and wrep times
-  ::    potentially dynamically swap the target of the js
-  ::    play({<heads-up>})
+  ::  XX: use long-polling to do the same thing
+  ::    these setTimeout funcions are doing but
+  ::    with rudder instead.
   ::
   ++  script
     """
@@ -313,12 +235,65 @@
       console.log('wrap it up!');
     }, {handle-wrap});
     """
+  ::  mod-style is built in a tape for code insertion
+  ::
+  ++  mod-style
+    """
+    #begin \{
+      grid-column-end: 3;
+      grid-row: {<?.(reveal 3 7)>};
+      height: 2.33em;
+      width: 3em;
+      position: relative;
+      top: {?:(reveal "1.45" "6.66")}em;
+      left: .55em;
+      border: 0.09em solid rgb(60,60,60);
+      border-radius: 0.33em;
+    }
+    circle \{
+      stroke: black;
+      fill: none;
+      stroke-width: 6em;
+      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
+      stroke-dashoffset: 201; /* initial setting */
+      filter: blur(.04em);
+      animation: wipe {?:(=(mode %rest) (duration rest.groove) (duration focus.groove))}ms infinite linear;
+    }
+    @keyframes wipe \{
+      0% \{
+        stroke-dashoffset: {?~(focus.groove "0" "314")};
+      }
+      100% \{
+        stroke-dashoffset: 0;
+      }
+    }
+    #enter \{
+      animation: enter 2.5s;
+    }
+    @keyframes enter \{
+      0% \{
+        opacity: 0;
+        stroke-dashoffset: 221;
+      }
+      100% \{
+        opacity: 1;
+        stroke-dashoffset: 201;
+      }
+    }
+    """
+  ::  helper arms for dynamically changing
+  ::    +script, +mod-style, +build
+  ::
   ++  delay
     ::  naive adjustment for delay in ms
     ::    we delay the vfx but not js refresh
     ::    refresh needs to occur asap
     ::
     120
+  ++  reveal-rest
+    ?:  reveal
+      "number"
+    "hidden"
   ++  duration
     |=  rel=@dr
     ^-  tape
@@ -343,6 +318,18 @@
     ?:  (lte total 60)
       (weld (a-co:co total) "s")
     (weld (a-co:co min) "m")
+  ++  wrap-icon
+    ::  a map connecting wrap to five different points
+    ::  for creating the wrap-icon with a polygon svg
+    ::
+    =;  icon  `(map wrap tape)`icon
+    %-  malt
+    :~  [9 "100,25 100,33 76,37"]
+        [8 "75,0 84,0 64,22"]
+        [7 "47,0 39,0 46,24"]
+        [6 "5,0 0,6 20,24"]
+        [5 "0,39 0,46 27,47"]
+    ==
   ++  total
     ^-  tape
     =/  sets  ?~(reps.groove 1 reps.groove)
@@ -367,8 +354,8 @@
       ?:  =(mode %rest)
         (refresh rest.groove)
       (a-co:co (mul day:yo 1.000))
-    ::  sounds like poetry but it's just a day in seconds in a tape
-    ::  "86460"
+    ::  sounds like poetry but it's just a day in seconds
+    ::  in a tape "86460"
     ::
     (a-co:co (mul day:yo 1.000))
   ++  wrap-up
@@ -385,15 +372,114 @@
       ?:  =(mode %rest)
         (refresh (wrap-up rest.groove))
       (a-co:co (mul day:yo 1.000))
-    ::  sounds like poetry but it's just a day in seconds in a tape
-    ::  "86460"
-    ::
     (a-co:co (mul day:yo 1.000))
-  ::  mod-style is built in a tape for code insertion
   ::
-  ++  mod-style
-    """
-    .clock \{
+  ++  style
+    '''
+    * {
+      margin: 0;
+      box-sizing: border-box;
+    }
+    input[type=number]::-webkit-inner-spin-button {
+      opacity: 1
+    }
+    svg {
+      transform: rotate(-90deg);
+      scale:2;
+    }
+    input {
+      font-weight: 700;
+      cursor: pointer;
+    }
+    p {
+      place-self: start;
+    }
+    output {
+      grid-row: 3;
+      grid-column: 1;
+      position: relative;
+      scale: .8;
+      place-self: center;
+      top: 1.2em;
+      left: .5em;
+      color: dimgray;
+      animation: enter 1s;
+    }
+    .transparent {
+      opacity: 0;
+    }
+    .sm {
+      font-size: .66em;
+    }
+    .bold {
+      font-weight: bold;
+      justify-self: center;
+    }
+    .reveal {
+      animation: enter 1s;
+    }
+    .hide {
+      visibility: hidden;
+    }
+    .help {
+      grid-template-columns: 2.66em auto;
+      grid-gap: .33em;
+    }
+    .time {
+      font-size: 3em;
+      color: white;
+      mix-blend-mode: difference;
+      position: relative;
+      top: .1em;
+      left: .05em;
+    }
+    .time-rest {
+      margin-left: .33em;
+    }
+    .set {
+      display: grid;
+      grid-template-columns: 2.8em 3.1em 2.8em;
+      grid-gap: .33em;
+      accent-color: dimgray;
+      margin-right: -.33em;
+    }
+    .label {
+      grid-column: 1/span 4;
+      place-self: center;
+      margin-top: .2em;
+    }
+    .range {
+      grid-column: 1/span 3;
+      grid-row: 3;
+      scale: .75;
+    }
+    .pause {
+      display: grid;
+      place-content: center;
+      height: 0em;
+      scale: 2;
+      margin-right: -.5em;
+    }
+    .face {
+      display: grid;
+      place-items: center;
+    }
+    .to-form {
+      height: 5em;
+      width: 8em;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+    }
+    .brothers {
+      grid-row: 1;
+      grid-column: 1;
+    }
+    .footer {
+      margin-top: 2em;
+      width: 22em;
+    }
+    .clock {
       display: grid;
       place-items: center;
       grid-template-rows: auto;
@@ -407,115 +493,12 @@
       overflow: hidden;
       background-color: white;
     }
-    .time \{
-      font-size: 3em;
-      color: white;
-      mix-blend-mode: difference;
-    }
-    .set \{
-      display: grid;
-      grid-template-columns: 2.8em 3.1em 2.8em;
-      grid-gap: .33em;
-      accent-color: dimgray;
-      margin-right: -.33em;
-    }
-    #begin \{
-      grid-column-end: 3;
-      grid-row: {<?.(reveal 3 7)>};
-      height: 2.33em;
-      width: 3em;
-      position: relative;
-      top: {?:(reveal "1.45" "6.66")}em;
-      left: .55em;
-      border: 0.09em solid rgb(60,60,60);
-      border-radius: 0.33em;
-    }
-    #focus \{
-      font-size: 2em;
-      border: .1em solid white;
-      padding: .33em;
-    }
-    circle \{
-      stroke: black;
-      fill: none;
-      stroke-width: 6em;
-      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
-      stroke-dashoffset: 201; /* initial setting */
-      filter: blur(.04em);
-      animation: wipe {?:(=(mode %rest) (duration rest.groove) (duration focus.groove))}ms infinite linear;
-    }
-    @keyframes wipe \{
-      0% \{
-        stroke-dashoffset: 314;
-      }
-      100% \{
-        stroke-dashoffset: 0;
-      }
-    }
-    #enter \{
-      animation: enter 2.5s;
-    }
-    @keyframes enter \{
-      0% \{
-        opacity: 0;
-        stroke-dashoffset: 221;
-      }
-      100% \{
-        opacity: 1;
-        stroke-dashoffset: 201;
-      }
-    }
-    .reveal \{
-      animation: enter 1s;
-    }
-    .rest \{
-      visibility: hidden;
-    }
-    .hide \{
-      visibility: hidden;
-    }
-    """
-  ++  style
-    '''
-    * {
-      margin: 0;
-      box-sizing: border-box;
-    }
     #wrapper {
       display: grid;
       place-items: center;
       grid-template-rows: 6em 20em 7em auto;
       grid-gap: 1em;
       height: 100vh;
-    }
-    .face {
-      display: grid;
-      place-items: center;
-    }
-    .to-form {
-      height: 5em;
-      width: 8em;
-      position: relative;
-      z-index: 1;
-      opacity: 0;
-    }
-    output {
-      grid-row: 3;
-      grid-column: 1;
-      position: relative;
-      scale: .8;
-      place-self: center;
-      top: 1.2em;
-      left: .5em;
-      color: dimgray;
-      animation: enter 1s;
-    }
-    .brothers {
-      grid-row: 1;
-      grid-column: 1;
-    }
-    input[type=number]::-webkit-inner-spin-button {
-      opacity: 1
     }
     #wrap-icon {
       filter: blur(.03em);
@@ -546,6 +529,7 @@
       left: 2.8em;
       color: rgb(225, 225, 225);
       mix-blend-mode: difference;
+      scale: .66;
     }
     #rest {
       display: flex;
@@ -579,6 +563,23 @@
       color: dimgrey;
       scale:.8;
     }
+    #range-help {
+      width: 5em;
+      scale: .4;
+      align-self: start;
+      accent-color: dimgrey;
+      position: relative;
+      bottom: .2em;
+      margin-bottom: -1em;
+    }
+    #btn-help {
+      scale: .66;
+      align-self: start;
+      position: relative;
+      bottom: .3em;
+      color: dimgray;
+      width: 2.33em;
+    }
     #button {
       width: 2.66em;
       height: 2.66em;
@@ -586,47 +587,19 @@
       position: relative;
       top: -.66em;
     }
-    .label {
-      grid-column: 1/span 4;
-      place-self: center;
-      margin-top: .2em;
-    }
-    .range {
-      grid-column: 1/span 3;
-      grid-row: 3;
-      scale: .75;
-    }
-    input {
-      font-weight: 700;
-      cursor: pointer;
-    }
-    p {
-      scale: .66;
-      place-self: start;
-    }
-    .pause {
-      display: grid;
-      place-content: center;
-      height: 0em;
-      scale: 2;
-      margin-right: -.5em;
-    }
-    svg {
-      transform: rotate(-90deg);
-      scale:2;
-    }
     #total {
       display: flex;
       justify-content: flex-end;
       margin-top: -3em;
-      scale: 1;
     }
-    .footer {
-      margin-top: 2em;
-      width: 22em;
+    #focus {
+      font-size: 2em;
+      border: .1em solid white;
+      padding: .33em;
     }
-    .transparent {
-      opacity: 0;
+    #title {
+      grid-column: 1/span 2;
+      margin-bottom: .33em;
     }
     '''
   --
