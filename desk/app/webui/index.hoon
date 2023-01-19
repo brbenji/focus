@@ -165,20 +165,22 @@
             ==
             ;svg.brothers(viewbox "0 0 100 100")
               ;circle#wipe(cx "50", cy "50", r "3em");
-              ;polygon#wrap-icon(style "fill:lime", points "{(~(got by wrap-icon) wrap.groove)}");
+            ==
+            ;svg#wrap-icon.brothers(viewbox "0 0 100 100")
+              ;polygon(style "fill:white", points "{(~(got by wrap-icon) wrap.groove)}");
             ==
             ;+
             ?:  =(mode %fin)
               ;strong.time.brothers: {<display>}
             ?:  =(mode %rest)
-              ?.  reveal  ;strong.time.brothers: {<rest.groove>}
               ;div.brothers
-                ;strong.time: {<rest.groove>}
-                ;p#rep-count: {<reps>} of {<reps.groove>}
+                ;strong.time(style "font-size: 2.33em"): {(face rest.groove)}
+                ;strong#rest: rest
+                ;p#rep-count(style "top: 3em; left: 3.1em"): {<reps>} of {<reps.groove>}
               ==
-            ?.  reveal  ;strong.time.brothers: {<focus.groove>}
+            ?.  reveal  ;strong.time.brothers: {(face focus.groove)}
             ;div.brothers
-              ;strong.time: {<focus.groove>}
+              ;strong.time: {(face focus.groove)}
               ;p#rep-count: {<reps>} of {<reps.groove>}
             ==
           ==
@@ -206,7 +208,8 @@
     ?:  =(display %form)
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
-          ;source(src "focus/assets/form/wav", type "audio/wav");
+          ;+  ?:  reveal  ;source(src "focus/assets/reps/wav", type "audio/wav");
+            ;source(src "focus/assets/form/wav", type "audio/wav");
         ==
         ;div#form-display.clock
           ;form.set.reveal(method "post", autocomplete "off")
@@ -214,7 +217,8 @@
             ;input(type "number", name "h", placeholder "h", min "0");
             ;input(type "number", name "m", placeholder "m", min "0");
             ;input(type "number", name "s", placeholder "s", min "0");
-            ;input.range(type "range", name "wrap", min "5", max "9", value "8");
+            ;input.range(type "range", name "wrap", id "wrap", min "5", max "9", value "8", oninput "percent.value=wrap.valueAsNumber + '0%'");
+            ;output(name "percent", for "wrap");
             ;+  ?.  reveal  ;div;
               ;strong.label: rest
             ;input(type "{reveal-rest}", name "rh", placeholder "h", min "0");
@@ -242,9 +246,10 @@
         ;div.clock
           ;strong: an interval timer
           ;br;
-          ;p: focus - ease into a time for flow
+          ;p: focus - set a time for flow
+            ; with a wrap-up call based on percentage
+          ;p: x2 - run multiple sessions of focus
           ;p: rest - relax a moment
-          ;p: reps - run multiple sessions of focus
         ==
         ;div.footer
           ;form.pause(method "post")
@@ -264,40 +269,30 @@
           ;svg.brothers(viewbox "0 0 100 100")
             ;circle#enter(cx "50", cy "50", r "3em");
           ==
+          ;svg#wrap-icon.brothers(viewbox "0 0 100 100")
+            ;polygon(style "fill:white", points "{(~(got by wrap-icon) 9)}");
+          ==
           ;strong#focus.time.brothers: focus
         ==
       ==
-      ;div.footer
-        ;div.circle
-          ;div.center;
-          ;div.hours;
-        ==
-      ==
+      ;div.footer;
     ==
     ==  ==
   ++  wrap-icon
-    ::  a map connecting wrap to the five different points
-    ::  of the polygon svg of the wrap-icon
+    ::  a map connecting wrap to five different points
+    ::  for creating the wrap-icon with a polygon svg
     ::
-    =/  icon  %-  malt
-    :~  [9 "100,25 100,35 50,50"]
-        [8 "75,0 75,10 50,50"]
-        [7 "50,0 40,0 50,50"]
-        [6 "5,0 0,5 50,50"]
-        [5 "0,40 0,45 50,50"]
+    =;  icon  `(map wrap tape)`icon
+    %-  malt
+    :~  [9 "100,25 100,33 76,37"]
+        [8 "75,0 84,0 64,22"]
+        [7 "47,0 39,0 46,24"]
+        [6 "5,0 0,6 20,24"]
+        [5 "0,39 0,46 27,47"]
     ==
-    `(map wrap tape)`icon
   ++  reveal-rest
-    :: branch on a loobean for reveal within a new structure for
-    :: display which now includes resting=? and reveal=? when
-    :: appropriate.
-    ::
     ?:  reveal
-      :: when true
-      ::
       "number"
-    :: when false
-    ::
     "hidden"
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
   ::  XX: add another Timeout that play() the wrap and wrep
@@ -333,6 +328,21 @@
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     =/  ms  (mul total 1.000)
     (a-co:co (add ms delay))
+  ++  face
+    ::  turn the numbers on the clock from @dr
+    ::  to something more normie readable
+    ::
+    |=  rel=@dr
+    ^-  tape
+    =/  sec  (yell rel)
+    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    =/  min  (div total 60)
+    ::  account for times less than a minute
+    ::  display seconds instead
+    ::
+    ?:  (lte total 60)
+      (weld (a-co:co total) "s")
+    (weld (a-co:co min) "m")
   ++  total
     ^-  tape
     =/  sets  ?~(reps.groove 1 reps.groove)
@@ -465,8 +475,6 @@
       visibility: hidden;
     }
     """
-  ::  mod-style helper arms
-  ::
   ++  style
     '''
     * {
@@ -491,6 +499,17 @@
       z-index: 1;
       opacity: 0;
     }
+    output {
+      grid-row: 3;
+      grid-column: 1;
+      position: relative;
+      scale: .8;
+      place-self: center;
+      top: 1.2em;
+      left: .5em;
+      color: dimgray;
+      animation: enter 1s;
+    }
     .brothers {
       grid-row: 1;
       grid-column: 1;
@@ -499,7 +518,8 @@
       opacity: 1
     }
     #wrap-icon {
-      filter: blur(.04em);
+      filter: blur(.03em);
+      mix-blend-mode: difference;
     }
     #form-display {
       overflow: visible;
@@ -522,10 +542,18 @@
       justify-content: flex-end;
       height: 0em;
       position: relative;
-      top: 2.33em;
+      top: 2.66em;
       left: 2.8em;
       color: rgb(225, 225, 225);
       mix-blend-mode: difference;
+    }
+    #rest {
+      display: flex;
+      justify-content: center;
+      color: rgb(225, 225, 225);
+      mix-blend-mode: difference;
+      height: 0em;
+      font-weight: 500;
     }
     #help {
       border-radius: 1em;

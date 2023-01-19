@@ -3,6 +3,7 @@
 /~  pages  (page:rudder tack command)  /app/webui
 /*  enter-wav  %wav  /app/webui/assets/enter-lap/wav
 /*  form-wav  %wav  /app/webui/assets/form-race-ok/wav
+/*  reps-wav  %wav  /app/webui/assets/reps-pause-off/wav
 /*  help-wav  %wav  /app/webui/assets/help-pause-to-next/wav
 /*  begin-wav  %wav  /app/webui/assets/begin-new-record/wav
 /*  focus-wav  %wav  /app/webui/assets/focus-friend-start/wav
@@ -120,6 +121,7 @@
         [%index ~]   `[%away (snip site.trail)]
         [%assets %enter %wav ~]  `[%asset %wav enter-wav]
         [%assets %form %wav ~]   `[%asset %wav form-wav]
+        [%assets %reps %wav ~]   `[%asset %wav reps-wav]
         [%assets %help %wav ~]   `[%asset %wav help-wav]
         [%assets %begin %wav ~]  `[%asset %wav begin-wav]
         [%assets %focus %wav ~]  `[%asset %wav focus-wav]
