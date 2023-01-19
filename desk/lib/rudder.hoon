@@ -70,11 +70,13 @@
       [%auth loc=@t]                                    ::  307, please log in
       [%code cod=@ud msg=brief]                         ::  error code page
       [%full ful=simple-payload:http]                   ::  full payload
+      [%audio-wav wav=@]
   ==
 ::
 +$  place
   $%  [%page ath=? nom=term]                            ::  serve from pages
       [%away loc=(list @t)]                             ::  308, redirect
+      [%asset typ=term ass=@]
   ==
 ::
 +$  query
@@ -134,6 +136,13 @@
       :_  dat
       ?~  res  caz
       (weld (spout id (paint u.res)) caz)
+    ::  route might want an asset
+    ::
+    ?:  ?=(%asset -.u.target)
+      ::  add %img or other asset types as needed with a ?-
+      ::
+      ?>  ?=(%wav typ.u.target)
+      [(spout id (paint %audio-wav ass.u.target)) dat]
     ::  route might be a redirect
     ::
     ?:  ?=(%away -.u.target)
@@ -220,8 +229,12 @@
 ::
 ++  paint  ::  render response
   |=  =reply
+  ::  simple-payload:http
+  ::  [[status-code ~[header-list]] [~ octs]]
+  ::
   ^-  simple-payload:http
   ?-  -.reply
+    %audio-wav  [[200 ['content-type' 'audio/wav']~] `(as-octs:mimes:html wav.reply)]
     %page  [[200 ['content-type' 'text/html']~] `(press bod.reply)]
     %xtra  =?  hed.reply  ?=(~ (get-header:http 'content-type' hed.reply))
              ['content-type'^'text/html' hed.reply]

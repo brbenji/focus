@@ -2,6 +2,7 @@
 ::  +$  ease  @dr  :: def ~s4 before focus begins, a delay on begin
 ::  +$  name  @t
 ::
+/+  rudder
 |%
 +$  focus  @dr
 +$  wrap  @ud  :: signal before time ends
@@ -12,11 +13,14 @@
 ::
 +$  then  [@da @da]
 ::
++$  public  ?
+::
 +$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
++$  reveal  ?
 +$  begin  ?
-+$  state-p  [=display =mode =prev-cmd =begin]
++$  state-p  [=display =mode =reveal =prev-cmd =begin]
 ::  type unions are eating my lunch!
 ::    disaplyify was made to help out.
 ::
@@ -28,8 +32,8 @@
   $%  [%maneuver =gruv =display =begin]
       [%pause ?]
       [%cont ?]
-      [%focus =gruv]
-      [%rest =gruv]
+      [%public public=?]
+      [%reveal reveal]
   ==
 ::
 +$  update
@@ -37,6 +41,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
+::  +$  state-0  [%0 groove=gruv =reps =then =state-p =public]
 ::
-+$  tack  [groove=gruv =reps then state-p]
++$  tack  [groove=gruv =reps then state-p public]
 --
