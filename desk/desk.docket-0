@@ -5,6 +5,6 @@
   version+[1 0 0]
   website+'https://github.com/brbenji/focus'
   license+'MIT'
-  image+'/focus/assets/tile/png'
+  image+'https://github.com/brbenji/focus/blob/master/desk/app/webui/assets/web-tile.png'
   site+/focus
 ==
