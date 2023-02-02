@@ -1,3 +1,7 @@
+::  focus: an interval timer
+::
+::    v1.0.1
+::
 /-  *focus
 /+  rudder, agentio, verb, dbug, default-agent
 /~  pages  (page:rudder tack command)  /app/webui
@@ -19,7 +23,7 @@
   $%  state-0
   ==
 ::  groove ex: ~m20 9 2 ~m5 8
-::    this says: focus for 20min, wrap-up call at 90% of way the through,
+::    this says: focus for 20min, wrap-up call at 90% of the way through,
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
@@ -82,7 +86,11 @@
       ::  XX: integrate an actual ease in later
       ::
       =/  ease  (add now.bowl ~s0)
-      :-  ~[(~(wait pass:io /rest) ease)]
+      :-
+      :~  (~(wait pass:io /rest) ease)
+          (~(rest pass:io /(scot %tas mode.state-p)) -.then)
+          (~(rest pass:io /wrap) +.then)
+      ==
       %=  this
         groove.state  gruv.command
         prev-cmd.state-p  %begin

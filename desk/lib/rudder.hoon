@@ -77,7 +77,7 @@
 +$  place
   $%  [%page ath=? nom=term]                            ::  serve from pages
       [%away loc=(list @t)]                             ::  308, redirect
-      [%asset typ=term ass=@]
+      [%asset typ=?(%wav %png) ass=@]
   ==
 ::
 +$  query
@@ -140,12 +140,12 @@
     ::  route might want an asset
     ::
     ?:  ?=(%asset -.u.target)
-      ::  add %img or other asset types as needed with a ?-
-      ::
-      ?:  ?=(%wav typ.u.target)
-        [(spout id (paint %audio-wav ass.u.target)) dat]
-      ?>  ?=(%png typ.u.target)
+      ?-  typ.u.target
+          %wav
+      [(spout id (paint %audio-wav ass.u.target)) dat]
+          %png
       [(spout id (paint %image-png ass.u.target)) dat]
+      ==
     ::  route might be a redirect
     ::
     ?:  ?=(%away -.u.target)
