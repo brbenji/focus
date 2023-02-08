@@ -9,7 +9,7 @@ I built this to time out my work sessions, meditations, and exercises.
 
 ## demo and install
 a publicaly visible version lives at [moon.howm.art/focus](https://moon.howm.art/focus).  
-on urbit, anyone will be able to install %focus from **~sogtux-bolmel-nordus-mocwyl**.
+on urbit, anyone will be able to install %focus from **~havdys-nordus-mocwyl**.
 
 **make your %focus app publicaly visible, by running this in your urbit's dojo:* `:focus &focus-command [%public &]`
 
