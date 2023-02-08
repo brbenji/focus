@@ -87,6 +87,7 @@
         `this(display.state-p display.command)
       ~&  'easing in'
       ~&  "groove be {<gruv.command>}"
+      ~&  "poking goals with {<(crip (scow %da now.bowl))>}"
       ::  XX: integrate an actual ease in later
       ::
       =/  ease  (add now.bowl ~s0)
@@ -100,7 +101,7 @@
           ::    /wire for the pass [=dock =cage] for input
           ::  goal-action+!>([vzn now.bowl %spawn-pool title.command]
           ::  pin of the from focus pool [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1]
-          (~(poke-our pass:io /groove-goal) [%goal-store [%goal-action !>([%4 now.bowl %spawn-goal [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1] ~ 'groove goal 1' |])]])
+          (~(poke-our pass:io /groove-goal) [%goal-store [%goal-action !>([%4 now.bowl %spawn-goal [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1] ~ (crip (scow %da now.bowl)) |])]])
       ==
       %=  this
         groove.state  gruv.command
@@ -158,15 +159,44 @@
       ::
       |=  =order:rudder
       ^-  [[(unit reply:rudder) (list card)] _+.state]
-      ~&  "can you find the request id in da vase {<vase>}"
-      =;  msg=@t  [[`[%code 404 msg] ~] +.state]
-      %+  rap  3
-      :~  'as of '
-          (scot %da (div now.bowl ~d1))
-          ', '
-          url.request.order
-          ' is still mia...'
+      ~&  "can you find the request id in da vase {<!<(order:rudder vase)>}"
+      =/  body  ^-  manx
+      ;html
+      ;head
+        ;title:"%focus"
+        ;meta(charset "utf-8");
+        ;meta(name "viewport", content "width=device-width, initial-scale=1");
       ==
+      ;body
+        ;p:'hello'
+      ==  ==
+      ~&  "is this my response {<(reply:rudder [%xtra [['keep-alive' 'timeout=500, max=80000'] ~] body])>}"
+      =;  msg  [[`[%xtra [['keep-alive' 'timeout=500, max=80000'] ~] msg] ~] +.state]
+      body
+      ::  try to make this page
+      ::  XX: we can send out %xtra reply, see what happens.
+      ::  - need
+      ::  u(
+      ::    ?(
+      ::      [%audio-wav wav=@]
+      ::      [%image-png png=@]
+      ::      [%next loc=@t msg=?(%~ @t)]
+      ::      [%auth loc=@t]
+      ::      [%move loc=@t]
+      ::      [%code cod=@ud msg=?(%~ @t)]
+      ::      [ %full
+      ::          ful
+      ::        [ response-header=[status-code=@ud headers=it([key=@t value=@t])]
+      ::          data=u([p=@ud q=@])
+      ::        ]
+      ::      ]
+      ::      [%page bod=#4]
+      ::      [ %xtra
+      ::        hed=it([key=@t value=@t])
+      ::        bod=^#4.[g=[n=?(@tas [@tas @tas]) a=it([n=?(@tas [@tas @tas]) v=""])] c=it(#4)]
+      ::      ]
+      ::    )
+      ::  )
       ::  actions / solve
       ::
       |=  cmd=command
@@ -250,6 +280,8 @@
   ^-  (quip card _this)
   ?>  =(our.bowl src.bowl)
   ?+  path  (on-watch:def path)
+    ::  why is this here?
+    ::
     [%http-response *]  [~ this]
   ==
 ::
