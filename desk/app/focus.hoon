@@ -43,7 +43,11 @@
 ::
 ++  on-init
   ^-  (quip card _this)
-  :-  ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])]
+  ::  XX: clean-up. this will create a pool on init
+  ::      perhaps if I import /- goals  I can grab vzn
+  ::      but if someone doens't have %goals I don't know how that would
+  ::      go...could.
+  :-  ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl]) (~(poke-our pass:io /pool) [%goal-store [%goal-action !>([%4 now.bowl %spawn-pool 'from focus'])]])]
   this(state [%0 [~m5 8 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus | %fresh |] |])
 ::
 ++  on-save  !>(state)
@@ -90,6 +94,13 @@
       :~  (~(wait pass:io /rest) ease)
           (~(rest pass:io /(scot %tas mode.state-p)) -.then)
           (~(rest pass:io /wrap) +.then)
+          ::  attempt to poke %goals to %spawn-goal
+          ::  I'll need to scry for the pin of the focus pool
+          ::    and perhaps for the context of any nested goals.
+          ::    /wire for the pass [=dock =cage] for input
+          ::  goal-action+!>([vzn now.bowl %spawn-pool title.command]
+          ::  pin of the from focus pool [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1]
+          (~(poke-our pass:io /groove-goal) [%goal-store [%goal-action !>([%4 now.bowl %spawn-goal [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1] ~ 'groove goal 1' |])]])
       ==
       %=  this
         groove.state  gruv.command
@@ -141,20 +152,21 @@
         [%assets %wrep %wav ~]   `[%asset %wav wrep-wav]
         [%assets %tile %png ~]   `[%asset %png tile]
       ==
-      (fours:rudder +.state)
+      ::  (fours:rudder +.state)
       ::  custom fallback / adlib
       ::    XX: this might be where long-polling will occur
       ::
-      ::  |=  =order:rudder
-      ::  ^-  [[(unit reply:rudder) (list card)] _+.state]
-      ::  =;  msg=@t  [[`[%code 404 msg] ~] +.state]
-      ::  %+  rap  3
-      ::  :~  'as of '
-      ::      (scot %da (div now.bowl ~d1))
-      ::      ', '
-      ::      url.request.order
-      ::      ' is still mia...'
-      ::  ==
+      |=  =order:rudder
+      ^-  [[(unit reply:rudder) (list card)] _+.state]
+      ~&  "can you find the request id in da vase {<vase>}"
+      =;  msg=@t  [[`[%code 404 msg] ~] +.state]
+      %+  rap  3
+      :~  'as of '
+          (scot %da (div now.bowl ~d1))
+          ', '
+          url.request.order
+          ' is still mia...'
+      ==
       ::  actions / solve
       ::
       |=  cmd=command
@@ -188,6 +200,13 @@
     :-
     :~  (~(wait pass:io /rest) setrest)
         (~(wait pass:io /wrap) setwrep)
+        ::  XX: is this the best place for creating a rep goal?
+        ::      it would one rep-goal less than there is.
+        ::      must use the rep count to create these goals
+        ::      in focus mode
+        ::  first pid is the pool, the context is the "path" into a
+        ::  next.
+        (~(poke-our pass:io /rep-goal) [%goal-store [%goal-action !>([%4 now.bowl %spawn-goal [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1] (some [owner=~zod birth=~2023.2.7..22.15.20..2844]) 'rep goal' |])]])
     ==
     %=  this
       then  [setrest setwrep]
@@ -239,9 +258,3 @@
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
 --
-::  note of hack
-::    local-post in on-arvo would be better as an arm somewhere. a
-::    nested core might be best. but it was a late and complex addition
-::    to the app. it still doesn't unlock page refreshing from on-arvo
-::    like I hoped. I can't get the behn wake gift to initiate a new
-::    page with the %rest timers clock.
