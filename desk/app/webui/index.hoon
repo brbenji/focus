@@ -78,6 +78,7 @@
     ;hmtl
     ;head
       ;title:"%focus"
+      ;link(rel "icon", type "image/png", href "focus/assets/tile/png");
       ;meta(charset "utf-8");
       ;meta(name "viewport", content "width=device-width, initial-scale=1");
       ;style:"{(weld (trip style) mod-style)}"
