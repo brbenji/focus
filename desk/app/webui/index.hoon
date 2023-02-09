@@ -72,6 +72,9 @@
           msg=(unit [o=? =@t])
       ==
   ^-  reply:rudder
+  ::  XX: change this to an %xtra reply
+  ::      add the header "keep-alive: timeout=<refresh>, max=<(add
+  ::      refresh 5s)>"
   |^  [%page page]
   ++  page
     ^-  manx

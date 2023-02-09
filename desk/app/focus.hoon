@@ -27,7 +27,7 @@
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
-+$  state-0  [%0 groove=gruv =reps =then =state-p =public]
++$  state-0  [%0 groove=gruv =reps =then =state-p =delivery =public]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -44,11 +44,13 @@
 ++  on-init
   ^-  (quip card _this)
   ::  XX: clean-up. this will create a pool on init
-  ::      perhaps if I import /- goals  I can grab vzn
   ::      but if someone doens't have %goals I don't know how that would
-  ::      go...could.
-  :-  ~[(~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl]) (~(poke-our pass:io /pool) [%goal-store [%goal-action !>([%4 now.bowl %spawn-pool 'from focus'])]])]
-  this(state [%0 [~m5 8 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus | %fresh |] |])
+  ::      go...could?
+  ::
+  :_  this(state [%0 [~m5 8 1 ~s30 8] 1 [now.bowl now.bowl] [%enter %focus | %fresh |] *[@ta simple-payload:http] |])
+  :~  (~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])
+      (~(poke-our pass:io /pool) [%goal-store [%goal-action !>([%4 now.bowl %spawn-pool 'from focus'])]])
+  ==
 ::
 ++  on-save  !>(state)
 ::
@@ -114,8 +116,19 @@
     ==
     ::
       %handle-http-request
+    ::  XX: this is where the state (this) is modified
+    ::      the deferred name of out is defined, by
+    ::      all that junk below it.
+    ::
+    ::      it's the output of the custom gate, the build, pages,
+    ::      everything!
+    ::
     =;  out=(quip card _+.state)
       [-.out this(+.state +.out)]
+    ::  XX: might need to dig into rudder and make sure it doesn't spout.
+    ::      the effect of build should just send [eyre-id
+    ::      simple-payload] into state-p
+    ::
     %.  [bowl !<(order:rudder vase) +.state]
     %:  (steer:rudder _+.state command)
       ::  map of pages
@@ -159,20 +172,32 @@
       ::
       |=  =order:rudder
       ^-  [[(unit reply:rudder) (list card)] _+.state]
-      ~&  "can you find the request id in da vase {<!<(order:rudder vase)>}"
-      =/  body  ^-  manx
-      ;html
-      ;head
-        ;title:"%focus"
-        ;meta(charset "utf-8");
-        ;meta(name "viewport", content "width=device-width, initial-scale=1");
-      ==
-      ;body
-        ;p:'hello'
-      ==  ==
-      ~&  "is this my response {<(reply:rudder [%xtra [['keep-alive' 'timeout=500, max=80000'] ~] body])>}"
-      =;  msg  [[`[%xtra [['keep-alive' 'timeout=500, max=80000'] ~] msg] ~] +.state]
-      body
+      ::  ~&  "request id in da vase {<id:!<(order:rudder vase)>}"
+      ::  =/  body  ^-  manx
+      ::  ;html
+      ::  ;head
+      ::    ;title:"%focus"
+      ::    ;meta(charset "utf-8");
+      ::    ;meta(name "viewport", content "width=device-width, initial-scale=1");
+      ::  ==
+      ::  ;body
+      ::    ;p:'hello'
+      ::  ==  ==
+      ::  ~&  "is this my response {<(reply:rudder [%xtra [['keep-alive' 'timeout=500, max=80000'] ~] body])>}"
+      ::    not working...it's a list of card but doesn't seem happy.
+      ::    =/  fx  (spout:rudder [id:!<(order:rudder vase) (issue:rudder [405 ~])])
+      ::
+      ::  this is sending a wait fact, successfully.
+      ::  let's try putting id and simple-payload into state.
+      ::  =;  msg
+      ::  :-  :-  `[%xtra [['keep-alive' 'timeout=500, max=80000'] ~] msg]
+      ::
+      ::  removing the reply
+      :-  :-  ~
+              :~  (~(wait pass:io /rest) (add now.bowl ~s6))
+              ==
+          +.state(delivery [id:!<(order:rudder vase) (issue:rudder [405 ~])])
+      ::  body
       ::  try to make this page
       ::  XX: we can send out %xtra reply, see what happens.
       ::  - need
@@ -255,10 +280,26 @@
     =/  wrap  wrap.groove
     =/  setfocus  (add now.bowl focus)
     =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
-    :-
-    :~  (~(wait pass:io /focus) setfocus)
-        (~(wait pass:io /wrap) setwrap)
+    =/  timers  :~  (~(wait pass:io /focus) setfocus)
+                    (~(wait pass:io /wrap) setwrap)
+        ::  XX: add (spout:rudder [~.~thing (issue:rudder [405 ~])])
+        ::      which will send out three cards...
+        ::      figure out how to insert the relevant [eyre-id
+        ::      simple-payload] from state-p into these cards
+        ::
+        ::      here's a possible way of getting the reply I'm after
+        ::      most likely I'll want build from within rudder to
+        ::      deliver the page I want as a the payload.
+        ::      id is already available inside the +apply arm.
+        ::
+        ::      (spout:rudder [~.~eyre (paint:rudder [%code 404 ~])])
     ==
+    =/  spout  (spout:rudder delivery)
+    :-
+    ::  XX: this worked!
+    ::      now actually connect spout with a real id and payload
+    (weld timers spout)
+    ~&  (weld timers spout)
     %=  this
       reps  +(reps)
       then  [setfocus setwrap]

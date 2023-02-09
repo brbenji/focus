@@ -21,6 +21,7 @@
 +$  reveal  ?
 +$  begin  ?
 +$  state-p  [=display =mode =reveal =prev-cmd =begin]
++$  delivery  [eyre-id=@ta =simple-payload:http]
 ::  type unions are eating my lunch!
 ::    disaplyify was made to help out.
 ::
@@ -41,7 +42,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
-::  +$  state-0  [%0 groove=gruv =reps =then =state-p =public]
+::  +$  state-0  [%0 groove=gruv =reps =then =state-p =delivery =public]
 ::
-+$  tack  [groove=gruv =reps then state-p public]
++$  tack  [groove=gruv =reps then state-p delivery public]
 --

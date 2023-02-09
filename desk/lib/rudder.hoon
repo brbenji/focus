@@ -173,14 +173,30 @@
       [(spout id (issue 405 ~)) dat]
     ::
         %'GET'
-      :_  dat
       =+  (purse url.request.order)
       =^  msg  args
         ::NOTE  as set by %next replies
         ?~  msg=(get-header:http 'rmsg' args)  [~ args]
         [`[& u.msg] (delete-header:http 'rmsg' args)]
+      ::  XX: maybe this is where I disconnect +build from spout
+      ::      can I instead set a timer, and add [eyre-id
+      ::      simple-payload] to state?
+      ::
+      ::    maybe state has wait=?
+      ::    and build branches from it. it's set with the timers.
+      ::
+      ::  ?:  wait  :-  dat(res.state-p [id (paint (build:page args msg))]
+      ::
+      ::  this probably isn't where I save it into state. perhaps I need
+      ::  adlib for that...only that is only called on a no route.
+      ::  even if I did it +solve, that is only called after POST.
+      ::  and I want to manipulate GET.
+      ::
+      :-
       %+  spout  id
       (paint (build:page args msg))
+      dat
+      ::  [dat [id (paint (build:page args msg))]]
     ::
         %'POST'
       ?@  act=(argue:page [header-list body]:request.order)
