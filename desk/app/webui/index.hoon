@@ -12,20 +12,23 @@
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
     ?:  (~(has by args) 'reveal')
+      ::  reveals the hidden rest inputs
+      ::    perhaps the name should have been multi or more?
+      ::
       [%reveal &]
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
-      [%maneuver groove (display.focus %help) |]
+      [%maneuver groove (display.focus %help) | delivery]
     ?:  =((~(got by args) 'nav') 'X')
       ::  exit help
       ::
-      [%maneuver groove (display.focus %form) |]
+      [%maneuver groove (display.focus %form) | delivery]
     ?.  (~(has by args) 'h')
       ::  the time setting code below won't work unless nav produces h m s etc
       ::    this produces the existing groove instead
       ::
-      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) |]
+      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) | delivery]
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
     ::
@@ -56,7 +59,8 @@
     ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
     ::
     =/  wrep  wrap
-    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
+    ~&  "delivery in pages {<delivery>}"
+    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) & delivery]
   ::  XX: add this functionality
   ::
   ?:  (~(has by args) 'cont')
@@ -354,9 +358,13 @@
   ++  handle-refresh
     ?:  =(display %clock)
       ?:  =(mode %focus)
-        (refresh focus.groove)
+        :: (refresh focus.groove)
+        ::
+        (refresh ~s1)
       ?:  =(mode %rest)
-        (refresh rest.groove)
+        ::  (refresh rest.groove)
+        ::
+        (refresh ~s1)
       (a-co:co (mul day:yo 1.000))
     ::  sounds like poetry but it's just a day in seconds
     ::  in a tape "86460"
