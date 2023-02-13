@@ -207,7 +207,21 @@
         :_  dat
         =?  act  ?=(~ act)  'failed to process request'
         (spout id (paint (final:page | res)))
+        ::  +>.res is dat or the state provided by +solve
+        ::    as defined by the agent
+        ::  -.res is the optional briefing message
+        ::  +<.res is the cards that +solve produces
+        ::
+        ::  XX: what all is possible with this?
+        ::        spout here is going to give me the http-response cards
+        ::        I want those cards in state.
+        ::        if the agent knew those cards within +solve,
+        ::        I could insert it into state there,
+        ::        but this is where it originates and
+        ::        where it is expelled out -.out, back in the agent.
+        ::
       :_  +>.res
+      ::  (weld (spout id (paint (final:page & -.res))) [+<.res (spout id (paint (final:page & -.res)))])
       (weld (spout id (paint (final:page & -.res))) +<.res)
     ==
   --

@@ -19,16 +19,16 @@
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
-      [%maneuver groove (display.focus %help) | delivery]
+      [%maneuver groove (display.focus %help)]
     ?:  =((~(got by args) 'nav') 'X')
       ::  exit help
       ::
-      [%maneuver groove (display.focus %form) | delivery]
+      [%maneuver groove (display.focus %form)]
     ?.  (~(has by args) 'h')
       ::  the time setting code below won't work unless nav produces h m s etc
       ::    this produces the existing groove instead
       ::
-      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) | delivery]
+      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav')))]
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
     ::
@@ -59,8 +59,7 @@
     ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
     ::
     =/  wrep  wrap
-    ~&  "delivery in pages {<delivery>}"
-    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) & delivery]
+    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock)]
   ::  XX: add this functionality
   ::
   ?:  (~(has by args) 'cont')
@@ -115,8 +114,6 @@
               ;polygon(style "fill:white", points "{(~(got by wrap-icon) wrap.groove)}");
             ==
             ;+
-            ?:  =(mode %fin)
-              ;strong.time.brothers: {<display>}
             ?:  =(mode %rest)
               ;div.time-rest.brothers
                 ;strong.time(style "font-size: 2.33em"): {(face rest.groove)}
@@ -231,17 +228,32 @@
   ::    these setTimeout funcions are doing but
   ::    with rudder instead.
   ::
+  ::    most likely, I can remove the setTimeout, but I will need to
+  ::    inject the document.location.reload() when I start long-polling,
+  ::    which happens right when I start everytimer.
+  ::    note: if the loading indicators are way too annoying. I can keep
+  ::    the setTimeout, but have them occur...wait will the refresh aka
+  ::    GET http-request be setting my timers, if that's true this
+  ::    second option I'm proposing won't work...which is haveing the
+  ::    timeout set to go off at wrap-up time.
+  ::
+  ::    setTimeout(() => \{
+  ::      document.location.reload();
+  ::      console.log('re-re-refresh!');
+  ::    }, {handle-refresh});
+  ::
+  ::
   ++  script
     """
-    setTimeout(() => \{
-      document.location.reload();
-      console.log('re-re-refresh!');
-    }, {handle-refresh});
-
     setTimeout(() => \{
       document.getElementById({<?:(=(mode %rest) "wrep-wav" "wrap-wav")>}).play();
       console.log('wrap it up!');
     }, {handle-wrap});
+
+    setTimeout(() => \{
+      document.location.reload();
+      console.log('re-re-refresh!');
+    }, {handle-refresh});
     """
   ::  mod-style is built in a tape for code insertion
   ::
@@ -356,15 +368,20 @@
     =/  ms  (mul total 1.000)
     (a-co:co ms)
   ++  handle-refresh
+    ::  this is verbosely copying handle-wrap
+    ::  and adding extra time, to allow mars time to
+    ::  engage long-polling before refreshing.
+    ::
+    ::  half a second is ~s0..8000
+    ::
+    ::  XX: if I separated out the (a-co:co) application into
+    ::  another arm, I could simplify these arms.
+    ::
     ?:  =(display %clock)
       ?:  =(mode %focus)
-        :: (refresh focus.groove)
-        ::
-        (refresh ~s1)
+        (refresh `@dr`(add (wrap-up focus.groove) ~s1))
       ?:  =(mode %rest)
-        ::  (refresh rest.groove)
-        ::
-        (refresh ~s1)
+        (refresh `@dr`(add (wrap-up rest.groove) ~s1))
       (a-co:co (mul day:yo 1.000))
     ::  sounds like poetry but it's just a day in seconds
     ::  in a tape "86460"

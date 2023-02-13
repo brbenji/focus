@@ -15,12 +15,11 @@
 ::
 +$  public  ?
 ::
-+$  display  ?(%form %help %clock %enter)
++$  display  ?(%form %help %clock %goals %enter)
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  reveal  ?
-+$  begin  ?
-+$  state-p  [=display =mode =reveal =prev-cmd =begin]
++$  state-p  [=display =mode =reveal =prev-cmd long-poll=?]
 +$  delivery  (list card:agent:gall)
 ::
 ::  type unions are eating my lunch!
@@ -31,7 +30,11 @@
   %-  display  incoming
 ::
 +$  command
-  $%  [%maneuver =gruv =display =begin =delivery]
+  $%  [%maneuver =gruv =display]
+      [%begin ease=@dr]
+      [%focus @dr]
+      [%rest @dr]
+      [%fin @dr]
       [%pause ?]
       [%cont ?]
       [%public public=?]
@@ -45,5 +48,5 @@
 ::  state for rudder, a copy of +.state-0
 ::  +$  state-0  [%0 groove=gruv =reps =then =state-p =delivery =public]
 ::
-+$  tack  [groove=gruv =reps then state-p =delivery public]
++$  tack  [groove=gruv =reps then state-p delivery public]
 --
