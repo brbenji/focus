@@ -29,16 +29,26 @@
   |=  incoming=@tas
   %-  display  incoming
 ::
+::  is there a good non-cell way to do this
+::  most of these commands could just be @tas
+::  begin, focus, rest, fin, pause, cont, deliver
+::
+::  as an experiment. my mark for commands is now
+::  simply &command, instead of &focus-command.
+::  I have no need for a /mar, because this app is
+::  self contained. there is no need to convert to json.
+::
 +$  command
-  $%  [%maneuver =gruv =display]
-      [%begin ease=@dr]
-      [%focus @dr]
+  $%  [%focus @dr]
       [%rest @dr]
       [%fin @dr]
       [%pause ?]
       [%cont ?]
-      [%public public=?]
+      [%deliver ~]
       [%reveal reveal]
+      [%begin ease=@dr]
+      [%public public=?]
+      [%maneuver =gruv =display]
   ==
 ::
 +$  update

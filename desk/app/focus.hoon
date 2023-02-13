@@ -95,7 +95,7 @@
   ^-  (quip card _this)
   ?>  (team:title our.bowl src.bowl)
   ?+  mark  (on-poke:def mark vase)
-      %focus-command
+      %command
     =/  command  !<(command vase)
     ?-    -.command
       ::  XX: add this functionality
@@ -110,9 +110,30 @@
         %public
       `this(public public.command)
         %maneuver
-      `this
+      ~&  'form posted long-poll engaged'
+      ?.  =(display.command %clock)
+        `this(display.state-p display.command)
+      ::  protect against ~s0 focus submissions
+      ::  by reseting to the beginning
+      ::
+      ?~  `@`focus.gruv.command
+        `this(display.state-p %enter, reveal.state-p |)
+      :-
+      :~
+      ::  this will add an ease in time, if desired.
+      ::
+        (~(poke-self pass:io /begin) [%command !>([%begin ~s0])])
+      ==
+      %=  this
+        groove.state  gruv.command
+        display.state-p  display.command
+        reps  0
+        long-poll.state-p  &
+        mode.state-p  %focus
+      ==
+      ::
         %reveal
-      `this
+      `this(reveal.state-p +.command)
       ::
         %begin
       ~&  'begin'
@@ -136,8 +157,8 @@
             ::  maybe there is only one focus
             ::
             ?:  (lte reps.groove 1)
-              (~(poke-self pass:io /focus-pocus) [%focus-command !>([%fin focus.groove])])
-            (~(poke-self pass:io /focus-pocus) [%focus-command !>([%focus focus.groove])])
+              (~(poke-self pass:io /focus-pocus) [%command !>([%fin focus.groove])])
+            (~(poke-self pass:io /focus-pocus) [%command !>([%focus focus.groove])])
             ::  spawn-goal in %goals for this groove
             ::
             ::  attempt to poke %goals to %spawn-goal
@@ -220,6 +241,10 @@
         then  [setfocus setwrap]
         long-poll.state-p  |
       ==
+      ::  useful for when the timer is stuck in an interception
+      ::
+        %deliver
+      [delivery this(long-poll.state-p |)]
 
       ::  what about a %send/%deliver poke?
       ::  or what if %focus and %rest are pokes, that set timers and
@@ -321,53 +346,16 @@
       (fours:rudder +.state)
       ::  solve/commmands from argue
       ::
-      |=  =command
+      |=  cmd=command
       ^-  $@  brief:rudder
           [brief:rudder (list card) _+.state]
       ::  these cards are welded together with a spout
       ::    in the +apply of a POST
       ::
-      ?-  -.command
-        ::
-        ::  maneuver both moves and takes an action
-        ::  a groove is set and the display is changed
-        ::  all in one poke.
-        ::
-        %maneuver
-        ~&  'form posted long-poll engaged'
-        ?.  =(display.command %clock)
-          ``+.state(display.state-p display.command)
-        :-  ~   :-
-        ::  this will add an ease in time, if desired.
-        ::
-        ~[(~(poke-self pass:io /begin) [%focus-command !>([%begin ~s0])])]
-        %=  +.state
-          groove  gruv.command
-          display.state-p  display.command
-          reps  0
-          long-poll.state-p  &
-          mode.state-p  %focus
-        ==
-        ::
-          %reveal
-        ``+.state(reveal.state-p +.command)
-          %pause
-        ~&  'oops no pause'
-        ``+.state(prev-cmd.state-p %pause)
-          %cont
-        ~&  'oops all maneuvers'
-        ``+.state(prev-cmd.state-p %cont)
-        ::
-          %public
-        ``+.state(public public.command)
-          %begin  ``+.state
-          %focus  ``+.state
-          %rest  ``+.state
-          %fin  ``+.state
-        ==
-      ::  =^  cards  this
-        ::  (on-poke %focus-command !>(cmd))
-      ::  [~ cards +.state]
+      ::
+        =^  cards  this
+          (on-poke %command !>(cmd))
+        [~ cards +.state]
       ==
   ==
 ::
@@ -378,7 +366,7 @@
       %focus
     ?>  ?=([%behn %wake *] sign)
     =/  rest-poke
-      ~[(~(poke-self pass:io /rest-poke) [%focus-command !>([%rest rest.groove])])]
+      ~[(~(poke-self pass:io /rest-poke) [%command !>([%rest rest.groove])])]
     ::  deliver the clock-rest page
     ::
     :-  (weld rest-poke delivery)
@@ -388,13 +376,13 @@
       %rest
     ?>  ?=([%behn %wake *] sign)
     =/  focus-pocus
-      ~[(~(poke-self pass:io /focus-pocus) [%focus-command !>([%focus focus.groove])])]
+      ~[(~(poke-self pass:io /focus-pocus) [%command !>([%focus focus.groove])])]
     =/  fin-poke
-      ~[(~(poke-self pass:io /focus-pocus) [%focus-command !>([%fin focus.groove])])]
+      ~[(~(poke-self pass:io /focus-pocus) [%command !>([%fin focus.groove])])]
     ::  deliver the clock-focus page
     ::
     ?:  (gte reps (dec reps.groove))
-      [(weld fin-poke delivery) this(delivery ~, display.state-p %goals)]
+      [(weld fin-poke delivery) this(delivery ~)]
     :-  (weld focus-pocus delivery)
     %=  this
       delivery  ~
@@ -421,8 +409,12 @@
     ~&  'wrap up'
     ~&  "long-polling engaged"
     =/  next-mode
-      ?:  =(mode.state-p %focus)  %rest
-        %focus
+      :: toggle between %focus and %rest
+      ::
+      ?:  =(mode.state-p %rest)  %focus
+        %rest
+    ::  for when there is only one focus
+    ::
     ?:  (lte reps.groove 1)
       `this(long-poll.state-p &, display.state-p %goals)
     `this(long-poll.state-p &, mode.state-p next-mode)
