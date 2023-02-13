@@ -75,10 +75,12 @@
           msg=(unit [o=? =@t])
       ==
   ^-  reply:rudder
-  ::  XX: change this to an %xtra reply
-  ::      add the header "keep-alive: timeout=<refresh>, max=<(add
-  ::      refresh 5s)>"
-  |^  [%page page]
+  |^  [%xtra headers page]
+  ++  headers
+    ::  this doesn't really do anything
+    ::
+    :~  ['keep-alive' (crip "timeout={seconds}, max={(a-co:co day:yo)}")]
+    ==
   ++  page
     ^-  manx
     ;hmtl
@@ -323,6 +325,18 @@
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     =/  ms  (mul total 1.000)
     (a-co:co (add ms delay))
+  ++  seconds
+    ::  produce @dr of the total time
+    ::
+    ^-  tape
+    =/  sets  ?~(reps.groove 1 reps.groove)
+    =/  f-total  (mul focus.groove sets)
+    =/  r-total  (mul rest.groove (dec sets))
+    =/  total-dr  (add f-total r-total)
+    ::
+    =/  sec  (yell total-dr)
+    =/  total-sec  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+    (a-co:co total-sec)
   ++  face
     ::  turn the numbers on the clock from @dr
     ::  to something more normie readable
