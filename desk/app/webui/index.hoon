@@ -230,21 +230,6 @@
   ::    these setTimeout funcions are doing but
   ::    with rudder instead.
   ::
-  ::    most likely, I can remove the setTimeout, but I will need to
-  ::    inject the document.location.reload() when I start long-polling,
-  ::    which happens right when I start everytimer.
-  ::    note: if the loading indicators are way too annoying. I can keep
-  ::    the setTimeout, but have them occur...wait will the refresh aka
-  ::    GET http-request be setting my timers, if that's true this
-  ::    second option I'm proposing won't work...which is haveing the
-  ::    timeout set to go off at wrap-up time.
-  ::
-  ::    setTimeout(() => \{
-  ::      document.location.reload();
-  ::      console.log('re-re-refresh!');
-  ::    }, {handle-refresh});
-  ::
-  ::
   ++  script
     """
     setTimeout(() => \{
@@ -311,7 +296,7 @@
     ::    we delay the vfx but not js refresh
     ::    refresh needs to occur asap
     ::
-    120
+    0
   ++  reveal-rest
     ?:  reveal
       "number"
