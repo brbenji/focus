@@ -367,20 +367,21 @@
     =/  ms  (mul total 1.000)
     (a-co:co ms)
   ++  handle-refresh
-    ::  this is verbosely copying handle-wrap
-    ::  and adding extra time, to allow mars time to
-    ::  engage long-polling before refreshing.
+    ::  small timers are a second after wrap-up.
+    ::  large timers are 5 seconds before end.
     ::
-    ::  half a second is ~s0..8000
-    ::
-    ::  XX: if I separated out the (a-co:co) application into
-    ::  another arm, I could simplify these arms.
+    ::  this prevents a host of frustrating frozen browser issues,
+    ::  while the long-polling is engaged.
     ::
     ?:  =(display %clock)
       ?:  =(mode %focus)
-        (refresh `@dr`(add (wrap-up focus.groove) ~s1))
+        ?:  (lte focus.groove ~s50)
+          (refresh `@dr`(add (wrap-up focus.groove) ~s1))
+        (refresh `@dr`(sub focus.groove ~s5))
       ?:  =(mode %rest)
-        (refresh `@dr`(add (wrap-up rest.groove) ~s1))
+        ?:  (lte focus.groove ~s50)
+          (refresh `@dr`(add (wrap-up rest.groove) ~s1))
+        (refresh `@dr`(sub rest.groove ~s5))
       (a-co:co (mul day:yo 1.000))
     ::  sounds like poetry but it's just a day in seconds
     ::  in a tape "86460"

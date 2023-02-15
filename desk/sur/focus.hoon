@@ -30,14 +30,10 @@
 ::  begin, focus, rest, fin, pause, cont, deliver
 ::
 +$  command
-  $%  [%focus @dr]
-      [%rest @dr]
-      [%fin @dr]
-      [%pause ?]
+  $%  [%pause ?]
       [%cont ?]
       [%deliver ~]
       [%reveal reveal]
-      [%begin ease=@dr]
       [%public public=?]
       [%maneuver =gruv =display]
   ==

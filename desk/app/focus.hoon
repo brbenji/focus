@@ -17,6 +17,24 @@
 ::      we're not actually using prev-cmd.
 ::      perhaps when we add %pause we will?
 ::
+::      biggest bug with long-polling
+::      right now long-poll is engaged a second after /wrap
+::      timer goes off. this means the browser will be frozen
+::      until the next timer turns long-poll off again.
+::      in a standard timer situation this is no problem,
+::      but say a user want to cancel the current timer and
+::      submit a new one in forms.
+::      before the wrap time, they are permitted into the form
+::      page, but if the wrap time is passed while there they
+::      are forced to wait out the timer. that could be frustrating.
+::
+::      what are the benefits of refreshing so closely after wrap?
+::      why not refresh at the conclusion of the timer? or even
+::      seconds before?
+::        I suppose I believe this extra space of time could be used to
+::        recover from slippage of time. when the webui is...behind?
+::        this can happen when a laptop is closed and re-opened.
+::
 /-  *focus
 /+  rudder, agentio, verb, dbug, default-agent
 /~  pages  (page:rudder tack command)  /app/webui
@@ -116,117 +134,36 @@
       ::
       ?~  `@`focus.gruv.command
         `this(display.state-p %enter, reveal.state-p |)
-      :-
-      :~
-      ::  this will add an ease in time, if desired.
       ::
-        (~(poke-self pass:io /begin) [%focus-command !>([%begin ~s0])])
-      ==
+      =/  begin-msg
+        ?:  (lte reps.gruv.command 1)
+        "begin to focus for {<focus.gruv.command>}"
+      "begin to focus {<reps.gruv.command>} times for {<focus.gruv.command>}, resting {<rest.gruv.command>} between each."
+      ~&  >  begin-msg
+      =/  timers
+        :~  ::  prime the timer ping-pong
+            ::
+            (~(wait pass:io /rest) now.bowl)
+            ::  cancel any existing timers
+            ::
+            (~(rest pass:io /(scot %tas mode.state-p)) -.then)
+            (~(rest pass:io /wrap) +.then)
+            (~(rest pass:io /fin) -.then)
+            (~(rest pass:io /fin-wrap) +.then)
+        ==
+      ::  deliver the clock-focus page
+      ::
+      :-  (weld timers delivery)
       %=  this
         groove.state  gruv.command
         display.state-p  display.command
         mode.state-p  %focus
         reps  1
-        long-poll.state-p  &
+        long-poll.state-p  |
       ==
       ::
         %reveal
       `this(reveal.state-p +.command)
-      ::
-        %begin
-      =/  begin-msg
-        "begin to focus {<reps.groove>} times for {<focus.groove>}, resting {<rest.groove>} between each."
-      ~&  >  begin-msg
-      ::~&  "poking goals with {<(crip (scow %da now.bowl))>}"
-      ::
-      =/  fx
-        :~  ::  cancel any existing timers
-            ::
-            (~(rest pass:io /(scot %tas mode.state-p)) -.then)
-            (~(rest pass:io /wrap) +.then)
-            ::
-            ::  maybe there is only one focus
-            ::
-            ?:  (lte reps.groove 1)
-              (~(poke-self pass:io /focus-pocus) [%focus-command !>([%fin focus.groove])])
-            (~(poke-self pass:io /focus-pocus) [%focus-command !>([%focus focus.groove])])
-            ::  spawn-goal in %goals for this groove
-            ::
-            ::  attempt to poke %goals to %spawn-goal
-            ::  I'll need to scry for the pin of the focus pool
-            ::    and perhaps for the context of any nested goals.
-            ::    /wire for the pass [=dock =cage] for input
-            ::  goal-action+!>([vzn now.bowl %spawn-pool title.command]
-            ::  pin of the from focus pool [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1]
-            ::
-            ::(~(poke-our pass:io /groove-goal) [%goal-store [%goal-action !>([%4 now.bowl %spawn-goal [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1] ~ (crip (scow %da now.bowl)) |])]])
-        ==
-      ::  deliver the clock-focus page
-      ::
-      :-  (weld fx delivery)
-      %=  this
-        prev-cmd.state-p  %begin  :: temp?
-        long-poll.state-p  |
-      ==
-        %focus
-      ~&  >>  "focus {<reps>} of {<reps.groove>}"
-      =/  focus  focus.groove
-      =/  wrap  wrap.groove
-      =/  setfocus  (add now.bowl focus)
-      =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
-      :-
-      :~  (~(wait pass:io /focus) setfocus)
-          (~(wait pass:io /wrap) setwrap)
-          ::(~(poke-our pass:io /rep-goal) [%goal-store [%goal-action !>([%4 now.bowl %spawn-goal [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1] (some [owner=~zod birth=~2023.2.7..22.15.20..2844]) 'rep goal' |])]])
-      ==
-      %=  this
-        then  [setfocus setwrap]
-        long-poll.state-p  |
-      ==
-      ::
-        %rest
-      ~&  >  'rest'
-      =/  rest  rest.groove
-      =/  wrep  wrep.groove
-      =/  setrest  (add now.bowl rest)
-      =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-      :-
-      :~  (~(wait pass:io /rest) setrest)
-          (~(wait pass:io /wrap) setwrep)
-          ::  XX: is this the best place for creating a rep goal?
-          ::      it would one rep-goal less than there is.
-          ::      must use the rep count to create these goals
-          ::      in focus mode
-          ::  first pid is the pool, the context is the "path" into a
-          ::  next.
-          ::  ?edit the fresh rep-goal?
-          ::  there would need to be a POST, I guess that could occur
-          ::  within %handle-http-response. that would work as long as
-          ::  it wasn't long-polling.
-          ::(~(poke-our pass:io /rep-goal) [%goal-store [%goal-action !>([%4 now.bowl %spawn-goal [%pin owner=~zod birth=~2023.2.7..21.44.48..24b1] (some [owner=~zod birth=~2023.2.7..22.15.20..2844]) 'rep goal' |])]])
-                  ==
-      %=  this
-        reps  +(reps)
-        then  [setrest setwrep]
-        long-poll.state-p  |
-      ==
-        %fin
-      ::  final focus mode
-      ::
-      ~&  >>  'final focus'
-      =/  focus  focus.groove
-      =/  wrap  wrap.groove
-      =/  setfocus  (add now.bowl focus)
-      =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
-      :-
-      :~  (~(wait pass:io /fin) setfocus)
-          (~(wait pass:io /fin-wrap) setwrap)
-          ::  last nested rep-goal
-      ==
-      %=  this
-        then  [setfocus setwrap]
-        long-poll.state-p  |
-      ==
       ::  useful for when the timer is stuck in an interception
       ::
         %deliver
@@ -289,44 +226,62 @@
   |=  [=wire sign=sign-arvo]
   ^-  (quip card _this)
   ?+  -.wire  (on-arvo:def wire sign)
-      %focus
-    ?>  ?=([%behn %wake *] sign)
-    =/  rest-poke
-      ~[(~(poke-self pass:io /rest-poke) [%focus-command !>([%rest rest.groove])])]
-    ::  deliver the clock-rest page
-    ::
-    :-  (weld rest-poke delivery)
-    %=  this
-      delivery  ~
-    ==
       %rest
     ?>  ?=([%behn %wake *] sign)
-    =/  focus-pocus
-      ~[(~(poke-self pass:io /focus-pocus) [%focus-command !>([%focus focus.groove])])]
-    =/  fin-poke
-      ~[(~(poke-self pass:io /focus-pocus) [%focus-command !>([%fin focus.groove])])]
-    ::  deliver the clock-focus page
-    ::
     ?:  (gte reps reps.groove)
-      [(weld fin-poke delivery) this(delivery ~)]
-    :-  (weld focus-pocus delivery)
+      ::  the final focus
+      ::
+      ~&  >>  ?:((lte reps.groove 1) 'focus' 'final focus')
+      =/  focus  focus.groove
+      =/  wrap  wrap.groove
+      =/  setfocus  (add now.bowl focus)
+      =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
+      =/  timers
+        :~  (~(wait pass:io /fin) setfocus)
+            (~(wait pass:io /fin-wrap) setwrap)
+        ==
+      :-  (weld timers delivery)
+      %=  this
+        then  [setfocus setwrap]
+        long-poll.state-p  |
+        delivery  ~
+      ==
+    ::  set focus timers
+    ::
+    ~&  >>  "focus {<reps>} of {<reps.groove>}"
+    =/  focus  focus.groove
+    =/  wrap  wrap.groove
+    =/  setfocus  (add now.bowl focus)
+    =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
+    =/  timers
+      :~  (~(wait pass:io /focus) setfocus)
+          (~(wait pass:io /wrap) setwrap)
+      ==
+    :-  (weld timers delivery)
     %=  this
+      then  [setfocus setwrap]
+      long-poll.state-p  |
       delivery  ~
     ==
     ::
-      %fin
-    ::  when reps count is equal with reps.groove...
-    ~&  >  'doneskis!'
-    ::  deliver %goals page
-    ::  XX: create %goals page
+      %focus
+    ::  set rest timers
     ::
-    :-  delivery
+    ?>  ?=([%behn %wake *] sign)
+    ~&  >  'rest'
+    =/  rest  rest.groove
+    =/  wrep  wrep.groove
+    =/  setrest  (add now.bowl rest)
+    =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
+    =/  timers
+      :~  (~(wait pass:io /rest) setrest)
+          (~(wait pass:io /wrap) setwrep)
+      ==
+    :-  (weld timers delivery)
     %=  this
-      display.state-p  %goals
-      mode.state-p  %fin
-      prev-cmd.state-p  %fresh
+      reps  +(reps)
+      then  [setrest setwrep]
       long-poll.state-p  |
-      reveal.state-p  |
       delivery  ~
     ==
     ::
@@ -347,10 +302,23 @@
     ::
       %fin-wrap
     ?>  ?=([%behn %wake *] sign)
-    ~&  'finish it!'
+    ~&  ?:((lte reps.groove 1) 'wrap up' 'finish it')
     `this(long-poll.state-p &, display.state-p %goals)
-
     ::
+      %fin
+    ~&  >  'doneskis!'
+    ::  deliver %goals page
+    ::  XX: create %goals page
+    ::
+    :-  delivery
+    %=  this
+      display.state-p  %enter
+      mode.state-p  %fin
+      prev-cmd.state-p  %fresh
+      long-poll.state-p  |
+      reveal.state-p  |
+      delivery  ~
+    ==
       %connect
     ~&  'eyre connecting'
     ~&  ~(key by pages)
