@@ -35,7 +35,7 @@
 ::        recover from slippage of time. when the webui is...behind?
 ::        this can happen when a laptop is closed and re-opened.
 ::
-/-  *focus
+/-  *focus, goal
 /+  rudder, agentio, verb, dbug, default-agent
 /~  pages  (page:rudder tack command)  /app/webui
 ::
@@ -86,6 +86,7 @@
       :+  %goal-store
         %goal-action
       !>([%4 now.bowl %spawn-pool (crip "from focus - {<now.bowl>}")])
+      (~(watch-our pass:io /goal-watch) [%goal-store /goals])
   ==
   %=  this
     state  :*  %0
@@ -334,7 +335,21 @@
     [%http-response *]  [~ this]
   ==
 ::
-++  on-agent  on-agent:def
+++  on-agent
+  |=  [=wire =sign:agent:gall]
+    ^-  (quip card _this)
+    ?+    wire  (on-agent:def wire sign)
+        [%goal-watch ~]
+      ?+    -.sign  (on-agent:def wire sign)
+          %fact
+          ?+    p.cage.sign  (on-agent:def wire sign)
+              %goal-home-update
+            ::  =/  foo  !<(expected-type q.cage.sign)
+          ~&  "I think I got something! {<!<(home-update:goal q.cage.sign)>}"
+          `this
+          ==
+      ==
+    ==
 ++  on-peek   on-peek:def
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
