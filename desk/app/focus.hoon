@@ -60,7 +60,7 @@
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
-+$  state-0  [%0 groove=gruv =reps =then =state-p =delivery =public]
++$  state-0  [%0 groove=gruv =reps =then =left =state-p =delivery =public]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -93,6 +93,7 @@
                [~m5 8 1 ~s30 8]
                1
                [now.bowl now.bowl]
+               [~s0 ~s0]
                [%enter %focus | %fresh |]
                *(list card)
                |
@@ -119,11 +120,56 @@
       ::  XX: add this functionality
       ::
         %pause
-      ~&  'oops no pause'
-      `this(prev-cmd.state-p %pause)
+      ~&  'oops no pause button'
+      ~&  >  'paused'
+      ::  calc the time left for current timers
+      ::
+      =/  at-pause  [`@dr`(sub -.then now.bowl) `@dr`(sub +.then now.bowl)]
+      :-
+      :~
+        ::  cancel timers
+        ::
+        (~(rest pass:io /(scot %tas mode.state-p)) -.then)
+        (~(rest pass:io /wrap) +.then)
+        ::  maybe there is a fin timer
+        ::
+        (~(rest pass:io /fin) -.then)
+        (~(rest pass:io /fin-wrap) +.then)
+      ==
+      ::  XX: consider a display %pause here
+      ::
+      %=  this
+        left  at-pause
+        prev-cmd.state-p  %pause
+        long-poll.state-p  |
+      ==
+      ::
         %cont
-      ~&  'oops all maneuvers'
-      `this(prev-cmd.state-p %cont)
+      ~&  'welcome back'
+      ~&  >>  'continue'
+      =/  time  `@da`(add now.bowl -.left)
+      =/  setwrap  `@da`(add now.bowl +.left)
+      :-
+      ?:  (gte reps reps.groove)
+        :~
+          (~(wait pass:io /fin) time)
+          (~(wait pass:io /fin-wrap) setwrap)
+        ==
+      :~
+        (~(wait pass:io /(scot %tas mode.state-p)) time)
+        (~(wait pass:io /wrap) setwrap)
+      ==
+      ::  XX: cont should have a sound, like the start of %focus or
+      ::  %rest, but it might work itself out anyway. since there will
+      ::  be an autoplay sound in those displays.
+      ::
+
+      %=  this
+        display.state-p  %clock
+        prev-cmd.state-p  %cont
+        then  [time setwrap]
+        long-poll.state-p  |
+      ==
       ::
         %public
       `this(public public.command)

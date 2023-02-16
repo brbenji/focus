@@ -8,6 +8,7 @@
 +$  gruv  [=focus =wrap =reps =rest =wrep]
 ::
 +$  then  [@da @da]
++$  left  [@dr @dr]
 ::
 +$  public  ?
 ::
@@ -43,7 +44,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
-::  +$  state-0  [%0 groove=gruv =reps =then =state-p =delivery =public]
+::  +$  state-0  [%0 groove=gruv =reps =then =left =state-p =delivery =public]
 ::
-+$  tack  [groove=gruv =reps then state-p delivery public]
++$  tack  [groove=gruv =reps =then left state-p delivery public]
 --

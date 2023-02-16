@@ -226,9 +226,8 @@
     ==
     ==  ==
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
-  ::  XX: use long-polling to do the same thing
-  ::    these setTimeout funcions are doing but
-  ::    with rudder instead.
+  ::  location.reload(), localStore(), and play() are so
+  ::  far what I need from js
   ::
   ++  script
     """
@@ -301,6 +300,23 @@
     ?:  reveal
       "number"
     "hidden"
+  ++  left-to-wipe
+    ::  XX: add conversion from left=[@dr @dr] to
+    ::  the 0-314 range used for the wipe effect
+    ::  first, find the percentage of left going into
+    ::  focus/rest or wrap/wrep?
+    ::
+    ::  then use that same percentage to pick a number
+    ::  between 0-314.
+    ::  output a tape.
+    ~
+  ++  left
+    ::  how do I distinguish from focus and rest
+    ::  probably can go off of mode, but that can cause issues?
+    ::  XX: should left or then be setup differently?
+    ::
+    ?>  (gte -.then now.bowl)
+    [`@dr`(sub -.then now.bowl) `@dr`(sub +.then now.bowl)]
   ++  duration
     |=  rel=@dr
     ^-  tape
@@ -376,10 +392,12 @@
     ?:  =(display %clock)
       ?:  =(mode %focus)
         ?:  (lte focus.groove ~s50)
+          ::  XX: calcu from -.left not focus.groove
           (refresh `@dr`(add (wrap-up focus.groove) ~s1))
         (refresh `@dr`(sub focus.groove ~s5))
       ?:  =(mode %rest)
         ?:  (lte focus.groove ~s50)
+          ::  XX: calcu from -.left not rest.groove
           (refresh `@dr`(add (wrap-up rest.groove) ~s1))
         (refresh `@dr`(sub rest.groove ~s5))
       (a-co:co (mul day:yo 1.000))
@@ -397,8 +415,10 @@
   ++  handle-wrap
     ?:  =(display %clock)
       ?:  =(mode %focus)
+        ::  XX: calc from -.left not focus.groove
         (refresh (wrap-up focus.groove))
       ?:  =(mode %rest)
+        ::  XX: calc from -.left not from rest.groove
         (refresh (wrap-up rest.groove))
       (a-co:co (mul day:yo 1.000))
     (a-co:co (mul day:yo 1.000))
