@@ -1,13 +1,15 @@
 ::  focus: an interval timer
-::         made using sail and rudder
-::         all components are contained within the %focus desk
-::         including audio and image assets
+::
+::    v1.2.1
+::
+::  the fun thing about focus, is that's it's techniaclly 100% hoon.
+::  made using sail and rudder there is only 6 lines of javascript.
+::  and all components are contained within the %focus desk including
+::  audio and image assets.
 ::
 ::         customization to rudder has been made to facilitate
-::         serving local assets from desk as well as long-polling
-::         http handling
+::         serving local assets from desk
 ::
-::    v1.0.1
 ::
 ::  XX: add a big-rest, which can bundle multiple focus sessions
 ::      into groups and set a time (big-rest) in between those.
@@ -16,24 +18,6 @@
 ::
 ::      we're not actually using prev-cmd.
 ::      perhaps when we add %pause we will?
-::
-::      biggest bug with long-polling
-::      right now long-poll is engaged a second after /wrap
-::      timer goes off. this means the browser will be frozen
-::      until the next timer turns long-poll off again.
-::      in a standard timer situation this is no problem,
-::      but say a user want to cancel the current timer and
-::      submit a new one in forms.
-::      before the wrap time, they are permitted into the form
-::      page, but if the wrap time is passed while there they
-::      are forced to wait out the timer. that could be frustrating.
-::
-::      what are the benefits of refreshing so closely after wrap?
-::      why not refresh at the conclusion of the timer? or even
-::      seconds before?
-::        I suppose I believe this extra space of time could be used to
-::        recover from slippage of time. when the webui is...behind?
-::        this can happen when a laptop is closed and re-opened.
 ::
 /-  *focus, goal
 /+  rudder, agentio, verb, dbug, default-agent
@@ -94,7 +78,7 @@
                1
                [now.bowl now.bowl]
                [~s0 ~s0]
-               [%enter %focus | %fresh |]
+               [%enter %focus | %fresh]
                *(list card)
                |
            ==
@@ -141,7 +125,6 @@
       %=  this
         left  at-pause
         prev-cmd.state-p  %pause
-        long-poll.state-p  |
       ==
       ::
         %cont
@@ -168,7 +151,6 @@
         display.state-p  %clock
         prev-cmd.state-p  %cont
         then  [time setwrap]
-        long-poll.state-p  |
       ==
       ::
         %public
@@ -205,8 +187,7 @@
         groove.state  gruv.command
         display.state-p  display.command
         mode.state-p  %focus
-        reps  1
-        long-poll.state-p  |
+        reps  0
       ==
       ::
         %reveal
@@ -214,7 +195,7 @@
       ::  useful for when the timer is stuck in an interception
       ::
         %deliver
-      [delivery this(long-poll.state-p |)]
+      [delivery this]
     ==
     ::
       %handle-http-request
@@ -222,8 +203,6 @@
       ::  intercept the outgoing http-response
       ::  in -.out, if long-poll is engaged
       ::
-      ?:  long-poll.state-p
-        [~ this(delivery -.out)]
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
     %:  (steer:rudder _+.state command)
@@ -278,8 +257,16 @@
     =/  focus  focus.groove
     =/  wrap  (mul wrap.groove (div focus 10))
     =/  setfocus  (add now.bowl focus)
-    =/  setwrap  (add now.bowl wrap)
-    ?:  (gte reps reps.groove)
+    ::  what is the time of the new next alarm?
+    ::  next will change mode and engage long-poll,
+    ::  and only do it 5s before timers end,
+    ::  with the exception of short timers where it will only be
+    ::  1s after wrap time.
+    ::
+    =/  setwrap  ?:  (lte (sub focus wrap) ~s5)
+      (add now.bowl (add wrap ~s1))
+    (add now.bowl (sub focus ~s5))
+    ?:  (gte reps (dec reps.groove))
       ::  the final focus
       ::
       ~&  >>  ?:((lte reps.groove 1) 'focus' 'final focus')
@@ -289,22 +276,24 @@
         ==
       :-  (weld timers delivery)
       %=  this
-        then  [setfocus setwrap]
-        long-poll.state-p  |
+        reps  +(reps)
+        then  [setfocus (add now.bowl wrap)]
         delivery  ~
+        mode.state-p  %focus
       ==
     ::  set focus timers
     ::
-    ~&  >>  "focus {<reps>} of {<reps.groove>}"
+    ~&  >>  "focus {<+(reps)>} of {<reps.groove>}"
     =/  timers
       :~  (~(wait pass:io /focus) setfocus)
           (~(wait pass:io /wrap) setwrap)
       ==
     :-  (weld timers delivery)
     %=  this
-      then  [setfocus setwrap]
-      long-poll.state-p  |
+      reps  +(reps)
+      then  [setfocus (add now.bowl wrap)]
       delivery  ~
+      mode.state-p  %focus
     ==
     ::
       %focus
@@ -322,31 +311,24 @@
       ==
     :-  (weld timers delivery)
     %=  this
-      reps  +(reps)
       then  [setrest setwrep]
-      long-poll.state-p  |
       delivery  ~
+      mode.state-p  %rest
     ==
     ::
       %wrap
     ?>  ?=([%behn %wake *] sign)
     ~&  ?:(=(mode.state-p %focus) 'wrap up' 'come back')
-    =/  next-mode
-      :: toggle between %focus and %rest
-      ::
-      ?:  =(mode.state-p %rest)
-        %focus
-      %rest
     ::  after a single focus go to %goals page
     ::
     ?:  (lte reps.groove 1)
-      `this(long-poll.state-p &, display.state-p %goals)
-    `this(long-poll.state-p &, mode.state-p next-mode)
+      `this(display.state-p %goals)
+    `this
     ::
       %fin-wrap
     ?>  ?=([%behn %wake *] sign)
     ~&  ?:((lte reps.groove 1) 'wrap up' 'finish it')
-    `this(long-poll.state-p &, display.state-p %goals)
+    `this(display.state-p %goals)
     ::
       %fin
     ~&  >  'doneskis!'
@@ -358,7 +340,6 @@
       display.state-p  %enter
       mode.state-p  %fin
       prev-cmd.state-p  %fresh
-      long-poll.state-p  |
       reveal.state-p  |
       delivery  ~
     ==
@@ -387,8 +368,10 @@
           ?+    p.cage.sign  (on-agent:def wire sign)
               %goal-home-update
             ::  =/  foo  !<(expected-type q.cage.sign)
-          ~&  "I think I got something! {<!<(home-update:goal q.cage.sign)>}"
-          `this
+            ~&  "I think I got something!"
+            ~&  !<(home-update:goal q.cage.sign)
+            :: :-  (~(watch-our pass:io /goal-watch) [%goal-store /(scot %p our.bowl)/])
+            `this
           ==
       ==
     ==

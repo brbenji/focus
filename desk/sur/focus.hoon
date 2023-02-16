@@ -16,7 +16,7 @@
 +$  mode  ?(%fin %rest %focus)
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  reveal  ?
-+$  state-p  [=display =mode =reveal =prev-cmd long-poll=?]
++$  state-p  [=display =mode =reveal =prev-cmd]
 +$  delivery  (list card:agent:gall)
 ::
 ::  type unions are eating my lunch!

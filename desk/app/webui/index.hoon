@@ -75,12 +75,7 @@
           msg=(unit [o=? =@t])
       ==
   ^-  reply:rudder
-  |^  [%xtra headers page]
-  ++  headers
-    ::  this doesn't really do anything
-    ::
-    :~  ['keep-alive' (crip "timeout={seconds}, max={(a-co:co day:yo)}")]
-    ==
+  |^  [%page page]
   ++  page
     ^-  manx
     ;hmtl
@@ -233,12 +228,10 @@
     """
     setTimeout(() => \{
       document.getElementById({<?:(=(mode %rest) "wrep-wav" "wrap-wav")>}).play();
-      console.log('wrap it up!');
     }, {handle-wrap});
 
     setTimeout(() => \{
       document.location.reload();
-      console.log('re-re-refresh!');
     }, {handle-refresh});
     """
   ::  mod-style is built in a tape for code insertion
@@ -267,7 +260,7 @@
     }
     @keyframes wipe \{
       0% \{
-        stroke-dashoffset: {(left-to-wipe time-left)}; /*there was something else here {?~(focus.groove "0" "314")}*/
+        stroke-dashoffset: {(left-to-wipe time-left)};
       }
       100% \{
         stroke-dashoffset: 0;
@@ -290,11 +283,6 @@
   ::  helper arms for dynamically changing
   ::    +script, +mod-style, +build
   ::
-  ++  delay
-    ::  necessary to make sure timers and their effects are set
-    ::  before the webui refreshes or starts their animation.
-    ::
-    0
   ++  reveal-rest
     ?:  reveal
       "number"
@@ -302,6 +290,16 @@
   ++  mode-switch
     ^-  @dr
     ?:(=(mode %rest) rest.groove focus.groove)
+  ++  time-left
+    ^-  @dr
+    ?:  (lte -.then now.bowl)
+      mode-switch
+    (sub -.then now.bowl)
+  ++  wrap-left
+    ^-  @dr
+    ?:  (lte +.then now.bowl)
+      ~s0
+    (sub +.then now.bowl)
   ++  left-to-wipe
     ::  left/focus.groove = x/315
     ::  x = (left * 315)/focus.groove
@@ -310,41 +308,6 @@
     ^-  tape
     =/  wipe-amount  (div (mul left 315) mode-switch)
     (a-co:co wipe-amount)
-  ++  time-left
-    ^-  @dr
-    ?:  (lte -.then now.bowl)
-      ~&  'then is less than now'
-      mode-switch
-    ~&  "time-left be {<`@dr`(sub -.then now.bowl)>}"
-    `@dr`(sub -.then now.bowl)
-  ++  wrap-left
-    ^-  @dr
-    ?:  (lte +.then now.bowl)
-      ~&  'wrap is less than now'
-      ~s0
-    ~&  "wrap-left be {<`@dr`(sub +.then now.bowl)>}"
-    `@dr`(sub +.then now.bowl)
-  ++  duration
-    |=  rel=@dr
-    ^-  tape
-    ::  yell produces [d= h= m= s=] from @dr
-    ::
-    =/  sec  (yell rel)
-    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    =/  ms  (mul total 1.000)
-    (a-co:co (add ms delay))
-  ++  seconds
-    ::  produce @dr of the total time
-    ::
-    ^-  tape
-    =/  sets  ?~(reps.groove 1 reps.groove)
-    =/  f-total  (mul focus.groove sets)
-    =/  r-total  (mul rest.groove (dec sets))
-    =/  total-dr  (add f-total r-total)
-    ::
-    =/  sec  (yell total-dr)
-    =/  total-sec  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    (a-co:co total-sec)
   ++  face
     ::  turn the numbers on the clock from @dr
     ::  to something more normie readable
@@ -379,43 +342,36 @@
     =/  r-total  (mul rest.groove (dec sets))
     =/  total  `@dr`(add f-total r-total)
     "{<total>}"
-  ++  refresh
-    ::  refresh is redundant with duration
-    ::    but this can be deleted if we can go 0% js
-    ::
+  ++  duration
     |=  rel=@dr
     ^-  tape
+    ::  yell produces [d= h= m= s=] from @dr
+    ::
     =/  sec  (yell rel)
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    =/  ms  (mul total 1.000)
-    (a-co:co (add ms delay))
+    =/  total-ms  (mul total 1.000)
+    (a-co:co total-ms)
   ++  handle-refresh
-    ::  small timers are a second after wrap-up.
-    ::  large timers are 5 seconds before end.
-    ::
-    ::  this prevents a host of frustrating frozen browser issues,
-    ::  while the long-polling is engaged.
+    ::  one second delay to insure the behn timers
+    ::  have completed and their effects propagated
     ::
     ?:  =(display %clock)
-      ~&  "diff of time-left and wrap-left {<`@dr`(sub time-left wrap-left)>}"
-      ?.  (lte (sub time-left wrap-left) ~s5)
-        (refresh `@dr`(sub time-left ~s5))
-      (refresh `@dr`(add wrap-left ~s1))
-    ::  sounds like poetry but it's just a day in seconds
-    ::  in a tape "86460"
+        (duration (add time-left ~s1))
+    ::  (a-co:co day:yo) sounds like poetry but
+    ::  it's just a day in seconds in a tape "86460"
     ::
     (a-co:co (mul day:yo 1.000))
-  ++  wrap-up
-    |=  rel=@dr
-    ^-  @dr
-    ?:  =(mode %focus)
-      (mul wrap.groove (div rel 10))
-    ?>  =(mode %rest)
-      (mul wrep.groove (div rel 10))
   ++  handle-wrap
+    ^-  tape
+    =/  ms-day  (a-co:co (mul day:yo 1.000))
     ?:  =(display %clock)
-      (refresh wrap-left)
-    (a-co:co (mul day:yo 1.000))
+      ?:  =(wrap-left ~s0)
+        ms-day
+      ::  add a quarter second delay to sync
+      ::  the wrap play with animation
+      ::
+      (duration (add wrap-left ~s0..4000))
+    ms-day
   ::
   ++  style
     '''
