@@ -267,7 +267,7 @@
     }
     @keyframes wipe \{
       0% \{
-        stroke-dashoffset: {?~(focus.groove "0" "314")};
+        stroke-dashoffset: {(left-to-wipe time-left)}; /*there was something else here {?~(focus.groove "0" "314")}*/
       }
       100% \{
         stroke-dashoffset: 0;
@@ -291,32 +291,39 @@
   ::    +script, +mod-style, +build
   ::
   ++  delay
-    ::  naive adjustment for delay in ms
-    ::    we delay the vfx but not js refresh
-    ::    refresh needs to occur asap
+    ::  necessary to make sure timers and their effects are set
+    ::  before the webui refreshes or starts their animation.
     ::
     0
   ++  reveal-rest
     ?:  reveal
       "number"
     "hidden"
+  ++  mode-switch
+    ^-  @dr
+    ?:(=(mode %rest) rest.groove focus.groove)
   ++  left-to-wipe
-    ::  XX: add conversion from left=[@dr @dr] to
-    ::  the 0-314 range used for the wipe effect
-    ::  first, find the percentage of left going into
-    ::  focus/rest or wrap/wrep?
+    ::  left/focus.groove = x/315
+    ::  x = (left * 315)/focus.groove
     ::
-    ::  then use that same percentage to pick a number
-    ::  between 0-314.
-    ::  output a tape.
-    ~
-  ++  left
-    ::  how do I distinguish from focus and rest
-    ::  probably can go off of mode, but that can cause issues?
-    ::  XX: should left or then be setup differently?
-    ::
-    ?>  (gte -.then now.bowl)
-    [`@dr`(sub -.then now.bowl) `@dr`(sub +.then now.bowl)]
+    |=  left=@dr
+    ^-  tape
+    =/  wipe-amount  (div (mul left 315) mode-switch)
+    (a-co:co wipe-amount)
+  ++  time-left
+    ^-  @dr
+    ?:  (lte -.then now.bowl)
+      ~&  'then is less than now'
+      mode-switch
+    ~&  "time-left be {<`@dr`(sub -.then now.bowl)>}"
+    `@dr`(sub -.then now.bowl)
+  ++  wrap-left
+    ^-  @dr
+    ?:  (lte +.then now.bowl)
+      ~&  'wrap is less than now'
+      ~s0
+    ~&  "wrap-left be {<`@dr`(sub +.then now.bowl)>}"
+    `@dr`(sub +.then now.bowl)
   ++  duration
     |=  rel=@dr
     ^-  tape
@@ -381,7 +388,7 @@
     =/  sec  (yell rel)
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
     =/  ms  (mul total 1.000)
-    (a-co:co ms)
+    (a-co:co (add ms delay))
   ++  handle-refresh
     ::  small timers are a second after wrap-up.
     ::  large timers are 5 seconds before end.
@@ -390,17 +397,10 @@
     ::  while the long-polling is engaged.
     ::
     ?:  =(display %clock)
-      ?:  =(mode %focus)
-        ?:  (lte focus.groove ~s50)
-          ::  XX: calcu from -.left not focus.groove
-          (refresh `@dr`(add (wrap-up focus.groove) ~s1))
-        (refresh `@dr`(sub focus.groove ~s5))
-      ?:  =(mode %rest)
-        ?:  (lte focus.groove ~s50)
-          ::  XX: calcu from -.left not rest.groove
-          (refresh `@dr`(add (wrap-up rest.groove) ~s1))
-        (refresh `@dr`(sub rest.groove ~s5))
-      (a-co:co (mul day:yo 1.000))
+      ~&  "diff of time-left and wrap-left {<`@dr`(sub time-left wrap-left)>}"
+      ?.  (lte (sub time-left wrap-left) ~s5)
+        (refresh `@dr`(sub time-left ~s5))
+      (refresh `@dr`(add wrap-left ~s1))
     ::  sounds like poetry but it's just a day in seconds
     ::  in a tape "86460"
     ::
@@ -409,18 +409,12 @@
     |=  rel=@dr
     ^-  @dr
     ?:  =(mode %focus)
-      `@dr`(mul wrap.groove (div rel 10))
+      (mul wrap.groove (div rel 10))
     ?>  =(mode %rest)
-      `@dr`(mul wrep.groove (div rel 10))
+      (mul wrep.groove (div rel 10))
   ++  handle-wrap
     ?:  =(display %clock)
-      ?:  =(mode %focus)
-        ::  XX: calc from -.left not focus.groove
-        (refresh (wrap-up focus.groove))
-      ?:  =(mode %rest)
-        ::  XX: calc from -.left not from rest.groove
-        (refresh (wrap-up rest.groove))
-      (a-co:co (mul day:yo 1.000))
+      (refresh wrap-left)
     (a-co:co (mul day:yo 1.000))
   ::
   ++  style

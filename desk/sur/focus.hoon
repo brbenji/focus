@@ -7,7 +7,7 @@
 +$  wrep  @ud  :: wrap for the rest periods
 +$  gruv  [=focus =wrap =reps =rest =wrep]
 ::
-+$  then  [@da @da]
++$  then  [time=@da wrap=@da]
 +$  left  [@dr @dr]
 ::
 +$  public  ?

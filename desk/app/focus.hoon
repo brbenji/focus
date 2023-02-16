@@ -275,14 +275,14 @@
   ?+  -.wire  (on-arvo:def wire sign)
       %rest
     ?>  ?=([%behn %wake *] sign)
+    =/  focus  focus.groove
+    =/  wrap  (mul wrap.groove (div focus 10))
+    =/  setfocus  (add now.bowl focus)
+    =/  setwrap  (add now.bowl wrap)
     ?:  (gte reps reps.groove)
       ::  the final focus
       ::
       ~&  >>  ?:((lte reps.groove 1) 'focus' 'final focus')
-      =/  focus  focus.groove
-      =/  wrap  wrap.groove
-      =/  setfocus  (add now.bowl focus)
-      =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
       =/  timers
         :~  (~(wait pass:io /fin) setfocus)
             (~(wait pass:io /fin-wrap) setwrap)
@@ -296,10 +296,6 @@
     ::  set focus timers
     ::
     ~&  >>  "focus {<reps>} of {<reps.groove>}"
-    =/  focus  focus.groove
-    =/  wrap  wrap.groove
-    =/  setfocus  (add now.bowl focus)
-    =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
     =/  timers
       :~  (~(wait pass:io /focus) setfocus)
           (~(wait pass:io /wrap) setwrap)
