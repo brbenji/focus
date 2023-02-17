@@ -17,7 +17,10 @@
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  reveal  ?
 +$  state-p  [=display =mode =reveal =prev-cmd]
-+$  delivery  (list card:agent:gall)
+::  for %goals
+::
++$  pin  [owner=@p birth=@da]
++$  goals  [pool=pin groove=pin reps=pin]
 ::
 ::  type unions are eating my lunch!
 ::    disaplyify was made to help out.
@@ -33,10 +36,10 @@
 +$  command
   $%  [%pause ?]
       [%cont ?]
-      [%deliver ~]
       [%reveal reveal]
       [%public public=?]
       [%maneuver =gruv =display]
+      [%sub =pin]
   ==
 ::
 +$  update
@@ -44,7 +47,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
-::  +$  state-0  [%0 groove=gruv =reps =then =left =state-p =delivery =public]
+::  +$  state-0  [%0 groove=gruv =reps =then =left =state-p =pool =public]
 ::
-+$  tack  [groove=gruv =reps =then left state-p delivery public]
++$  tack  [groove=gruv =reps =then left state-p goals public]
 --

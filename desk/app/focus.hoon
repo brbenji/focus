@@ -1,6 +1,6 @@
 ::  focus: an interval timer
 ::
-::    v1.2.1
+::    v1.1.1
 ::
 ::  the fun thing about focus, is that's it's techniaclly 100% hoon.
 ::  made using sail and rudder there is only 6 lines of javascript.
@@ -44,7 +44,7 @@
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
-+$  state-0  [%0 groove=gruv =reps =then =left =state-p =delivery =public]
++$  state-0  [%0 groove=gruv =reps =then =left =state-p =goals =public]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -61,11 +61,9 @@
 ++  on-init
   ^-  (quip card _this)
   :-
-  ::  XX: clean-up. this will create a pool on init
-  ::      but if someone doens't have %goals I don't know how that would
-  ::      go...could?
-  ::
   :~  (~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])
+      ::  poke %goals for a new pool for focus to populate
+      ::
       %-  ~(poke-our pass:io /pool)
       :+  %goal-store
         %goal-action
@@ -79,7 +77,7 @@
                [now.bowl now.bowl]
                [~s0 ~s0]
                [%enter %focus | %fresh]
-               *(list card)
+               [[our.bowl now.bowl] [our.bowl now.bowl] [our.bowl now.bowl]]
                |
            ==
   ==
@@ -142,11 +140,6 @@
         (~(wait pass:io /(scot %tas mode.state-p)) time)
         (~(wait pass:io /wrap) setwrap)
       ==
-      ::  XX: cont should have a sound, like the start of %focus or
-      ::  %rest, but it might work itself out anyway. since there will
-      ::  be an autoplay sound in those displays.
-      ::
-
       %=  this
         display.state-p  %clock
         prev-cmd.state-p  %cont
@@ -155,6 +148,7 @@
       ::
         %public
       `this(public public.command)
+      ::
         %maneuver
       ?.  =(display.command %clock)
         `this(display.state-p display.command)
@@ -169,33 +163,46 @@
         "begin to focus for {<focus.gruv.command>}"
       "begin to focus {<reps.gruv.command>} times for {<focus.gruv.command>}, resting {<rest.gruv.command>} between each."
       ~&  >  begin-msg
-      =/  timers
-        :~  ::  prime the timer ping-pong
-            ::
-            (~(wait pass:io /rest) now.bowl)
-            ::  cancel any existing timers
-            ::
-            (~(rest pass:io /(scot %tas mode.state-p)) -.then)
-            (~(rest pass:io /wrap) +.then)
-            (~(rest pass:io /fin) -.then)
-            (~(rest pass:io /fin-wrap) +.then)
-        ==
-      ::  deliver the clock-focus page
-      ::
-      :-  (weld timers delivery)
+      :-
+      :~  ::  prime the timer ping-pong
+          ::
+          (~(wait pass:io /rest) now.bowl)
+          ::  cancel any existing timers
+          ::
+          (~(rest pass:io /(scot %tas mode.state-p)) -.then)
+          (~(rest pass:io /wrap) +.then)
+          (~(rest pass:io /fin) -.then)
+          (~(rest pass:io /fin-wrap) +.then)
+          ::  create a goal for this groove
+          %-  ~(poke-our pass:io /pool)
+          :+  %goal-store  %goal-action
+          !>  :*  %4  now.bowl
+                  %spawn-goal
+                  [%pin -.pool.goals +.pool.goals]
+                  ~
+                  (crip "poke groove-goal bitches! - {<now.bowl>}")
+                  |
+              ==
+      ==
       %=  this
         groove.state  gruv.command
         display.state-p  display.command
         mode.state-p  %focus
         reps  0
+        groove.goals  [our.bowl now.bowl]
       ==
       ::
         %reveal
       `this(reveal.state-p +.command)
       ::  useful for when the timer is stuck in an interception
       ::
-        %deliver
-      [delivery this]
+        %sub
+      :-
+      ~&  'my path'
+      :~
+        (~(watch-our pass:io /goal-pool) [%goal-store /(scot %p -.pin.command)/(scot %da +.pin.command)])
+      ==
+      this
     ==
     ::
       %handle-http-request
@@ -266,33 +273,43 @@
     =/  setwrap  ?:  (lte (sub focus wrap) ~s5)
       (add now.bowl (add wrap ~s1))
     (add now.bowl (sub focus ~s5))
+    =/  rep-goal
+      ::  create a goal for this groove
+      ::
+      %-  ~(poke-our pass:io /pool)
+      :+  %goal-store  %goal-action
+      !>  :*  %4  now.bowl
+              %spawn-goal
+              [%pin -.pool.goals +.pool.goals]
+              (some [-.groove.goals +.groove.goals])
+              (crip "poke rep-goal bitches! - {<now.bowl>}")
+              |
+          ==
     ?:  (gte reps (dec reps.groove))
       ::  the final focus
       ::
       ~&  >>  ?:((lte reps.groove 1) 'focus' 'final focus')
-      =/  timers
-        :~  (~(wait pass:io /fin) setfocus)
-            (~(wait pass:io /fin-wrap) setwrap)
-        ==
-      :-  (weld timers delivery)
+      :-
+      :~  (~(wait pass:io /fin) setfocus)
+          (~(wait pass:io /fin-wrap) setwrap)
+          rep-goal
+      ==
       %=  this
         reps  +(reps)
         then  [setfocus (add now.bowl wrap)]
-        delivery  ~
         mode.state-p  %focus
       ==
     ::  set focus timers
     ::
     ~&  >>  "focus {<+(reps)>} of {<reps.groove>}"
-    =/  timers
-      :~  (~(wait pass:io /focus) setfocus)
-          (~(wait pass:io /wrap) setwrap)
-      ==
-    :-  (weld timers delivery)
+    :-
+    :~  (~(wait pass:io /focus) setfocus)
+        (~(wait pass:io /wrap) setwrap)
+        rep-goal
+    ==
     %=  this
       reps  +(reps)
       then  [setfocus (add now.bowl wrap)]
-      delivery  ~
       mode.state-p  %focus
     ==
     ::
@@ -305,14 +322,12 @@
     =/  wrep  wrep.groove
     =/  setrest  (add now.bowl rest)
     =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
-    =/  timers
-      :~  (~(wait pass:io /rest) setrest)
-          (~(wait pass:io /wrap) setwrep)
-      ==
-    :-  (weld timers delivery)
+    :-
+    :~  (~(wait pass:io /rest) setrest)
+        (~(wait pass:io /wrap) setwrep)
+    ==
     %=  this
       then  [setrest setwrep]
-      delivery  ~
       mode.state-p  %rest
     ==
     ::
@@ -332,16 +347,14 @@
     ::
       %fin
     ~&  >  'doneskis!'
-    ::  deliver %goals page
     ::  XX: create %goals page
     ::
-    :-  delivery
+    :-  ~
     %=  this
-      display.state-p  %enter
+      display.state-p  %goals
       mode.state-p  %fin
       prev-cmd.state-p  %fresh
       reveal.state-p  |
-      delivery  ~
     ==
       %connect
     ~&  'eyre connecting'
@@ -370,8 +383,15 @@
             ::  =/  foo  !<(expected-type q.cage.sign)
             ~&  "I think I got something!"
             ~&  !<(home-update:goal q.cage.sign)
-            :: :-  (~(watch-our pass:io /goal-watch) [%goal-store /(scot %p our.bowl)/])
-            `this
+            ::  ~&  pin:!<(home-update:goal q.cage.sign)
+            ::  ~&  +62:!<(home-update:goal q.cage.sign)
+            ::  address numbers
+            ::  1 2 3 6 7 14 15 30 31 62 63 126 127 254 255 510 511 1022
+            :-
+            :~
+              (~(watch-our pass:io /goal-pool-watch) [%goal-store /(scot %p our.bowl)/~2023.2.15..18.45.48..d5a9])
+            ==
+            this
           ==
       ==
     ==
