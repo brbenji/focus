@@ -67,7 +67,7 @@
       %-  ~(poke-our pass:io /pool)
       :+  %goal-store
         %goal-action
-      !>([%4 now.bowl %spawn-pool (crip "from focus - {<now.bowl>}")])
+      !>([%4 now.bowl %spawn-pool (crip "focus")])
       (~(watch-our pass:io /goal-watch) [%goal-store /goals])
   ==
   %=  this
@@ -77,7 +77,7 @@
                [now.bowl now.bowl]
                [~s0 ~s0]
                [%enter %focus | %fresh]
-               [[our.bowl now.bowl] [our.bowl now.bowl] [our.bowl now.bowl]]
+               [[our.bowl now.bowl] [our.bowl *@da] [our.bowl *@da] [our.bowl *@da]]
                |
            ==
   ==
@@ -163,6 +163,61 @@
         "begin to focus for {<focus.gruv.command>}"
       "begin to focus {<reps.gruv.command>} times for {<focus.gruv.command>}, resting {<rest.gruv.command>} between each."
       ~&  >  begin-msg
+      ::  display hour in clock style
+      ::
+      =/  am-pm  (mod h:(yell now.bowl) 12)
+      =/  hour  ?:((gte 12 am-pm) "{<am-pm>}pm" "{<am-pm>}am")
+      =/  day  "{<m:(yore now.bowl)>}.{<d.t:(yore now.bowl)>}"
+      ::  a copy of +face in webui
+      ::  XX: create a library for all useful arms and definitions
+      ::
+      =/  face
+        =/  sec  (yell focus.gruv.command)
+        =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
+        =/  min  (div total 60)
+        ::  account for times less than a minute
+        ::  display seconds instead
+        ::
+        ?:  (lte total 60)
+          (weld (a-co:co total) "s")
+        (weld (a-co:co min) "m")
+
+      ::  is today a new day since our last focus session?
+      ::
+      ?:  =(d:(yell +.day.goals) d:(yell now.bowl))
+        ::  true - only create groove-goal within the day-goal
+        ::
+        :-
+        :~  ::  prime the timer ping-pong
+            ::
+            (~(wait pass:io /rest) now.bowl)
+            ::  cancel any existing timers
+            ::
+            (~(rest pass:io /(scot %tas mode.state-p)) -.then)
+            (~(rest pass:io /wrap) +.then)
+            (~(rest pass:io /fin) -.then)
+            (~(rest pass:io /fin-wrap) +.then)
+            ::  create a goal for this groove
+            ::
+            %-  ~(poke-our pass:io /pool)
+            :+  %goal-store  %goal-action
+            !>  :*  %4  now.bowl
+                    %spawn-goal
+                    [%pin -.pool.goals +.pool.goals]
+                    (some [-.day.goals +.day.goals])
+                    (crip "{hour} for {face}")
+                    |
+                ==
+        ==
+        %=  this
+          groove.state  gruv.command
+          display.state-p  display.command
+          mode.state-p  %focus
+          reps  0
+          groove.goals  [our.bowl now.bowl]
+        ==
+      ::  false create a new day-goal and a groove-goal in it.
+      ::
       :-
       :~  ::  prime the timer ping-pong
           ::
@@ -174,13 +229,25 @@
           (~(rest pass:io /fin) -.then)
           (~(rest pass:io /fin-wrap) +.then)
           ::  create a goal for this groove
+          ::
           %-  ~(poke-our pass:io /pool)
           :+  %goal-store  %goal-action
           !>  :*  %4  now.bowl
                   %spawn-goal
                   [%pin -.pool.goals +.pool.goals]
                   ~
-                  (crip "poke groove-goal bitches! - {<now.bowl>}")
+                  (crip "day {day}")
+                  |
+              ==
+          %-  ~(poke-our pass:io /pool)
+          ::  this seemed to work fine
+          :+  %goal-store  %goal-action
+          !>  :*  %4  now.bowl
+                  %spawn-goal
+                  [%pin -.pool.goals +.pool.goals]
+                  ::  the parent pin, aka the day-goal we just poked
+                  (some [our.bowl now.bowl])
+                  (crip "{hour} for {face}")
                   |
               ==
       ==
@@ -189,7 +256,11 @@
         display.state-p  display.command
         mode.state-p  %focus
         reps  0
-        groove.goals  [our.bowl now.bowl]
+        day.goals  [our.bowl now.bowl]
+        ::  this groove-goal arrives exactly with day-goal
+        ::  %goal-store will increment the time by 1ms
+        ::
+        groove.goals  [our.bowl (add now.bowl ~s0..0001)]
       ==
       ::
         %reveal
@@ -273,6 +344,10 @@
     =/  setwrap  ?:  (lte (sub focus wrap) ~s5)
       (add now.bowl (add wrap ~s1))
     (add now.bowl (sub focus ~s5))
+    =/  desc
+      ?:  (lte reps.groove 1)
+        "focus"
+      "focus {<+(reps)>} of {<reps.groove>}"
     =/  rep-goal
       ::  create a goal for this groove
       ::
@@ -282,7 +357,7 @@
               %spawn-goal
               [%pin -.pool.goals +.pool.goals]
               (some [-.groove.goals +.groove.goals])
-              (crip "poke rep-goal bitches! - {<now.bowl>}")
+              (crip desc)
               |
           ==
     ?:  (gte reps (dec reps.groove))
@@ -386,12 +461,8 @@
             ::  ~&  pin:!<(home-update:goal q.cage.sign)
             ::  ~&  +62:!<(home-update:goal q.cage.sign)
             ::  address numbers
-            ::  1 2 3 6 7 14 15 30 31 62 63 126 127 254 255 510 511 1022
-            :-
-            :~
-              (~(watch-our pass:io /goal-pool-watch) [%goal-store /(scot %p our.bowl)/~2023.2.15..18.45.48..d5a9])
-            ==
-            this
+            ::  1 @2 3 @6 7 @14 15 @30 31 @62 63 @126 127 @254 255 @510 511 1022
+            `this
           ==
       ==
     ==

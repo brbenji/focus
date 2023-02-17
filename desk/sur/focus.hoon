@@ -20,7 +20,7 @@
 ::  for %goals
 ::
 +$  pin  [owner=@p birth=@da]
-+$  goals  [pool=pin groove=pin reps=pin]
++$  goals  [pool=pin day=pin groove=pin reps=pin]
 ::
 ::  type unions are eating my lunch!
 ::    disaplyify was made to help out.
