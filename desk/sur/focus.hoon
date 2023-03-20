@@ -47,7 +47,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
-::  +$  state-0  [%0 groove=gruv =reps =then =left =state-p =pool =public]
+::  +$  state-0  [%0 groove=gruv =reps =then =left =state-p =goals =public]
 ::
-+$  tack  [groove=gruv =reps =then left state-p goals public]
++$  tack  [groove=gruv =reps =then left state-p =goals public]
 --

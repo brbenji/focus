@@ -265,7 +265,6 @@
       ::
         %reveal
       `this(reveal.state-p +.command)
-      ::  useful for when the timer is stuck in an interception
       ::
         %sub
       :-
@@ -278,9 +277,6 @@
     ::
       %handle-http-request
     =;  out=(quip card _+.state)
-      ::  intercept the outgoing http-response
-      ::  in -.out, if long-poll is engaged
-      ::
       [-.out this(+.state +.out)]
     %.  [bowl !<(order:rudder vase) +.state]
     %:  (steer:rudder _+.state command)
@@ -456,8 +452,8 @@
           ?+    p.cage.sign  (on-agent:def wire sign)
               %goal-home-update
             ::  =/  foo  !<(expected-type q.cage.sign)
-            ~&  "I think I got something!"
-            ~&  !<(home-update:goal q.cage.sign)
+            ::  ~&  "I think I got something!"
+            ::  ~&  !<(home-update:goal q.cage.sign)
             ::  ~&  pin:!<(home-update:goal q.cage.sign)
             ::  ~&  +62:!<(home-update:goal q.cage.sign)
             ::  address numbers

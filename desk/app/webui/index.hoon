@@ -143,8 +143,12 @@
             ;source(src "focus/assets/wrap/wav", type "audio/wav");
           ==
         ==
+        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "100%");
       ==
     ?:  =(display %form)
+      ::  XX: add an input toggle for starting/seeing %goals iframe in
+      ::  the form and clock display.
+      ::
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
           ;+  ?:  reveal  ;source(src "focus/assets/reps/wav", type "audio/wav");
@@ -176,6 +180,7 @@
             ;input#help(type "submit", name "nav", value "?");
           ==
         ==
+        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "100%");
       ==
     ?:  =(display %help)
       ;div#wrapper
@@ -196,6 +201,41 @@
         ;div.footer
           ;form.pause(method "post")
             ;input#help-x(type "submit", name "nav", value "X");
+          ==
+        ==
+      ==
+    ::  XX: delete this.
+    ::
+    ?:  =(display %goals)
+      ;div#wrapper
+        ;audio.hide(controls "", autoplay "")
+          ;+  ?:  reveal  ;source(src "focus/assets/reps/wav", type "audio/wav");
+            ;source(src "focus/assets/form/wav", type "audio/wav");
+        ==
+        ;div#form-display.clock
+          ;form.set.reveal(method "post", autocomplete "off")
+            ;strong.label(style "{?:(reveal "" "margin-top: 2em")}"): focus
+            ;input(type "number", name "h", placeholder "h", min "0");
+            ;input(type "number", name "m", placeholder "m", min "0");
+            ;input(type "number", name "s", placeholder "s", min "0");
+            ;input.range(type "range", name "wrap", id "wrap", min "5", max "9", value "8", oninput "percent.value=wrap.valueAsNumber + '0%'");
+            ;output(name "percent", for "wrap");
+            ;+  ?.  reveal  ;div;
+              ;strong.label: rest
+            ;input(type "{reveal-rest}", name "rh", placeholder "h", min "0");
+            ;input(type "{reveal-rest}", name "rm", placeholder "m", min "0");
+            ;input(type "{reveal-rest}", name "rs", placeholder "s", min "0");
+            ;input.range(type "hidden", name "wrep", min "5", max "9", value "8");
+            ;input(type "hidden", name "nav", value "clock");
+            ;input#reps(type "{reveal-rest}", name "reps", placeholder "x2", min "1");
+            ;+  ?:  reveal  ;div;
+              ;input#reps-btn(type "submit", name "reveal", value "x2");
+            ;input#begin(type "submit", name "begin", value ">");
+          ==
+        ==
+        ;div.footer
+          ;form.pause(method "post")
+            ;input#help(type "submit", name "nav", value "goals");
           ==
         ==
       ==
@@ -220,6 +260,14 @@
       ;div.footer;
     ==
     ==  ==
+  ++  goal-frame
+    ::  XX: learn why I can't just insert elements like this using an
+    ::  arm?
+    ::  I think it would be useful to build components in arms and
+    ::  arrange as necessary in different pages.
+    ::
+    ;iframe@"http://localhost/apps/gol-cli/"(style "margin-top: 3em;", width "100%", height "100%");
+
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
   ::  location.reload(), localStore(), and play() are so
   ::  far what I need from js
