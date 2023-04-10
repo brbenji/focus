@@ -62,6 +62,7 @@
   ^-  (quip card _this)
   :-
   :~  (~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])
+      ::  XX: poke %goals with a new goals switch
       ::  poke %goals for a new pool for focus to populate
       ::
       %-  ~(poke-our pass:io /pool)
@@ -99,6 +100,20 @@
       %focus-command
     =/  command  !<(command vase)
     ?-    -.command
+        %goals
+      ~&  'welcome to goals'
+      ::  XX: needs to
+      ::    a: attempt to connect with %goals aka spawn the focus pool.
+      ::      i: have a response if that connection can't be made
+      ::         something like "you'll need to install goals from
+      ::         %niblyx to keep try of goals. try again once it's
+      ::         installed"
+      ::     ii: on a success, record the [our.bowl now.bowl] in the
+      ::         pool slot of goal in state
+      ::    c: if their is a focus pool,
+      ::
+      ::
+      `this
       ::  XX: add this functionality
       ::
         %pause

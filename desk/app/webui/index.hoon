@@ -68,6 +68,9 @@
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]
+  ?:  (~(has by args) 'goals')
+    ~&  "we got goals"
+    [%goals &]
   ~
 ::
 ++  build
@@ -143,7 +146,8 @@
             ;source(src "focus/assets/wrap/wav", type "audio/wav");
           ==
         ==
-        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "100%");
+        ::  XX: change localhost to the generic basic url? dapp?
+        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %form)
       ::  XX: add an input toggle for starting/seeing %goals iframe in
@@ -169,6 +173,12 @@
             ;input(type "{reveal-rest}", name "rs", placeholder "s", min "0");
             ;input.range(type "hidden", name "wrep", min "5", max "9", value "8");
             ;input(type "hidden", name "nav", value "clock");
+            ::  XX: new goals toggle/checkbox
+            ;label.switch
+              ;strong#switch: goals
+              ;input(type "checkbox", name "goals", value "on");
+              ;span.slider;
+            ==
             ;input#reps(type "{reveal-rest}", name "reps", placeholder "x2", min "1");
             ;+  ?:  reveal  ;div;
               ;input#reps-btn(type "submit", name "reveal", value "x2");
@@ -180,7 +190,8 @@
             ;input#help(type "submit", name "nav", value "?");
           ==
         ==
-        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "100%");
+        ::  XX: localhost needs to be dapp? or something?
+        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %help)
       ;div#wrapper
@@ -239,6 +250,8 @@
           ==
         ==
       ==
+    ::  display enter
+    ::
     ;div#wrapper
       ;audio.hide(controls "", autoplay "")
         ;source(src "focus/assets/enter/wav", type "audio/wav");
@@ -258,6 +271,7 @@
         ==
       ==
       ;div.footer;
+      ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
     ==
     ==  ==
   ++  goal-frame
@@ -647,6 +661,71 @@
     #title {
       grid-column: 1/span 2;
       margin-bottom: .33em;
+    }
+    /* The switch - the box around the slider */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+      grid-row: 4;
+      scale: .5;
+      left: -0.75em;
+      bottom: -0.33em;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    /* The slider */
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 1em;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    #switch {
+      color: dimgrey;
+      left: -.75em;
+      bottom: -.33em;
+    }
+
+    input:checked + .slider {
+      background-color: #9EC6E3;
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
     }
     '''
   --

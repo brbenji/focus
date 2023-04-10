@@ -40,6 +40,7 @@
       [%public public=?]
       [%maneuver =gruv =display]
       [%sub =pin]
+      [%goals ?]
   ==
 ::
 +$  update
