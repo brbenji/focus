@@ -10,6 +10,13 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
+  ?:  (~(has by args) 'goals')
+    ?:  =((~(got by args) 'goals') 'on')
+    ::  XX: wait. how am I turning this thing off?
+      ~&  "we want goals people"
+      [%goals &]
+    ::  I guess thru %maneuver
+    [%goals |]
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
     ?:  (~(has by args) 'reveal')
       ::  reveals the hidden rest inputs
@@ -256,6 +263,7 @@
   ::  location.reload(), localStore(), and play() are so
   ::  far what I need from js
   ::
+  ::  XX: add js that auto submits the checkbox for goals when clicked.
   ++  script
     """
     setTimeout(() => \{

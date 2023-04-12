@@ -92,6 +92,16 @@
       %focus-command
     =/  command  !<(command vase)
     ?-    -.command
+        %goals
+      ~&  'welcome to goals'
+      ::  XX: perform a check-dependency and spawn-pool if it passes
+      ::      but only if =(pool.goals *@da) otherwise `this
+      ::      maybe it's better if that stuff was ~?
+      ::
+      ::    this should also engage, a redraw that includes goals or
+      ::    removes it.
+      ::
+      `this(on.goals goals.command)
       ::  XX: add this functionality
       ::
         %pause
@@ -140,7 +150,12 @@
       ==
       ::
         %public
-      `this(public public.command)
+        ::  XX: temp test for dill commands
+      :-
+      :~  (~(arvo pass:io /dill) %d %text "|install ~zod %chess")
+          ::(~(arvo pass:io /dill) %d %belt %mod %ret)
+      ==
+      this(public public.command)
       ::
         %maneuver
       =/  begin-msg
@@ -177,67 +192,6 @@
             (~(rest pass:io /fin) -.then)
             (~(rest pass:io /fin-wrap) +.then)
         ==
-      ::  XX: if goals was selected as an option goals.command=? turn
-      ::      on.goals=goals.command
-      ::      also only send spawn-goal command if on.goals true
-      ::
-::          %goals
-::        ~&  'welcome to goals'
-::        ::  XX: needs to
-::        ::    a: attempt to connect with %goals aka spawn the focus pool.
-::        ::      i: have a response if that connection can't be made
-::        ::         something like "you'll need to install goals from
-::        ::         %niblyx to keep track of goals. try again once it's
-::        ::         installed"
-::        ::     ii: on a success, record the [our.bowl now.bowl] in the
-::        ::         pool slot of goal in state
-::        ::    c: if their is a focus pool,
-::        ::
-::        ::  XX: check if pool exists?
-::        ::      if +.pool.goals = *@da, then I just need to display the
-::        ::      goals iframe
-::        ::  XX: do I need anymore structure for when goals isn't engaged,
-::        ::      should I have separate paths for goals vs no goals?
-::        ::      which is more elegant: pointlessly poking at an app that
-::        ::      doesn't exist, or having multiple sets of cards and
-::        ::      transformations based on the goals integration.
-::        ::
-::        ?:  =(+.pool.goals *@da)
-::          `this(on.goals goals.command)
-::        ::
-::        ::  XX: check dependencies before sending pool spawn poke
-::        ::      stealing this from ~paldev
-::        ::
-::        ::  NOTE  careful! install currently proceeds fine if this crashes.
-::        ::      you'll need to |uninstall the desk and |nuke the app.
-::        |^  =+  (check-dependency %gol-cli)
-::            :-
-::            :~
-::              ::  poke %goals for a new pool for focus to populate
-::              ::
-::              %-  ~(poke-our pass:io /pool)
-::              :+  %goal-store
-::                %goal-action
-::              !>([%4 now.bowl %spawn-pool (crip "focus")])
-::              (~(watch-our pass:io /goal-watch) [%goal-store /goals])
-::            ==
-::            %=  this
-::              pool.goals  [our.bowl now.bowl]
-::            ==
-::        ::
-::        ++  check-dependency
-::          |=  app=dude:gall
-::          ~|  :^  %missing-dependency
-::                  %app
-::                  app
-::                  '''
-::                  to track goals, you\'ll need to run
-::                  |install ~dister-dozzod-niblyx-malnus %gol-cli
-::                  or hit refresh to focus without tracking goals'
-::                  '''
-::          ?>  .^(? %gu /(scot %p our.bowl)/[app]/(scot %da now.bowl))
-::          ~
-::        --
       ?.  =(display.command %clock)
         ::  if display in command isn't %clock
         ::  what is this doing?
@@ -253,7 +207,10 @@
       ?:  goals.command
         ::  true - check dependency
         ::
+        ::  NOTE  careful! install currently proceeds fine if this crashes.
+        ::      you'll need to |uninstall the desk and |nuke the app.
         |^  =+  (check-dependency %gol-cli)
+          ~&  'welcome to goals'
           ::  continue as usual
           ::
           ::  is today a new day since our last focus session?
