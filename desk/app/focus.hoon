@@ -7,7 +7,7 @@
 ::  and all components are contained within the %focus desk including
 ::  audio and image assets.
 ::
-::         customization to rudder has been made to facilitate
+::         customization to lib/rudder has been made to facilitate
 ::         serving local assets from desk
 ::
 ::
@@ -62,14 +62,6 @@
   ^-  (quip card _this)
   :-
   :~  (~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])
-      ::  XX: poke %goals with a new goals switch
-      ::  poke %goals for a new pool for focus to populate
-      ::
-      %-  ~(poke-our pass:io /pool)
-      :+  %goal-store
-        %goal-action
-      !>([%4 now.bowl %spawn-pool (crip "focus")])
-      (~(watch-our pass:io /goal-watch) [%goal-store /goals])
   ==
   %=  this
     state  :*  %0
@@ -78,7 +70,7 @@
                [now.bowl now.bowl]
                [~s0 ~s0]
                [%enter %focus | %fresh]
-               [[our.bowl now.bowl] [our.bowl *@da] [our.bowl *@da] [our.bowl *@da]]
+               [| [our.bowl *@da] [our.bowl *@da] [our.bowl *@da] [our.bowl *@da]]
                |
            ==
   ==
@@ -100,20 +92,6 @@
       %focus-command
     =/  command  !<(command vase)
     ?-    -.command
-        %goals
-      ~&  'welcome to goals'
-      ::  XX: needs to
-      ::    a: attempt to connect with %goals aka spawn the focus pool.
-      ::      i: have a response if that connection can't be made
-      ::         something like "you'll need to install goals from
-      ::         %niblyx to keep try of goals. try again once it's
-      ::         installed"
-      ::     ii: on a success, record the [our.bowl now.bowl] in the
-      ::         pool slot of goal in state
-      ::    c: if their is a focus pool,
-      ::
-      ::
-      `this
       ::  XX: add this functionality
       ::
         %pause
@@ -165,14 +143,6 @@
       `this(public public.command)
       ::
         %maneuver
-      ?.  =(display.command %clock)
-        `this(display.state-p display.command)
-      ::  protect against ~s0 focus submissions
-      ::  by reseting to the beginning
-      ::
-      ?~  `@`focus.gruv.command
-        `this(display.state-p %enter, reveal.state-p |)
-      ::
       =/  begin-msg
         ?:  (lte reps.gruv.command 1)
         "begin to focus for {<focus.gruv.command>}"
@@ -196,14 +166,8 @@
         ?:  (lte total 60)
           (weld (a-co:co total) "s")
         (weld (a-co:co min) "m")
-
-      ::  is today a new day since our last focus session?
-      ::
-      ?:  =(d:(yell +.day.goals) d:(yell now.bowl))
-        ::  true - only create groove-goal within the day-goal
-        ::
-        :-
-        :~  ::  prime the timer ping-pong
+      =/  time-cards
+        :~  ::  prime the behn timer ping-pong
             ::
             (~(wait pass:io /rest) now.bowl)
             ::  cancel any existing timers
@@ -212,70 +176,245 @@
             (~(rest pass:io /wrap) +.then)
             (~(rest pass:io /fin) -.then)
             (~(rest pass:io /fin-wrap) +.then)
-            ::  create a goal for this groove
-            ::
-            %-  ~(poke-our pass:io /pool)
-            :+  %goal-store  %goal-action
-            !>  :*  %4  now.bowl
-                    %spawn-goal
-                    [%pin -.pool.goals +.pool.goals]
-                    (some [-.day.goals +.day.goals])
-                    (crip "{hour} for {face}")
-                    |
-                ==
         ==
+      ::  XX: if goals was selected as an option goals.command=? turn
+      ::      on.goals=goals.command
+      ::      also only send spawn-goal command if on.goals true
+      ::
+::          %goals
+::        ~&  'welcome to goals'
+::        ::  XX: needs to
+::        ::    a: attempt to connect with %goals aka spawn the focus pool.
+::        ::      i: have a response if that connection can't be made
+::        ::         something like "you'll need to install goals from
+::        ::         %niblyx to keep track of goals. try again once it's
+::        ::         installed"
+::        ::     ii: on a success, record the [our.bowl now.bowl] in the
+::        ::         pool slot of goal in state
+::        ::    c: if their is a focus pool,
+::        ::
+::        ::  XX: check if pool exists?
+::        ::      if +.pool.goals = *@da, then I just need to display the
+::        ::      goals iframe
+::        ::  XX: do I need anymore structure for when goals isn't engaged,
+::        ::      should I have separate paths for goals vs no goals?
+::        ::      which is more elegant: pointlessly poking at an app that
+::        ::      doesn't exist, or having multiple sets of cards and
+::        ::      transformations based on the goals integration.
+::        ::
+::        ?:  =(+.pool.goals *@da)
+::          `this(on.goals goals.command)
+::        ::
+::        ::  XX: check dependencies before sending pool spawn poke
+::        ::      stealing this from ~paldev
+::        ::
+::        ::  NOTE  careful! install currently proceeds fine if this crashes.
+::        ::      you'll need to |uninstall the desk and |nuke the app.
+::        |^  =+  (check-dependency %gol-cli)
+::            :-
+::            :~
+::              ::  poke %goals for a new pool for focus to populate
+::              ::
+::              %-  ~(poke-our pass:io /pool)
+::              :+  %goal-store
+::                %goal-action
+::              !>([%4 now.bowl %spawn-pool (crip "focus")])
+::              (~(watch-our pass:io /goal-watch) [%goal-store /goals])
+::            ==
+::            %=  this
+::              pool.goals  [our.bowl now.bowl]
+::            ==
+::        ::
+::        ++  check-dependency
+::          |=  app=dude:gall
+::          ~|  :^  %missing-dependency
+::                  %app
+::                  app
+::                  '''
+::                  to track goals, you\'ll need to run
+::                  |install ~dister-dozzod-niblyx-malnus %gol-cli
+::                  or hit refresh to focus without tracking goals'
+::                  '''
+::          ?>  .^(? %gu /(scot %p our.bowl)/[app]/(scot %da now.bowl))
+::          ~
+::        --
+      ?.  =(display.command %clock)
+        ::  if display in command isn't %clock
+        ::  what is this doing?
+        ::
+        `this(display.state-p display.command)
+      ::  protect against ~s0 focus submissions
+      ::  by reseting to the beginning
+      ::
+      ?~  `@`focus.gruv.command
+        `this(display.state-p %enter, reveal.state-p |)
+      ::  we want goals!
+      ::
+      ?:  goals.command
+        ::  true - check dependency
+        ::
+        |^  =+  (check-dependency %gol-cli)
+          ::  continue as usual
+          ::
+          ::  is today a new day since our last focus session?
+          ::
+          ?:  =(d:(yell +.day.goals) d:(yell now.bowl))
+            ::  true - only create groove-goal within the day-goal
+            ::
+            :-
+            :*  ::  create a goal for this groove
+                ::
+                %-  ~(poke-our pass:io /pool)
+                :+  %goal-store  %goal-action
+                !>  :*  %4  now.bowl
+                        %spawn-goal
+                        [%pin -.pool.goals +.pool.goals]
+                        (some [-.day.goals +.day.goals])
+                        (crip "{hour} for {face}")
+                        |
+                    ==
+                time-cards
+            ==
+            %=  this
+              groove.state  gruv.command
+              display.state-p  display.command
+              mode.state-p  %focus
+              reps  0
+              groove.goals  [our.bowl now.bowl]
+              on.goals  goals.command
+            ==
+          ::  false - create a new day-goal and a groove-goal in it.
+          ::
+          ::  have we connected with gol-cli?
+          ?:  =(+.pool.goals *@da)
+            ::  no - spawn-pool and and tick day goal
+            ~&  "not connected to goals. connecting..."
+            :-
+            :*
+              ::  poke %goals for a new pool for focus to populate
+              ::
+              %-  ~(poke-our pass:io /pool)
+              :+  %goal-store  %goal-action
+              !>([%4 now.bowl %spawn-pool (crip "focus")])
+              ::  subscribe
+              ::   not sure what I get with this?
+              ::
+              (~(watch-our pass:io /goal-watch) [%goal-store /goals])
+              ::  create first day and groove goals
+              ::
+::              %-  ~(poke-our pass:io /pool)
+::              :+  %goal-store  %goal-action
+::              !>  :*  %4  now.bowl
+::                      %spawn-goal
+::                      [%pin -.pool.goals +.pool.goals]
+::                      ~
+::                      (crip "day {day}")
+::                      |
+::                  ==
+::              %-  ~(poke-our pass:io /pool)
+::              ::  this seemed to work fine
+::              :+  %goal-store  %goal-action
+::              !>  :*  %4  now.bowl
+::                      %spawn-goal
+::                      [%pin -.pool.goals +.pool.goals]
+::                      ::  the parent pin, aka the day-goal we just poked
+::                      (some [our.bowl now.bowl])
+::                      (crip "{hour} for {face}")
+::                      |
+::                  ==
+              time-cards
+            ==
+            %=  this
+              pool.goals  [our.bowl now.bowl]
+              groove.state  gruv.command
+              display.state-p  display.command
+              mode.state-p  %focus
+              reps  0
+              ::  this day-goal arrives exactly with spawn-pool
+              ::  %goal-store will increment the time by 1ms
+              ::  only a conjecture groove.goal will inc by 2ms
+              ::
+              day.goals  [our.bowl (add now.bowl ~s0..0001)]
+              groove.goals  [our.bowl (add now.bowl ~s0..0002)]
+              on.goals  goals.command
+            ==
+          ::  cards and trans if we are connected with goals
+          ::
+          :-
+          :*  ::  create a goal for this groove
+              ::
+              %-  ~(poke-our pass:io /pool)
+              :+  %goal-store  %goal-action
+              !>  :*  %4  now.bowl
+                      %spawn-goal
+                      [%pin -.pool.goals +.pool.goals]
+                      ~
+                      (crip "day {day}")
+                      |
+                  ==
+              %-  ~(poke-our pass:io /pool)
+              ::  this seemed to work fine
+              :+  %goal-store  %goal-action
+              !>  :*  %4  now.bowl
+                      %spawn-goal
+                      [%pin -.pool.goals +.pool.goals]
+                      ::  the parent pin, aka the day-goal we just poked
+                      (some [our.bowl now.bowl])
+                      (crip "{hour} for {face}")
+                      |
+                  ==
+              time-cards
+          ==
+          %=  this
+            groove.state  gruv.command
+            display.state-p  display.command
+            mode.state-p  %focus
+            reps  0
+            day.goals  [our.bowl now.bowl]
+            ::  this groove-goal arrives exactly with day-goal
+            ::  %goal-store will increment the time by 1ms
+            ::
+            groove.goals  [our.bowl (add now.bowl ~s0..0001)]
+            on.goals  goals.command
+          ==
+        ::
+        ++  check-dependency
+          |=  app=dude:gall
+          ~|  :^  %missing-dependency
+                  %app
+                  app
+                  '''
+                  to track goals, you\'ll need to run
+                  |install ~dister-dozzod-niblyx-malnus %gol-cli
+                  or hit refresh to focus without tracking goals'
+                  '''
+          ?>  .^(? %gu /(scot %p our.bowl)/[app]/(scot %da now.bowl))
+          ~
+        --
+      :: no goals version of the timer
+      ::
+      ::  is today a new day since our last focus session?
+      ::
+      ?:  =(d:(yell +.day.goals) d:(yell now.bowl))
+        ::  true - only create groove-goal within the day-goal
+        ::
+        :-  time-cards
         %=  this
           groove.state  gruv.command
           display.state-p  display.command
           mode.state-p  %focus
           reps  0
-          groove.goals  [our.bowl now.bowl]
+          on.goals  goals.command
         ==
-      ::  false create a new day-goal and a groove-goal in it.
+      ::  false - create a new day-goal and a groove-goal in it.
       ::
-      :-
-      :~  ::  prime the timer ping-pong
-          ::
-          (~(wait pass:io /rest) now.bowl)
-          ::  cancel any existing timers
-          ::
-          (~(rest pass:io /(scot %tas mode.state-p)) -.then)
-          (~(rest pass:io /wrap) +.then)
-          (~(rest pass:io /fin) -.then)
-          (~(rest pass:io /fin-wrap) +.then)
-          ::  create a goal for this groove
-          ::
-          %-  ~(poke-our pass:io /pool)
-          :+  %goal-store  %goal-action
-          !>  :*  %4  now.bowl
-                  %spawn-goal
-                  [%pin -.pool.goals +.pool.goals]
-                  ~
-                  (crip "day {day}")
-                  |
-              ==
-          %-  ~(poke-our pass:io /pool)
-          ::  this seemed to work fine
-          :+  %goal-store  %goal-action
-          !>  :*  %4  now.bowl
-                  %spawn-goal
-                  [%pin -.pool.goals +.pool.goals]
-                  ::  the parent pin, aka the day-goal we just poked
-                  (some [our.bowl now.bowl])
-                  (crip "{hour} for {face}")
-                  |
-              ==
-      ==
+      :-  time-cards
       %=  this
         groove.state  gruv.command
         display.state-p  display.command
         mode.state-p  %focus
         reps  0
-        day.goals  [our.bowl now.bowl]
-        ::  this groove-goal arrives exactly with day-goal
-        ::  %goal-store will increment the time by 1ms
-        ::
-        groove.goals  [our.bowl (add now.bowl ~s0..0001)]
+        on.goals  goals.command
       ==
       ::
         %reveal
@@ -378,7 +517,7 @@
       :-
       :~  (~(wait pass:io /fin) setfocus)
           (~(wait pass:io /fin-wrap) setwrap)
-          rep-goal
+          ::  rep-goal
       ==
       %=  this
         reps  +(reps)
@@ -391,7 +530,7 @@
     :-
     :~  (~(wait pass:io /focus) setfocus)
         (~(wait pass:io /wrap) setwrap)
-        rep-goal
+        ::  rep-goal
     ==
     %=  this
       reps  +(reps)
@@ -420,16 +559,16 @@
       %wrap
     ?>  ?=([%behn %wake *] sign)
     ~&  ?:(=(mode.state-p %focus) 'wrap up' 'come back')
-    ::  after a single focus go to %goals page
+    ::  after a single focus go to %enter page
     ::
     ?:  (lte reps.groove 1)
-      `this(display.state-p %goals)
+      `this(display.state-p %enter)
     `this
     ::
       %fin-wrap
     ?>  ?=([%behn %wake *] sign)
     ~&  ?:((lte reps.groove 1) 'wrap up' 'finish it')
-    `this(display.state-p %goals)
+    `this(display.state-p %enter)
     ::
       %fin
     ~&  >  'doneskis!'
@@ -437,7 +576,7 @@
     ::
     :-  ~
     %=  this
-      display.state-p  %goals
+      display.state-p  %enter
       mode.state-p  %fin
       prev-cmd.state-p  %fresh
       reveal.state-p  |

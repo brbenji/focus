@@ -12,15 +12,15 @@
 ::
 +$  public  ?
 ::
-+$  display  ?(%form %help %clock %goals %enter)
++$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
-+$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  reveal  ?
++$  prev-cmd  ?(%begin %pause %cont %fresh)
 +$  state-p  [=display =mode =reveal =prev-cmd]
 ::  for %goals
 ::
 +$  pin  [owner=@p birth=@da]
-+$  goals  [pool=pin day=pin groove=pin reps=pin]
++$  goals  [on=? pool=pin day=pin groove=pin reps=pin]
 ::
 ::  type unions are eating my lunch!
 ::    disaplyify was made to help out.
@@ -38,9 +38,8 @@
       [%cont ?]
       [%reveal reveal]
       [%public public=?]
-      [%maneuver =gruv =display]
+      [%maneuver =gruv =display goals=?]
       [%sub =pin]
-      [%goals ?]
   ==
 ::
 +$  update

@@ -19,16 +19,16 @@
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
-      [%maneuver groove (display.focus %help)]
+      [%maneuver groove (display.focus %help) on.goals]
     ?:  =((~(got by args) 'nav') 'X')
       ::  exit help
       ::
-      [%maneuver groove (display.focus %form)]
+      [%maneuver groove (display.focus %form) on.goals]
     ?.  (~(has by args) 'h')
       ::  the time setting code below won't work unless nav produces h m s etc
       ::    this produces the existing groove instead
       ::
-      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav')))]
+      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) on.goals]
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
     ::
@@ -59,7 +59,11 @@
     ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
     ::
     =/  wrep  wrap
-    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock)]
+    ?:  (~(has by args) 'goals')
+      ~&  "we got goals"
+      [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
+    ~&  "goals off"
+    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) |]
   ::  XX: add this functionality
   ::
   ?:  (~(has by args) 'cont')
@@ -68,9 +72,6 @@
   ?:  (~(has by args) 'pause')
     ~&  "we hit pause people"
     [%pause &]
-  ?:  (~(has by args) 'goals')
-    ~&  "we got goals"
-    [%goals &]
   ~
 ::
 ++  build
@@ -175,7 +176,6 @@
             ;input(type "hidden", name "nav", value "clock");
             ::  XX: new goals toggle/checkbox
             ;label.switch
-              ;strong#switch: goals
               ;input(type "checkbox", name "goals", value "on");
               ;span.slider;
             ==
@@ -208,45 +208,15 @@
           ;p.sm: relax a moment
           ;input#btn-help(type "submit", value "x2");
           ;p.sm: focus more than once
+          ;label#switch-help.switch
+            ;input(type "checkbox", name "goals", value "on");
+            ;span.slider;
+          ==
+          ;p.sm: connect with %goals
         ==
         ;div.footer
           ;form.pause(method "post")
             ;input#help-x(type "submit", name "nav", value "X");
-          ==
-        ==
-      ==
-    ::  XX: delete this.
-    ::
-    ?:  =(display %goals)
-      ;div#wrapper
-        ;audio.hide(controls "", autoplay "")
-          ;+  ?:  reveal  ;source(src "focus/assets/reps/wav", type "audio/wav");
-            ;source(src "focus/assets/form/wav", type "audio/wav");
-        ==
-        ;div#form-display.clock
-          ;form.set.reveal(method "post", autocomplete "off")
-            ;strong.label(style "{?:(reveal "" "margin-top: 2em")}"): focus
-            ;input(type "number", name "h", placeholder "h", min "0");
-            ;input(type "number", name "m", placeholder "m", min "0");
-            ;input(type "number", name "s", placeholder "s", min "0");
-            ;input.range(type "range", name "wrap", id "wrap", min "5", max "9", value "8", oninput "percent.value=wrap.valueAsNumber + '0%'");
-            ;output(name "percent", for "wrap");
-            ;+  ?.  reveal  ;div;
-              ;strong.label: rest
-            ;input(type "{reveal-rest}", name "rh", placeholder "h", min "0");
-            ;input(type "{reveal-rest}", name "rm", placeholder "m", min "0");
-            ;input(type "{reveal-rest}", name "rs", placeholder "s", min "0");
-            ;input.range(type "hidden", name "wrep", min "5", max "9", value "8");
-            ;input(type "hidden", name "nav", value "clock");
-            ;input#reps(type "{reveal-rest}", name "reps", placeholder "x2", min "1");
-            ;+  ?:  reveal  ;div;
-              ;input#reps-btn(type "submit", name "reveal", value "x2");
-            ;input#begin(type "submit", name "begin", value ">");
-          ==
-        ==
-        ;div.footer
-          ;form.pause(method "post")
-            ;input#help(type "submit", name "nav", value "goals");
           ==
         ==
       ==
@@ -483,8 +453,9 @@
     .hide {
       visibility: hidden;
     }
-    .help {
+    .clock.help {
       grid-template-columns: 2.66em auto;
+      grid-template-rows: 2em repeat(5, 1.1em);
       grid-gap: .33em;
     }
     .time {
@@ -641,6 +612,13 @@
       color: dimgray;
       width: 2.33em;
     }
+    #switch-help {
+      scale: .4;
+      align-self: initial;
+      position: relative;
+      top: 0em;
+      left: 0em;
+    }
     #button {
       width: 2.66em;
       height: 2.66em;
@@ -664,14 +642,14 @@
     }
     /* The switch - the box around the slider */
     .switch {
-      position: relative;
+      position: absolute;
       display: inline-block;
       width: 60px;
       height: 34px;
-      grid-row: 4;
-      scale: .5;
-      left: -0.75em;
-      bottom: -0.33em;
+      grid-column: 1;
+      scale: .6;
+      left: -.5em;
+      bottom: .2em;
     }
 
     /* Hide default HTML checkbox */
@@ -697,7 +675,12 @@
 
     .slider:before {
       position: absolute;
-      content: "";
+      display: inline-block;
+      text-align: center;
+      line-height: 1;
+      content: "g";
+      font-size: 1.33em;
+      color: darkgrey;
       height: 26px;
       width: 26px;
       left: 4px;
@@ -708,24 +691,15 @@
       border-radius: 50%;
     }
 
-    #switch {
-      color: dimgrey;
-      left: -.75em;
-      bottom: -.33em;
-    }
-
     input:checked + .slider {
-      background-color: #9EC6E3;
-    }
-
-    input:focus + .slider {
-      box-shadow: 0 0 1px #2196F3;
+      background-color: #EEDFC9;
     }
 
     input:checked + .slider:before {
       -webkit-transform: translateX(26px);
       -ms-transform: translateX(26px);
       transform: translateX(26px);
+      color: dimgrey;
     }
     '''
   --
