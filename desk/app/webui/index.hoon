@@ -10,32 +10,37 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
+  ::  XX: add this functionality
+  ::
+  ?:  (~(has by args) 'cont')
+    ~&  "we hit cont people"
+    [%cont &]
+  ?:  (~(has by args) 'pause')
+    ~&  "we hit pause people"
+    [%pause &]
   ?:  (~(has by args) 'goals')
     ?:  =((~(got by args) 'goals') 'on')
-    ::  XX: wait. how am I turning this thing off?
-      ~&  "we want goals people"
       [%goals &]
-    ::  I guess thru %maneuver
     [%goals |]
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
-    ?:  (~(has by args) 'reveal')
-      ::  reveals the hidden rest inputs
+    ?:  (~(has by args) 'multi')
+      ::  multis the hidden rest inputs
       ::    perhaps the name should have been multi or more?
       ::
-      [%reveal &]
+      [%multi &]
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
-      [%maneuver groove (display.focus %help) on.goals]
+      [%maneuver groove (display.focus %help)]
     ?:  =((~(got by args) 'nav') 'X')
       ::  exit help
       ::
-      [%maneuver groove (display.focus %form) on.goals]
+      [%maneuver groove (display.focus %form)]
     ?.  (~(has by args) 'h')
       ::  the time setting code below won't work unless nav produces h m s etc
       ::    this produces the existing groove instead
       ::
-      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) on.goals]
+      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav')))]
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
     ::
@@ -60,25 +65,14 @@
     ::
     =/  focus  `@dr`(slav %dr (crip f-time))
     =/  wrap  `@ud`(slav %ud (~(got by args) 'wrap'))
-    =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') ?.(reveal '1' '2') num))
+    =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') ?.(multi '1' '2') num))
     =/  rest  `@dr`(slav %dr (crip r-time))
     ::  wrep is just a copy of wrap for now
     ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
     ::
     =/  wrep  wrap
-    ?:  (~(has by args) 'goals')
-      ~&  "we got goals"
-      [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
-    ~&  "goals off"
-    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) |]
-  ::  XX: add this functionality
-  ::
-  ?:  (~(has by args) 'cont')
-    ~&  "we hit cont people"
-    [%cont &]
-  ?:  (~(has by args) 'pause')
-    ~&  "we hit pause people"
-    [%pause &]
+    ::
+    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock)]
   ~
 ::
 ++  build
@@ -128,7 +122,7 @@
                 ;strong#rest: rest
                 ;p#rep-count(style "top: 3em; left: 2.8em"): {<reps>} of {<reps.groove>}
               ==
-            ?.  reveal  ;strong.time.brothers: {(face focus.groove)}
+            ?.  multi  ;strong.time.brothers: {(face focus.groove)}
             ;div.brothers
               ;strong.time: {(face focus.groove)}
               ;p#rep-count: {<reps>} of {<reps.groove>}
@@ -154,42 +148,52 @@
             ;source(src "focus/assets/wrap/wav", type "audio/wav");
           ==
         ==
-        ::  XX: change localhost to the generic basic url? dapp?
+      ;+  ?.  on.goals  ;div;
         ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %form)
-      ::  XX: add an input toggle for starting/seeing %goals iframe in
-      ::  the form and clock display.
-      ::
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
-          ;+  ?:  reveal  ;source(src "focus/assets/reps/wav", type "audio/wav");
+          ;+  ?:  multi  ;source(src "focus/assets/reps/wav", type "audio/wav");
             ;source(src "focus/assets/form/wav", type "audio/wav");
         ==
         ;div#form-display.clock
           ;form.set.reveal(method "post", autocomplete "off")
-            ;strong.label(style "{?:(reveal "" "margin-top: 2em")}"): focus
+            ;strong.label(style "{?:(multi "" "margin-top: 2em")}"): focus
             ;input(type "number", name "h", placeholder "h", min "0");
             ;input(type "number", name "m", placeholder "m", min "0");
             ;input(type "number", name "s", placeholder "s", min "0");
-            ;input.range(type "range", name "wrap", id "wrap", min "5", max "9", value "8", oninput "percent.value=wrap.valueAsNumber + '0%'");
+            ;input.range(type "range", name "wrap", id "wrap", min "5", max "9", value "{<wrap.groove>}", oninput "percent.value=wrap.valueAsNumber + '0%'");
             ;output(name "percent", for "wrap");
-            ;+  ?.  reveal  ;div;
+            ;+  ?.  multi  ;div;
               ;strong.label: rest
             ;input(type "{reveal-rest}", name "rh", placeholder "h", min "0");
             ;input(type "{reveal-rest}", name "rm", placeholder "m", min "0");
             ;input(type "{reveal-rest}", name "rs", placeholder "s", min "0");
-            ;input.range(type "hidden", name "wrep", min "5", max "9", value "8");
+            ;input.range(type "hidden", name "wrep", min "5", max "9", value "{<wrep.groove>}");
             ;input(type "hidden", name "nav", value "clock");
-            ::  XX: new goals toggle/checkbox
-            ;label.switch
-              ;input(type "checkbox", name "goals", value "on");
-              ;span.slider;
-            ==
             ;input#reps(type "{reveal-rest}", name "reps", placeholder "x2", min "1");
-            ;+  ?:  reveal  ;div;
-              ;input#reps-btn(type "submit", name "reveal", value "x2");
+            ;+  ?:  multi  ;div;
+              ;input#reps-btn(type "submit", name "multi", value "x2");
             ;input#begin(type "submit", name "begin", value ">");
+          ==
+          ;label.switch.reveal
+            ;+  ?.  on.goals
+              ::  goals aren't on. display unchecked
+              ::  tell goals to turn on when clicked
+              ::
+              ;form(method "post", id "goalsToggle")
+                ;input(type "checkbox", onchange "goalsToggle()");
+                ;span.slider;
+                ::  hidden inputs are required to pass in args
+                ;input(type "hidden", name "goals", value "on");
+              ==
+            ::  goals on. display checked
+            ;form(method "post", id "goalsToggle")
+              ;input(type "checkbox", checked "", onchange "goalsToggle()");
+              ;span.slider;
+              ;input(type "hidden", name "goals", value "off");
+            ==
           ==
         ==
         ;div.footer
@@ -197,8 +201,8 @@
             ;input#help(type "submit", name "nav", value "?");
           ==
         ==
-        ::  XX: localhost needs to be dapp? or something?
-        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
+        ;+  ?.  on.goals  ;div;
+          ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %help)
       ;div#wrapper
@@ -248,7 +252,8 @@
         ==
       ==
       ;div.footer;
-      ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
+      ;+  ?.  on.goals  ;div;
+        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
     ==
     ==  ==
   ++  goal-frame
@@ -260,12 +265,15 @@
     ;iframe@"http://localhost/apps/gol-cli/"(style "margin-top: 3em;", width "100%", height "100%");
 
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
-  ::  location.reload(), localStore(), and play() are so
+  ::  location.reload(), localStore(), submit(), and play() are so
   ::  far what I need from js
   ::
-  ::  XX: add js that auto submits the checkbox for goals when clicked.
   ++  script
     """
+    function goalsToggle() \{
+      document.getElementById("goalsToggle").submit();
+    };
+
     setTimeout(() => \{
       document.getElementById({<?:(=(mode %rest) "wrep-wav" "wrap-wav")>}).play();
     }, {handle-wrap});
@@ -280,11 +288,11 @@
     """
     #begin \{
       grid-column-end: 3;
-      grid-row: {<?.(reveal 3 7)>};
+      grid-row: {<?.(multi 3 7)>};
       height: 2.33em;
       width: 3em;
       position: relative;
-      top: {?:(reveal "1.45" "6.66")}em;
+      top: {?:(multi "1.45" "6.66")}em;
       left: .55em;
       border: 0.09em solid rgb(60,60,60);
       border-radius: 0.33em;
@@ -324,7 +332,7 @@
   ::    +script, +mod-style, +build
   ::
   ++  reveal-rest
-    ?:  reveal
+    ?:  multi
       "number"
     "hidden"
   ++  mode-switch
@@ -675,10 +683,14 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
+      background-color: #b7b7b7;
       -webkit-transition: .4s;
       transition: .4s;
       border-radius: 1em;
+    }
+
+    .slider:hover {
+      background-color: #999;
     }
 
     .slider:before {
@@ -701,6 +713,10 @@
 
     input:checked + .slider {
       background-color: #EEDFC9;
+    }
+
+    input:checked + .slider:hover {
+      background-color: #E8CEA9;
     }
 
     input:checked + .slider:before {

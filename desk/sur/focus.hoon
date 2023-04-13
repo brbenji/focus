@@ -14,9 +14,9 @@
 ::
 +$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
-+$  reveal  ?
++$  multi  ?
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
-+$  state-p  [=display =mode =reveal =prev-cmd]
++$  state-p  [=display =mode =multi =prev-cmd]
 ::  for %goals
 ::
 +$  pin  [owner=@p birth=@da]
@@ -31,15 +31,16 @@
 ::
 ::  is there a good non-cell way to do this
 ::  most of these commands could just be @tas
-::  begin, focus, rest, fin, pause, cont, deliver
+::  pause, cont, public, goals
 ::
 +$  command
-  $%  [%pause ?]
-      [%cont ?]
-      [%reveal reveal]
+  $%  [%pause pause=?]
+      [%cont cont=?]
+      [%multi multi]
       [%public public=?]
-      [%maneuver =gruv =display goals=?]
+      [%maneuver =gruv =display]
       [%sub =pin]
+      [%goals goals=?]
   ==
 ::
 +$  update
