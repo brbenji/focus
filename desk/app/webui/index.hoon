@@ -1,3 +1,8 @@
+::  design issues
+::    both goals toggle and reps-btn will move around based on zoom
+::    goals text is squished on mobile bc of the ownership pop-up
+::      (can't do a lot about that)
+::
 /-  *focus
 /+  rudder
 ::
@@ -10,14 +15,11 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
-  ::  XX: add this functionality
   ::
-  ?:  (~(has by args) 'cont')
-    ~&  "we hit cont people"
-    [%cont &]
   ?:  (~(has by args) 'pause')
-    ~&  "we hit pause people"
     [%pause &]
+  ?:  (~(has by args) 'cont')
+    [%cont &]
   ?:  (~(has by args) 'goals')
     ?:  =((~(got by args) 'goals') 'on')
       [%goals &]
@@ -28,6 +30,10 @@
       ::    perhaps the name should have been multi or more?
       ::
       [%multi &]
+    ?:  =((~(got by args) 'nav') 'new')
+      ::  return to form for a new groove
+      ::
+      [%maneuver groove (display.focus %form)]
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
@@ -107,12 +113,19 @@
         ;div.clock
           ;div.face.brothers
             ;form.brothers(method "post")
-              ;input.to-form(type "submit", name "nav", value "form");
+              ;+  ?:  =(prev-cmd %pause)
+                  ::  if the previous command was %pause change to cont
+                  ::  and add a [new] button
+                    ;div
+                      ;input.pause(type "submit", name "cont", value "cont");
+                      ;input.new.brothers.reveal(type "submit", name "nav", value "new");
+                    ==
+                  ;input.pause(type "submit", name "pause", value "pause");
             ==
-            ;svg.brothers(viewbox "0 0 100 100")
+            ;svg.brothers.reveal(viewbox "0 0 100 100")
               ;circle#wipe(cx "50", cy "50", r "3em");
             ==
-            ;svg#wrap-icon.brothers(viewbox "0 0 100 100")
+            ;svg#wrap-icon.brothers.reveal(viewbox "0 0 100 100")
               ;polygon(style "fill:white", points "{(~(got by wrap-icon) wrap.groove)}");
             ==
             ;+
@@ -120,32 +133,28 @@
               ;div.time-rest.brothers
                 ;strong.time(style "font-size: 2.33em"): {(face rest.groove)}
                 ;strong#rest: rest
-                ;p#rep-count(style "top: 3em; left: 2.8em"): {<reps>} of {<reps.groove>}
+                ;+  ?:  =(prev-cmd %pause)  ;div;
+                    ;p#rep-count(style "top: 3em; left: 2.8em"): {<reps>} of {<reps.groove>}
               ==
             ?.  multi  ;strong.time.brothers: {(face focus.groove)}
             ;div.brothers
               ;strong.time: {(face focus.groove)}
-              ;p#rep-count: {<reps>} of {<reps.groove>}
+              ;+  ?:  =(prev-cmd %pause)  ;div;
+                  ;p#rep-count: {<reps>} of {<reps.groove>}
             ==
           ==
         ==
         ;div.footer
           ;p#total: {total}
-          ;form.pause.hide(method "post", autocomplete "off")
-            ;input#help.transparent(type "submit", name "nav", value "?");
-            ;+
-            ?:  =(prev-cmd %pause)
-              ;input#button(type "submit", name "cont", value "|>");
-            ?:  =(prev-cmd %cont)
-              ;input#button(type "submit", name "pause", value "||");
-            ;input#button(type "submit", name "pause", value "||");
+          ;form#help.hide(method "post", autocomplete "off")
+            ;input#help-qm.transparent(type "submit", name "nav", value "?");
           ==
           ;+  ?:  =(mode %rest)
-            ;audio#wrep-wav.hide(controls "")
-              ;source(src "focus/assets/wrep/wav", type "audio/wav");
-            ==
-          ;audio#wrap-wav.hide(controls "")
-            ;source(src "focus/assets/wrap/wav", type "audio/wav");
+                ;audio#wrep-wav.hide(controls "")
+                  ;source(src "focus/assets/wrep/wav", type "audio/wav");
+                ==
+              ;audio#wrap-wav.hide(controls "")
+                ;source(src "focus/assets/wrap/wav", type "audio/wav");
           ==
         ==
       ;+  ?.  on.goals  ;div;
@@ -197,8 +206,8 @@
           ==
         ==
         ;div.footer
-          ;form.pause(method "post")
-            ;input#help(type "submit", name "nav", value "?");
+          ;form#help(method "post")
+            ;input#help-qm(type "submit", name "nav", value "?");
           ==
         ==
         ;+  ?.  on.goals  ;div;
@@ -226,7 +235,7 @@
           ;p.sm: connect with %goals
         ==
         ;div.footer
-          ;form.pause(method "post")
+          ;form#help(method "post")
             ;input#help-x(type "submit", name "nav", value "X");
           ==
         ==
@@ -239,6 +248,7 @@
       ==
       ;div#enter.clock
         ;form.brothers(method "post")
+          ::  XX: add an id that makes this to-form like the original
           ;input.to-form(type "submit", name "nav", value "form", autofocus "");
         ==
         ;div.face.brothers
@@ -268,6 +278,10 @@
   ::  location.reload(), localStore(), submit(), and play() are so
   ::  far what I need from js
   ::
+  ::  XX: remove reload and sfx on pause and if display isn't clock
+  ::      that the right way to do it instead, I'll just make
+  ::      +handle-refresh and +handle-wrap take a day if paused. "what a hack"
+  ::
   ++  script
     """
     function goalsToggle() \{
@@ -281,52 +295,12 @@
     setTimeout(() => \{
       document.location.reload();
     }, {handle-refresh});
-    """
-  ::  mod-style is built in a tape for code insertion
-  ::
-  ++  mod-style
-    """
-    #begin \{
-      grid-column-end: 3;
-      grid-row: {<?.(multi 3 7)>};
-      height: 2.33em;
-      width: 3em;
-      position: relative;
-      top: {?:(multi "1.45" "6.66")}em;
-      left: .55em;
-      border: 0.09em solid rgb(60,60,60);
-      border-radius: 0.33em;
-    }
-    circle \{
-      stroke: black;
-      fill: none;
-      stroke-width: 6em;
-      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
-      stroke-dashoffset: 201; /* initial setting */
-      filter: blur(.04em);
-      animation: wipe {?:(=(mode %rest) (duration rest.groove) (duration focus.groove))}ms infinite linear;
-    }
-    @keyframes wipe \{
-      0% \{
-        stroke-dashoffset: {(left-to-wipe time-left)};
-      }
-      100% \{
-        stroke-dashoffset: 0;
-      }
-    }
-    #enter \{
-      animation: enter 2.5s;
-    }
-    @keyframes enter \{
-      0% \{
-        opacity: 0;
-        stroke-dashoffset: 221;
-      }
-      100% \{
-        opacity: 1;
-        stroke-dashoffset: 201;
-      }
-    }
+
+    /* stop that dang mobile scrolling on focus */
+    const repsInput = document.getElementById('reps');
+    repsInput.addEventListener('focus', () => \{
+      repsInput.scrollIntoView(false);
+    });
     """
   ::  helper arms for dynamically changing
   ::    +script, +mod-style, +build
@@ -400,10 +374,12 @@
     =/  total-ms  (mul total 1.000)
     (a-co:co total-ms)
   ++  handle-refresh
-    ::  one second delay to insure the behn timers
-    ::  have completed and their effects propagated
+    ::  make sure display is clock and time isn't paused
     ::
-    ?:  =(display %clock)
+    ?:  &(=(display %clock) ?!(=(prev-cmd %pause)))
+        ::  one second delay to insure the behn timers
+        ::  have completed and their effects propagated
+        ::
         (duration (add time-left ~s1))
     ::  (a-co:co day:yo) sounds like poetry but
     ::  it's just a day in seconds in a tape "86460"
@@ -412,7 +388,7 @@
   ++  handle-wrap
     ^-  tape
     =/  ms-day  (a-co:co (mul day:yo 1.000))
-    ?:  =(display %clock)
+    ?:  &(=(display %clock) ?!(=(prev-cmd %pause)))
       ?:  =(wrap-left ~s0)
         ms-day
       ::  add a quarter second delay to sync
@@ -420,6 +396,67 @@
       ::
       (duration (add wrap-left ~s0..4000))
     ms-day
+  ::  mod-style is built in a tape for code insertion
+  ::
+  ++  mod-style
+    """
+    #begin \{
+      grid-column-end: 3;
+      grid-row: {<?.(multi 3 7)>};
+      height: 2.33em;
+      width: 3em;
+      position: relative;
+      top: {?:(multi "1.45" "6.66")}em;
+      left: .55em;
+      border: 0.09em solid rgb(60,60,60);
+      border-radius: 0.33em;
+    }
+    .clock \{
+      display: grid;
+      place-items: center;
+      grid-template-rows: auto;
+      margin: 1em;
+      padding: .66em;
+      border: .09em solid black;
+      border-radius: .66em;
+      height: 11em;
+      width: 11em;
+      scale: 2;
+      overflow: hidden;
+      background-color: {?:(=(prev-cmd %pause) "black" "white")};
+    }
+    circle \{
+      stroke: {?:(=(prev-cmd %pause) "white" "black")};
+      fill: none;
+      stroke-width: 6em;
+      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
+      stroke-dashoffset: 201; /* initial setting */
+      filter: blur(.04em);
+      animation: wipe {?:(=(mode %rest) (duration rest.groove) (duration focus.groove))}ms infinite linear;
+    }
+    @keyframes wipe \{
+      0% \{
+        stroke-dashoffset: {(left-to-wipe time-left)};
+      }
+      100% \{
+        /* on pause, freeze the wipe effect */
+        stroke-dashoffset: {?:(=(prev-cmd %pause) (left-to-wipe time-left) "0")};
+      }
+    }
+    #enter \{
+      animation: enter 2.5s;
+    }
+    @keyframes enter \{
+      0% \{
+        opacity: 0;
+        stroke-dashoffset: 221;
+      }
+      100% \{
+        opacity: 1;
+        stroke-dashoffset: 201;
+      }
+    }
+    """
   ::
   ++  style
     '''
@@ -502,9 +539,14 @@
       scale: .75;
     }
     .pause {
+      height: 5em;
+      width: 8em;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+
       display: grid;
       place-content: center;
-      height: 0em;
       scale: 2;
       margin-right: -.5em;
     }
@@ -519,6 +561,26 @@
       z-index: 1;
       opacity: 0;
     }
+    .new {
+      height: 2em;
+      width: 3em;
+      position: relative;
+      z-index: 1;
+      top: 2.8em;
+      right: -6.5em;
+      mix-blend-mode: difference;
+      text-align: end;
+      background-color: black;
+      border-radius: .33em;
+      border: solid 1px whitesmoke;
+      color: white;
+      scale: .66;
+    }
+    .new:hover {
+      background-color: #333;
+      border: solid 1px white;
+      color: white;
+    }
     .brothers {
       grid-row: 1;
       grid-column: 1;
@@ -526,20 +588,6 @@
     .footer {
       margin-top: 2em;
       width: 22em;
-    }
-    .clock {
-      display: grid;
-      place-items: center;
-      grid-template-rows: auto;
-      margin: 1em;
-      padding: .66em;
-      border: .09em solid black;
-      border-radius: .66em;
-      height: 11em;
-      width: 11em;
-      scale: 2;
-      overflow: hidden;
-      background-color: white;
     }
     #wrapper {
       display: grid;
@@ -588,6 +636,13 @@
       font-weight: 500;
     }
     #help {
+      display: grid;
+      place-content: center;
+      height: 0em;
+      scale: 2;
+      margin-right: -.5em;
+    }
+    #help-qm {
       border-radius: 1em;
       border-style: solid;
       width: 2em;

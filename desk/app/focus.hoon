@@ -1,6 +1,6 @@
 ::  focus: an interval timer
 ::
-::    v1.2.1
+::    v1.2.1 - now with pause button, and goals!
 ::
 ::  the fun thing about focus, is that's it's techniaclly 100% hoon.
 ::  made using sail and rudder there is only 6 lines of javascript.
@@ -15,9 +15,6 @@
 ::      into groups and set a time (big-rest) in between those.
 ::      (ex: 30min focus 3 times with 7min rests, but do that
 ::      all 4 times with a 35min big-rest in between.
-::
-::      we're not actually using prev-cmd.
-::      perhaps when we add %pause we will?
 ::
 /-  *focus, goal
 /+  rudder, agentio, verb, dbug, default-agent
@@ -142,27 +139,27 @@
         ?>  .^(? %gu /(scot %p our.bowl)/[app]/(scot %da now.bowl))
         ~
       --
-      ::  XX: add this functionality
       ::
         %pause
-      ~&  'oops no pause button'
       ~&  >  'paused'
       ::  calc the time left for current timers
       ::
-      =/  at-pause  [`@dr`(sub -.then now.bowl) `@dr`(sub +.then now.bowl)]
+      =/  at-pause
+        :-  `@dr`(sub time.then now.bowl)
+            ?:  (lth wrap.then now.bowl)
+              *@dr
+            `@dr`(sub wrap.then now.bowl)
       :-
       :~
         ::  cancel timers
         ::
-        (~(rest pass:io /(scot %tas mode.state-p)) -.then)
-        (~(rest pass:io /wrap) +.then)
+        (~(rest pass:io /(scot %tas mode.state-p)) time.then)
+        (~(rest pass:io /wrap) wrap.then)
         ::  maybe there is a fin timer
         ::
-        (~(rest pass:io /fin) -.then)
-        (~(rest pass:io /fin-wrap) +.then)
+        (~(rest pass:io /fin) time.then)
+        (~(rest pass:io /fin-wrap) wrap.then)
       ==
-      ::  XX: consider a display %pause here
-      ::
       %=  this
         left  at-pause
         prev-cmd.state-p  %pause
@@ -190,14 +187,24 @@
       ==
       ::
         %public
-        ::  XX: temp test for dill commands
-      :-
-      :~  (~(arvo pass:io /dill) %d %text "|install ~zod %chess")
-          ::(~(arvo pass:io /dill) %d %belt %mod %ret)
-      ==
-      this(public public.command)
+      `this(public public.command)
       ::
         %maneuver
+      ?.  =(display.command %clock)
+        ::  if we aren't going to look at a %clock
+        ::  we don't want to set timers
+        ::
+        ::  also restart the prev-cmd to avoid a bug when
+        ::  pause is pressed and then new.
+        ::
+        `this(display.state-p display.command, prev-cmd.state-p %fresh)
+      ::  protect against ~s0 focus submissions
+      ::  by reseting to the beginning
+      ::
+      ?~  `@`focus.gruv.command
+        `this(display.state-p %enter, multi.state-p |)
+      ::  do we want goals?
+      ::
       =/  begin-msg
         ?:  (lte reps.gruv.command 1)
         "begin to focus for {<focus.gruv.command>}"
@@ -206,7 +213,7 @@
       ::  display hour in clock style
       ::
       =/  am-pm  (mod h:(yell now.bowl) 12)
-      =/  hour  ?:((gte 12 am-pm) "{<am-pm>}pm" "{<am-pm>}am")
+      =/  hour  ?:((gte 12 am-pm) "{<am-pm>}pm-utc" "{<am-pm>}am-utc")
       =/  day  "{<m:(yore now.bowl)>}.{<d.t:(yore now.bowl)>}"
       ::  a copy of +face in webui
       ::  XX: create a library for all useful arms and definitions
@@ -232,18 +239,6 @@
             (~(rest pass:io /fin) -.then)
             (~(rest pass:io /fin-wrap) +.then)
         ==
-      ?.  =(display.command %clock)
-        ::  if we aren't going to look at a %clock
-        ::  we don't want to set timers
-        ::
-        `this(display.state-p display.command)
-      ::  protect against ~s0 focus submissions
-      ::  by reseting to the beginning
-      ::
-      ?~  `@`focus.gruv.command
-        `this(display.state-p %enter, multi.state-p |)
-      ::  do we want goals?
-      ::
       ?.  on.goals
         :: false - no goals version of the timer
         ::
@@ -270,7 +265,7 @@
                     %spawn-goal
                     [%pin -.pool.goals +.pool.goals]
                     (some [-.day.goals +.day.goals])
-                    (crip "{hour} for {face}")
+                    (crip "{face} at {hour}")
                     |
                 ==
             time-cards
@@ -304,7 +299,7 @@
                   [%pin -.pool.goals +.pool.goals]
                   ::  the parent pin, aka the day-goal we just poked
                   (some [our.bowl now.bowl])
-                  (crip "{hour} for {face}")
+                  (crip "{face} at {hour}")
                   |
               ==
           time-cards
@@ -389,22 +384,11 @@
     =/  focus  focus.groove
     =/  wrap  (mul wrap.groove (div focus 10))
     =/  setfocus  (add now.bowl focus)
-    ::  XX: this long comment might be from when
-    ::      focus was using long-poll. maybe delete?
-    ::
-    ::  what is the time of the new next alarm?
-    ::  next will change mode and engage long-poll,
-    ::  and only do it 5s before timers end,
-    ::  with the exception of short timers where it will only be
-    ::  1s after wrap time.
-    ::
-    =/  setwrap  ?:  (lte (sub focus wrap) ~s5)
-      (add now.bowl (add wrap ~s1))
-    (add now.bowl (sub focus ~s5))
+    =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
     =/  desc
       ?:  (lte reps.groove 1)
         "focus"
-      "focus {<+(reps)>} of {<reps.groove>}"
+      "focus {<+(reps)>}/{<reps.groove>}"
     =/  rep-goal
       ::  create a goal for this groove
       ::
@@ -424,7 +408,7 @@
       :-
       :~  (~(wait pass:io /fin) setfocus)
           (~(wait pass:io /fin-wrap) setwrap)
-          ::  rep-goal
+          rep-goal
       ==
       %=  this
         reps  +(reps)
@@ -437,7 +421,7 @@
     :-
     :~  (~(wait pass:io /focus) setfocus)
         (~(wait pass:io /wrap) setwrap)
-        ::  rep-goal
+        rep-goal
     ==
     %=  this
       reps  +(reps)
@@ -479,7 +463,6 @@
     ::
       %fin
     ~&  >  'doneskis!'
-    ::  XX: create %goals page
     ::
     :-  ~
     %=  this
