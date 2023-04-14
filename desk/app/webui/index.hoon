@@ -2,6 +2,8 @@
 ::    both goals toggle and reps-btn will move around based on zoom
 ::    goals text is squished on mobile bc of the ownership pop-up
 ::      (can't do a lot about that)
+::    times in goals are in utc. that's lame but we don't know how to
+::      get the local timezone yet.
 ::
 /-  *focus
 /+  rudder

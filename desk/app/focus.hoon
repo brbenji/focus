@@ -35,16 +35,18 @@
 |%
 +$  versioned-state
   $%  state-0
+      state-1
   ==
 ::  groove ex: ~m20 9 2 ~m5 8
 ::    this says: focus for 20min, wrap-up call at 90% of the way through,
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
-+$  state-0  [%0 groove=gruv =reps =then =left =state-p =goals =public]
++$  state-0  [%0 groove=gruv =reps =then =state-p =public]
++$  state-1  [%1 groove=gruv =reps =then =left =state-p =goals =public]
 +$  card  card:agent:gall
 --
-=|  state-0
+=|  state-1
 =*  state  -
 %-  agent:dbug
 %+  verb  |
@@ -61,7 +63,7 @@
   :~  (~(connect pass:io /connect) [[~ /[dap.bowl]] dap.bowl])
   ==
   %=  this
-    state  :*  %0
+    state  :*  %1
                [~m5 8 1 ~s30 8]
                1
                [now.bowl now.bowl]
@@ -78,8 +80,12 @@
   |=  saved=vase
   ^-  (quip card _this)
   ~&  ~(key by pages)
-  =/  ole  !<(versioned-state saved)
-  `this(state ole)
+  =/  last-save  !<(versioned-state saved)
+  ::  bunting state-1 should give a clean slate
+  ?-  -.last-save
+    %1  `this(state last-save)
+    %0  `this(state *state-1)
+  ==
 ::
 ++  on-poke
   |=  [=mark =vase]
@@ -99,6 +105,10 @@
         `this(on.goals goals.command)
       ::  & - wanting goals
       ::  branch on first time or not
+      ::
+      ::  XX: this is a bad marker for a successful goals integration
+      ::      if you delete the pool, it won't recover without a |nuke
+      ::      need to learn how to scry/sub
       ::
       ?.  =(birth.pool.goals *@da)
         ::  false - turn on the state signal to start sending goal cards
