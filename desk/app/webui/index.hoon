@@ -149,7 +149,7 @@
           ==
         ==
       ;+  ?.  on.goals  ;div;
-        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
+        ;iframe(src "apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %form)
       ;div#wrapper
@@ -202,7 +202,7 @@
           ==
         ==
         ;+  ?.  on.goals  ;div;
-          ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
+          ;iframe(src "apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %help)
       ;div#wrapper
@@ -253,7 +253,7 @@
       ==
       ;div.footer;
       ;+  ?.  on.goals  ;div;
-        ;iframe(src "http://localhost/apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
+        ;iframe(src "apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
     ==
     ==  ==
   ++  goal-frame

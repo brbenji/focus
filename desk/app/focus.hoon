@@ -1,6 +1,6 @@
 ::  focus: an interval timer
 ::
-::    v2.0.0
+::    v1.2.1
 ::
 ::  the fun thing about focus, is that's it's techniaclly 100% hoon.
 ::  made using sail and rudder there is only 6 lines of javascript.
@@ -256,7 +256,6 @@
         ==
       ::  true - send goal facts too
       ::
-      ~&  'welcome to goals'
       ::  is today a new day since our last focus session?
       ::
       ?:  =(d:(yell +.day.goals) d:(yell now.bowl))
