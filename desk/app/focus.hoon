@@ -223,7 +223,8 @@
       ::  display hour in clock style
       ::
       =/  am-pm  (mod h:(yell now.bowl) 12)
-      =/  hour  ?:((gte 12 am-pm) "{<am-pm>}pm-utc" "{<am-pm>}am-utc")
+      ::  (mod 12 12) is 0 so convert null back to 12
+      =/  hour  ?:((gte am-pm 12) "{<?~(am-pm 12 am-pm)>}pm-utc" "{<?~(am-pm 12 am-pm)>}am-utc")
       =/  day  "{<m:(yore now.bowl)>}.{<d.t:(yore now.bowl)>}"
       ::  a copy of +face in webui
       ::  XX: create a library for all useful arms and definitions
