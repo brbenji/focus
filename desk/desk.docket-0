@@ -2,7 +2,7 @@
   title+''
   info+'elegant interval timer with %goals integration'
   color+0xff.ffff
-  version+[2 0 0]
+  version+[1 2 0]
   website+'https://github.com/brbenji/focus'
   license+'MIT'
   image+'https://github.com/brbenji/focus/raw/master/desk/app/webui/assets/web-tile.png'

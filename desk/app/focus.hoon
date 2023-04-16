@@ -1,6 +1,6 @@
 ::  focus: an interval timer
 ::
-::    v1.2.1 - now with pause button, and goals!
+::    v1.2.0 - now with pause button, and goals!
 ::
 ::  the fun thing about focus, is that's it's techniaclly 100% hoon.
 ::  made using sail and rudder there is only 6 lines of javascript.
