@@ -42,7 +42,7 @@
 ::    do 2 repitions, with a 5min rest with a call back 80% of way
 ::    through rest.
 ::
-+$  state-0  [%0 groove=gruv =reps =then =state-p =public]
++$  state-0  [%0 groove=gruv =reps then=[@da @da] state-p=[display=?(%clock %enter %form %help) mode=?(%fin %focus %rest) reveal=?(%.y %.n) prev-cmd=?(%begin %cont %fresh %pause) begin=?(%.y %.n)] =public]
 +$  state-1  [%1 groove=gruv =reps =then =left =state-p =goals =public]
 +$  card  card:agent:gall
 --
