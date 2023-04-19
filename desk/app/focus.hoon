@@ -1,6 +1,6 @@
 ::  focus: an interval timer
 ::
-::    v1.2.0 - now with pause button, and goals!
+::    v1.2.1 - now with pause button, and goals!
 ::
 ::  the fun thing about focus, is that's it's techniaclly 100% hoon.
 ::  made using sail and rudder there is only 6 lines of javascript.
@@ -506,16 +506,6 @@
           %fact
           ?+    p.cage.sign  (on-agent:def wire sign)
               %goal-home-update
-            ::  XX: remove this scratch pad for figuring out
-            ::      scrying into %gol-cli and address numbering
-            ::
-            ::  =/  foo  !<(expected-type q.cage.sign)
-            ::  ~&  "I think I got something!"
-            ::  ~&  !<(home-update:goal q.cage.sign)
-            ::  ~&  pin:!<(home-update:goal q.cage.sign)
-            ::  ~&  +62:!<(home-update:goal q.cage.sign)
-            ::  address numbers
-            ::  1 @2 3 @6 7 @14 15 @30 31 @62 63 @126 127 @254 255 @510 511 1022
             `this
           ==
       ==

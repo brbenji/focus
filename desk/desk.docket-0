@@ -1,6 +1,6 @@
 :~
   title+''
-  info+'elegant interval timer with %goals integration'
+  info+'an interval timer with goals integration'
   color+0xff.ffff
   version+[1 2 0]
   website+'https://github.com/brbenji/focus'
