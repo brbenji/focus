@@ -43,7 +43,15 @@ still building...
  - frontend and aesthetics crafted jan 2-6
  - submitted for the hackathon jan 8
  - finish v1.0.0 jan 19
- - future: add pause button and link app to an urbit task-manager like %goals
+ - finish v1.2.0 apr 19 - adding goals integration and a pause functionality
+ - future: considering advanced settings for an ease-in pre-timer and a big rest for bundling multiple sessions
+ 
+### unfortunate state changes 
+anyone upgrading from v1.0.0 to v1.2.0, will experience weird changes. when focus first opens. a line will appear on the bottom of the screen, the new goals toggle will already be set to “on”, and the wrap setting will be at “50%”. 
+
+but it's all reversable by resetting the wrap slider and turning the goals toggle off and back on. if goals isn't installed an ugly stack trace and helpful message will appear explaining how to download it.
+
+newly installed focus apps won't experience this.
  
  
  ### paper design from dec 8
