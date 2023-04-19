@@ -1,5 +1,4 @@
 ::  design issues
-::    both goals toggle and reps-btn will move around based on zoom
 ::    goals text is squished on mobile bc of the ownership pop-up
 ::      (can't do a lot about that)
 ::    times in goals are in utc. that's lame but we don't know how to
@@ -28,8 +27,7 @@
     [%goals |]
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
     ?:  (~(has by args) 'multi')
-      ::  multis the hidden rest inputs
-      ::    perhaps the name should have been multi or more?
+      ::  multi will reveal the hidden rest inputs
       ::
       [%multi &]
     ?:  =((~(got by args) 'nav') 'new')
@@ -256,7 +254,6 @@
       ==
       ;div#enter.clock
         ;form.brothers(method "post")
-          ::  XX: add an id that makes this to-form like the original
           ;input.to-form(type "submit", name "nav", value "form", autofocus "");
         ==
         ;div.face.brothers
@@ -274,21 +271,10 @@
         ;iframe(src "apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
     ==
     ==  ==
-  ++  goal-frame
-    ::  XX: learn why I can't just insert elements like this using an
-    ::  arm?
-    ::  I think it would be useful to build components in arms and
-    ::  arrange as necessary in different pages.
-    ::
-    ;iframe@"http://localhost/apps/gol-cli/"(style "margin-top: 3em;", width "100%", height "100%");
-
+  ::
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
   ::  location.reload(), localStore(), submit(), and play() are so
   ::  far what I need from js
-  ::
-  ::  XX: remove reload and sfx on pause and if display isn't clock
-  ::      that the right way to do it instead, I'll just make
-  ::      +handle-refresh and +handle-wrap take a day if paused. "what a hack"
   ::
   ++  script
     """
@@ -303,12 +289,6 @@
     setTimeout(() => \{
       document.location.reload();
     }, {handle-refresh});
-
-    /* stop that dang mobile scrolling on focus */
-    const repsInput = document.getElementById('reps');
-    repsInput.addEventListener('focus', () => \{
-      repsInput.scrollIntoView(false);
-    });
     """
   ::  helper arms for dynamically changing
   ::    +script, +mod-style, +build
@@ -337,7 +317,6 @@
     |=  left=@dr
     ^-  tape
     :: need a null protection here (bc using div)
-    :: what should be the alternate path?
     ::
     ?~  left  "315"
     =/  wipe-amount  (div (mul left 315) mode-switch)
@@ -484,8 +463,13 @@
       margin: 0;
       box-sizing: border-box;
     }
-    input[type=number]::-webkit-inner-spin-button {
-      opacity: 1
+    body {
+      font-family: Times, Times New Roman, serif;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: inner-spin-button;
+      appearance: inner-spin-button;
     }
     svg {
       transform: rotate(-90deg);
@@ -494,6 +478,7 @@
     input {
       font-weight: 700;
       cursor: pointer;
+      font-family: Arial, Helvetica, sans-serif;
     }
     p {
       place-self: start;
@@ -582,12 +567,12 @@
       top: 2.8em;
       right: -6.5em;
       mix-blend-mode: difference;
-      text-align: end;
       background-color: black;
       border-radius: .33em;
-      border: solid 1px whitesmoke;
+      border: solid .09em whitesmoke;
       color: white;
       scale: .66;
+      transition: .3s ease-in-out;
     }
     .new:hover {
       background-color: #333;
