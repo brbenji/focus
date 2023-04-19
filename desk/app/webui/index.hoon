@@ -106,7 +106,13 @@
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
           ;+
+          ?:  =(prev-cmd %pause)
+            ::  recycling the help sound for pause
+            ::
+            ;source(src "focus/assets/help/wav", type "audio/wav");
           ?:  &(=(mode %focus) (gte reps 2))
+            ::  a late decision swapped the sfx for rest and focus. sry.
+            ::
             ;source(src "focus/assets/rest/wav", type "audio/wav");
           ?:  =(mode %rest)
             ;source(src "focus/assets/focus/wav", type "audio/wav");
@@ -170,7 +176,7 @@
         ==
         ;div#form-display.clock
           ;form.set.reveal(method "post", autocomplete "off")
-            ;strong.label(style "{?:(multi "" "margin-top: 2em")}"): focus
+            ;strong.label: focus
             ;input(type "number", name "h", placeholder "h", min "0");
             ;input(type "number", name "m", placeholder "m", min "0");
             ;input(type "number", name "s", placeholder "s", min "0");
@@ -330,6 +336,10 @@
     ::
     |=  left=@dr
     ^-  tape
+    :: need a null protection here (bc using div)
+    :: what should be the alternate path?
+    ::
+    ?~  left  "315"
     =/  wipe-amount  (div (mul left 315) mode-switch)
     (a-co:co wipe-amount)
   ++  face
@@ -408,7 +418,7 @@
       height: 2.33em;
       width: 3em;
       position: relative;
-      top: {?:(multi "1.45" "6.66")}em;
+      top: {?:(multi "1.45" "7.1")}em;
       left: .55em;
       border: 0.09em solid rgb(60,60,60);
       border-radius: 0.33em;
@@ -426,6 +436,14 @@
       scale: 2;
       overflow: hidden;
       background-color: {?:(=(prev-cmd %pause) "black" "white")};
+    }
+    .set \{
+      display: grid;
+      grid-template-columns: 2.8em 3.1em 2.8em;
+      grid-template-rows: {?:(multi "repeat(3, 1.33em) 1em repeat(3, 1.33em)" "repeat(4, 1.33em)")};
+      grid-gap: .33em;
+      accent-color: dimgray;
+      margin-right: -.33em;
     }
     circle \{
       stroke: {?:(=(prev-cmd %pause) "white" "black")};
@@ -523,13 +541,6 @@
     .time-rest {
       margin-left: .33em;
     }
-    .set {
-      display: grid;
-      grid-template-columns: 2.8em 3.1em 2.8em;
-      grid-gap: .33em;
-      accent-color: dimgray;
-      margin-right: -.33em;
-    }
     .label {
       grid-column: 1/span 4;
       place-self: center;
@@ -615,7 +626,7 @@
       grid-column: 3;
       height: 1.75em;
       position: relative;
-      top: .66em;
+      top: 2em;
       color:dimgrey;
     }
     #rep-count {
