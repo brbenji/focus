@@ -1,3 +1,10 @@
+::  design issues
+::    both goals toggle and reps-btn will move around based on zoom
+::    goals text is squished on mobile bc of the ownership pop-up
+::      (can't do a lot about that)
+::    times in goals are in utc. that's lame but we don't know how to
+::      get the local timezone yet.
+::
 /-  *focus
 /+  rudder
 ::
@@ -10,22 +17,38 @@
   |=  [headers=header-list:http body=(unit octs)]
   ^-  $@(brief:rudder command)
   =/  args=(map @t @t)  ?~(body ~ (frisk:rudder q.u.body))
+  ::
+  ?:  (~(has by args) 'pause')
+    [%pause &]
+  ?:  (~(has by args) 'cont')
+    [%cont &]
+  ?:  (~(has by args) 'goals')
+    ?:  =((~(got by args) 'goals') 'on')
+      [%goals &]
+    [%goals |]
   ?:  |((~(has by args) 'begin') (~(has by args) 'nav'))
-    ?:  (~(has by args) 'reveal')
-      [%reveal &]
+    ?:  (~(has by args) 'multi')
+      ::  multis the hidden rest inputs
+      ::    perhaps the name should have been multi or more?
+      ::
+      [%multi &]
+    ?:  =((~(got by args) 'nav') 'new')
+      ::  return to form for a new groove
+      ::
+      [%maneuver groove (display.focus %form)]
     ?:  =((~(got by args) 'nav') '?')
       ::  allows my submit button value to be ? and not help
       ::
-      [%maneuver groove (display.focus %help) |]
+      [%maneuver groove (display.focus %help)]
     ?:  =((~(got by args) 'nav') 'X')
       ::  exit help
       ::
-      [%maneuver groove (display.focus %form) |]
+      [%maneuver groove (display.focus %form)]
     ?.  (~(has by args) 'h')
       ::  the time setting code below won't work unless nav produces h m s etc
       ::    this produces the existing groove instead
       ::
-      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav'))) |]
+      [%maneuver groove (displayify (slav %tas (~(got by args) 'nav')))]
     ::  this creates "~h0.m0.s0"
     ::    converting null to '0'
     ::
@@ -50,21 +73,14 @@
     ::
     =/  focus  `@dr`(slav %dr (crip f-time))
     =/  wrap  `@ud`(slav %ud (~(got by args) 'wrap'))
-    =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') ?.(reveal '1' '2') num))
+    =/  reps  `@ud`(slav %ud ?~(num=(~(got by args) 'reps') ?.(multi '1' '2') num))
     =/  rest  `@dr`(slav %dr (crip r-time))
     ::  wrep is just a copy of wrap for now
     ::  =/  wrep  `@ud`(slav %ud (~(got by args) 'wrep'))
     ::
     =/  wrep  wrap
-    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock) &]
-  ::  XX: add this functionality
-  ::
-  ?:  (~(has by args) 'cont')
-    ~&  "we hit cont people"
-    [%cont &]
-  ?:  (~(has by args) 'pause')
-    ~&  "we hit pause people"
-    [%pause &]
+    ::
+    [%maneuver (gruv [focus wrap reps rest wrep]) (displayify %clock)]
   ~
 ::
 ++  build
@@ -78,6 +94,7 @@
     ;hmtl
     ;head
       ;title:"%focus"
+      ;link(rel "icon", type "image/png", href "focus/assets/tile/png");
       ;meta(charset "utf-8");
       ;meta(name "viewport", content "width=device-width, initial-scale=1");
       ;style:"{(weld (trip style) mod-style)}"
@@ -89,7 +106,13 @@
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
           ;+
+          ?:  =(prev-cmd %pause)
+            ::  recycling the help sound for pause
+            ::
+            ;source(src "focus/assets/help/wav", type "audio/wav");
           ?:  &(=(mode %focus) (gte reps 2))
+            ::  a late decision swapped the sfx for rest and focus. sry.
+            ::
             ;source(src "focus/assets/rest/wav", type "audio/wav");
           ?:  =(mode %rest)
             ;source(src "focus/assets/focus/wav", type "audio/wav");
@@ -98,82 +121,105 @@
         ;div.clock
           ;div.face.brothers
             ;form.brothers(method "post")
-              ;input.to-form(type "submit", name "nav", value "form");
+              ;+  ?:  =(prev-cmd %pause)
+                  ::  if the previous command was %pause change to cont
+                  ::  and add a [new] button
+                    ;div
+                      ;input.pause(type "submit", name "cont", value "cont");
+                      ;input.new.brothers.reveal(type "submit", name "nav", value "new");
+                    ==
+                  ;input.pause(type "submit", name "pause", value "pause");
             ==
-            ;svg.brothers(viewbox "0 0 100 100")
+            ;svg.brothers.reveal(viewbox "0 0 100 100")
               ;circle#wipe(cx "50", cy "50", r "3em");
             ==
-            ;svg#wrap-icon.brothers(viewbox "0 0 100 100")
+            ;svg#wrap-icon.brothers.reveal(viewbox "0 0 100 100")
               ;polygon(style "fill:white", points "{(~(got by wrap-icon) wrap.groove)}");
             ==
             ;+
-            ?:  =(mode %fin)
-              ;strong.time.brothers: {<display>}
             ?:  =(mode %rest)
               ;div.time-rest.brothers
                 ;strong.time(style "font-size: 2.33em"): {(face rest.groove)}
                 ;strong#rest: rest
-                ;p#rep-count(style "top: 3em; left: 2.8em"): {<reps>} of {<reps.groove>}
+                ;+  ?:  =(prev-cmd %pause)  ;div;
+                    ;p#rep-count(style "top: 3em; left: 2.8em"): {<reps>} of {<reps.groove>}
               ==
-            ?.  reveal  ;strong.time.brothers: {(face focus.groove)}
+            ?.  multi  ;strong.time.brothers: {(face focus.groove)}
             ;div.brothers
               ;strong.time: {(face focus.groove)}
-              ;p#rep-count: {<reps>} of {<reps.groove>}
+              ;+  ?:  =(prev-cmd %pause)  ;div;
+                  ;p#rep-count: {<reps>} of {<reps.groove>}
             ==
           ==
         ==
         ;div.footer
           ;p#total: {total}
-          ;form.pause.hide(method "post", autocomplete "off")
-            ;input#help.transparent(type "submit", name "nav", value "?");
-            ;+
-            ?:  =(prev-cmd %pause)
-              ;input#button(type "submit", name "cont", value "|>");
-            ?:  =(prev-cmd %cont)
-              ;input#button(type "submit", name "pause", value "||");
-            ;input#button(type "submit", name "pause", value "||");
+          ;form#help.hide(method "post", autocomplete "off")
+            ;input#help-qm.transparent(type "submit", name "nav", value "?");
           ==
           ;+  ?:  =(mode %rest)
-            ;audio#wrep-wav.hide(controls "")
-              ;source(src "focus/assets/wrep/wav", type "audio/wav");
-            ==
-          ;audio#wrap-wav.hide(controls "")
-            ;source(src "focus/assets/wrap/wav", type "audio/wav");
+                ;audio#wrep-wav.hide(controls "")
+                  ;source(src "focus/assets/wrep/wav", type "audio/wav");
+                ==
+              ;audio#wrap-wav.hide(controls "")
+                ;source(src "focus/assets/wrap/wav", type "audio/wav");
           ==
         ==
+      ;+  ?.  on.goals  ;div;
+        ;iframe(src "apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %form)
       ;div#wrapper
         ;audio.hide(controls "", autoplay "")
-          ;+  ?:  reveal  ;source(src "focus/assets/reps/wav", type "audio/wav");
+          ;+  ?:  multi  ;source(src "focus/assets/reps/wav", type "audio/wav");
             ;source(src "focus/assets/form/wav", type "audio/wav");
         ==
         ;div#form-display.clock
           ;form.set.reveal(method "post", autocomplete "off")
-            ;strong.label(style "{?:(reveal "" "margin-top: 2em")}"): focus
+            ;strong.label: focus
             ;input(type "number", name "h", placeholder "h", min "0");
             ;input(type "number", name "m", placeholder "m", min "0");
             ;input(type "number", name "s", placeholder "s", min "0");
-            ;input.range(type "range", name "wrap", id "wrap", min "5", max "9", value "8", oninput "percent.value=wrap.valueAsNumber + '0%'");
+            ;input.range(type "range", name "wrap", id "wrap", min "5", max "9", value "{<wrap.groove>}", oninput "percent.value=wrap.valueAsNumber + '0%'");
             ;output(name "percent", for "wrap");
-            ;+  ?.  reveal  ;div;
+            ;+  ?.  multi  ;div;
               ;strong.label: rest
             ;input(type "{reveal-rest}", name "rh", placeholder "h", min "0");
             ;input(type "{reveal-rest}", name "rm", placeholder "m", min "0");
             ;input(type "{reveal-rest}", name "rs", placeholder "s", min "0");
-            ;input.range(type "hidden", name "wrep", min "5", max "9", value "8");
+            ;input.range(type "hidden", name "wrep", min "5", max "9", value "{<wrep.groove>}");
             ;input(type "hidden", name "nav", value "clock");
             ;input#reps(type "{reveal-rest}", name "reps", placeholder "x2", min "1");
-            ;+  ?:  reveal  ;div;
-              ;input#reps-btn(type "submit", name "reveal", value "x2");
+            ;+  ?:  multi  ;div;
+              ;input#reps-btn(type "submit", name "multi", value "x2");
             ;input#begin(type "submit", name "begin", value ">");
+          ==
+          ;label.switch.reveal
+            ;+  ?.  on.goals
+              ::  goals aren't on. display unchecked
+              ::  tell goals to turn on when clicked
+              ::
+              ;form(method "post", id "goalsToggle")
+                ;input(type "checkbox", onchange "goalsToggle()");
+                ;span.slider;
+                ::  hidden inputs are required to pass in args
+                ;input(type "hidden", name "goals", value "on");
+              ==
+            ::  goals on. display checked
+            ;form(method "post", id "goalsToggle")
+              ;input(type "checkbox", checked "", onchange "goalsToggle()");
+              ;span.slider;
+              ;input(type "hidden", name "goals", value "off");
+            ==
           ==
         ==
         ;div.footer
-          ;form.pause(method "post")
-            ;input#help(type "submit", name "nav", value "?");
+          ;form#help(method "post")
+            ;input#help-qm(type "submit", name "nav", value "?");
           ==
         ==
+        ;+  ?.  on.goals  ;div;
+          ;iframe(src "apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
       ==
     ?:  =(display %help)
       ;div#wrapper
@@ -190,19 +236,27 @@
           ;p.sm: relax a moment
           ;input#btn-help(type "submit", value "x2");
           ;p.sm: focus more than once
+          ;label#switch-help.switch
+            ;input(type "checkbox", name "goals", value "on");
+            ;span.slider;
+          ==
+          ;p.sm: connect with %goals
         ==
         ;div.footer
-          ;form.pause(method "post")
+          ;form#help(method "post")
             ;input#help-x(type "submit", name "nav", value "X");
           ==
         ==
       ==
+    ::  display enter
+    ::
     ;div#wrapper
       ;audio.hide(controls "", autoplay "")
         ;source(src "focus/assets/enter/wav", type "audio/wav");
       ==
       ;div#enter.clock
         ;form.brothers(method "post")
+          ::  XX: add an id that makes this to-form like the original
           ;input.to-form(type "submit", name "nav", value "form", autofocus "");
         ==
         ;div.face.brothers
@@ -216,93 +270,78 @@
         ==
       ==
       ;div.footer;
+      ;+  ?.  on.goals  ;div;
+        ;iframe(src "apps/gol-cli/", style "margin-top: 3em;", width "100%", height "550em");
     ==
     ==  ==
+  ++  goal-frame
+    ::  XX: learn why I can't just insert elements like this using an
+    ::  arm?
+    ::  I think it would be useful to build components in arms and
+    ::  arrange as necessary in different pages.
+    ::
+    ;iframe@"http://localhost/apps/gol-cli/"(style "margin-top: 3em;", width "100%", height "100%");
+
   ::  "THIS CODE KILLS 99.99% OF JAVASCRIPT"
-  ::  XX: use long-polling to do the same thing
-  ::    these setTimeout funcions are doing but
-  ::    with rudder instead.
+  ::  location.reload(), localStore(), submit(), and play() are so
+  ::  far what I need from js
+  ::
+  ::  XX: remove reload and sfx on pause and if display isn't clock
+  ::      that the right way to do it instead, I'll just make
+  ::      +handle-refresh and +handle-wrap take a day if paused. "what a hack"
   ::
   ++  script
     """
-    setTimeout(() => \{
-      document.location.reload();
-      console.log('re-re-refresh!');
-    }, {handle-refresh});
+    function goalsToggle() \{
+      document.getElementById("goalsToggle").submit();
+    };
 
     setTimeout(() => \{
       document.getElementById({<?:(=(mode %rest) "wrep-wav" "wrap-wav")>}).play();
-      console.log('wrap it up!');
     }, {handle-wrap});
-    """
-  ::  mod-style is built in a tape for code insertion
-  ::
-  ++  mod-style
-    """
-    #begin \{
-      grid-column-end: 3;
-      grid-row: {<?.(reveal 3 7)>};
-      height: 2.33em;
-      width: 3em;
-      position: relative;
-      top: {?:(reveal "1.45" "6.66")}em;
-      left: .55em;
-      border: 0.09em solid rgb(60,60,60);
-      border-radius: 0.33em;
-    }
-    circle \{
-      stroke: black;
-      fill: none;
-      stroke-width: 6em;
-      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
-      stroke-dashoffset: 201; /* initial setting */
-      filter: blur(.04em);
-      animation: wipe {?:(=(mode %rest) (duration rest.groove) (duration focus.groove))}ms infinite linear;
-    }
-    @keyframes wipe \{
-      0% \{
-        stroke-dashoffset: {?~(focus.groove "0" "314")};
-      }
-      100% \{
-        stroke-dashoffset: 0;
-      }
-    }
-    #enter \{
-      animation: enter 2.5s;
-    }
-    @keyframes enter \{
-      0% \{
-        opacity: 0;
-        stroke-dashoffset: 221;
-      }
-      100% \{
-        opacity: 1;
-        stroke-dashoffset: 201;
-      }
-    }
+
+    setTimeout(() => \{
+      document.location.reload();
+    }, {handle-refresh});
+
+    /* stop that dang mobile scrolling on focus */
+    const repsInput = document.getElementById('reps');
+    repsInput.addEventListener('focus', () => \{
+      repsInput.scrollIntoView(false);
+    });
     """
   ::  helper arms for dynamically changing
   ::    +script, +mod-style, +build
   ::
-  ++  delay
-    ::  naive adjustment for delay in ms
-    ::    we delay the vfx but not js refresh
-    ::    refresh needs to occur asap
-    ::
-    120
   ++  reveal-rest
-    ?:  reveal
+    ?:  multi
       "number"
     "hidden"
-  ++  duration
-    |=  rel=@dr
-    ^-  tape
-    ::  yell produces [d= h= m= s=] from @dr
+  ++  mode-switch
+    ^-  @dr
+    ?:(=(mode %rest) rest.groove focus.groove)
+  ++  time-left
+    ^-  @dr
+    ?:  (lte -.then now.bowl)
+      mode-switch
+    (sub -.then now.bowl)
+  ++  wrap-left
+    ^-  @dr
+    ?:  (lte +.then now.bowl)
+      ~s0
+    (sub +.then now.bowl)
+  ++  left-to-wipe
+    ::  left/focus.groove = x/315
+    ::  x = (left * 315)/focus.groove
     ::
-    =/  sec  (yell rel)
-    =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    =/  ms  (mul total 1.000)
-    (a-co:co (add ms delay))
+    |=  left=@dr
+    ^-  tape
+    :: need a null protection here (bc using div)
+    :: what should be the alternate path?
+    ::
+    ?~  left  "315"
+    =/  wipe-amount  (div (mul left 315) mode-switch)
+    (a-co:co wipe-amount)
   ++  face
     ::  turn the numbers on the clock from @dr
     ::  to something more normie readable
@@ -337,42 +376,107 @@
     =/  r-total  (mul rest.groove (dec sets))
     =/  total  `@dr`(add f-total r-total)
     "{<total>}"
-  ++  refresh
-    ::  refresh is redundant with duration
-    ::    but this can be deleted if we can go 0% js
-    ::
+  ++  duration
     |=  rel=@dr
     ^-  tape
+    ::  yell produces [d= h= m= s=] from @dr
+    ::
     =/  sec  (yell rel)
     =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-    =/  ms  (mul total 1.000)
-    (a-co:co ms)
+    =/  total-ms  (mul total 1.000)
+    (a-co:co total-ms)
   ++  handle-refresh
-    ?:  =(display %clock)
-      ?:  =(mode %focus)
-        (refresh focus.groove)
-      ?:  =(mode %rest)
-        (refresh rest.groove)
-      (a-co:co (mul day:yo 1.000))
-    ::  sounds like poetry but it's just a day in seconds
-    ::  in a tape "86460"
+    ::  make sure display is clock and time isn't paused
+    ::
+    ?:  &(=(display %clock) ?!(=(prev-cmd %pause)))
+        ::  one second delay to insure the behn timers
+        ::  have completed and their effects propagated
+        ::
+        (duration (add time-left ~s1))
+    ::  (a-co:co day:yo) sounds like poetry but
+    ::  it's just a day in seconds in a tape "86460"
     ::
     (a-co:co (mul day:yo 1.000))
-  ++  wrap-up
-    |=  rel=@dr
-    ^-  @dr
-    ?:  =(mode %focus)
-      `@dr`(mul wrap.groove (div rel 10))
-    ?>  =(mode %rest)
-      `@dr`(mul wrep.groove (div rel 10))
   ++  handle-wrap
-    ?:  =(display %clock)
-      ?:  =(mode %focus)
-        (refresh (wrap-up focus.groove))
-      ?:  =(mode %rest)
-        (refresh (wrap-up rest.groove))
-      (a-co:co (mul day:yo 1.000))
-    (a-co:co (mul day:yo 1.000))
+    ^-  tape
+    =/  ms-day  (a-co:co (mul day:yo 1.000))
+    ?:  &(=(display %clock) ?!(=(prev-cmd %pause)))
+      ?:  =(wrap-left ~s0)
+        ms-day
+      ::  add a quarter second delay to sync
+      ::  the wrap play with animation
+      ::
+      (duration (add wrap-left ~s0..4000))
+    ms-day
+  ::  mod-style is built in a tape for code insertion
+  ::
+  ++  mod-style
+    """
+    #begin \{
+      grid-column-end: 3;
+      grid-row: {<?.(multi 3 7)>};
+      height: 2.33em;
+      width: 3em;
+      position: relative;
+      top: {?:(multi "1.45" "7.1")}em;
+      left: .55em;
+      border: 0.09em solid rgb(60,60,60);
+      border-radius: 0.33em;
+    }
+    .clock \{
+      display: grid;
+      place-items: center;
+      grid-template-rows: auto;
+      margin: 1em;
+      padding: .66em;
+      border: .09em solid black;
+      border-radius: .66em;
+      height: 11em;
+      width: 11em;
+      scale: 2;
+      overflow: hidden;
+      background-color: {?:(=(prev-cmd %pause) "black" "white")};
+    }
+    .set \{
+      display: grid;
+      grid-template-columns: 2.8em 3.1em 2.8em;
+      grid-template-rows: {?:(multi "repeat(3, 1.33em) 1em repeat(3, 1.33em)" "repeat(4, 1.33em)")};
+      grid-gap: .33em;
+      accent-color: dimgray;
+      margin-right: -.33em;
+    }
+    circle \{
+      stroke: {?:(=(prev-cmd %pause) "white" "black")};
+      fill: none;
+      stroke-width: 6em;
+      stroke-dasharray: 314; /* equal to circumference of circle 2 * 3.14 * 50 */
+      stroke-dashoffset: 201; /* initial setting */
+      filter: blur(.04em);
+      animation: wipe {?:(=(mode %rest) (duration rest.groove) (duration focus.groove))}ms infinite linear;
+    }
+    @keyframes wipe \{
+      0% \{
+        stroke-dashoffset: {(left-to-wipe time-left)};
+      }
+      100% \{
+        /* on pause, freeze the wipe effect */
+        stroke-dashoffset: {?:(=(prev-cmd %pause) (left-to-wipe time-left) "0")};
+      }
+    }
+    #enter \{
+      animation: enter 2.5s;
+    }
+    @keyframes enter \{
+      0% \{
+        opacity: 0;
+        stroke-dashoffset: 221;
+      }
+      100% \{
+        opacity: 1;
+        stroke-dashoffset: 201;
+      }
+    }
+    """
   ::
   ++  style
     '''
@@ -422,8 +526,9 @@
     .hide {
       visibility: hidden;
     }
-    .help {
+    .clock.help {
       grid-template-columns: 2.66em auto;
+      grid-template-rows: 2em repeat(5, 1.1em);
       grid-gap: .33em;
     }
     .time {
@@ -436,13 +541,6 @@
     .time-rest {
       margin-left: .33em;
     }
-    .set {
-      display: grid;
-      grid-template-columns: 2.8em 3.1em 2.8em;
-      grid-gap: .33em;
-      accent-color: dimgray;
-      margin-right: -.33em;
-    }
     .label {
       grid-column: 1/span 4;
       place-self: center;
@@ -454,9 +552,14 @@
       scale: .75;
     }
     .pause {
+      height: 5em;
+      width: 8em;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+
       display: grid;
       place-content: center;
-      height: 0em;
       scale: 2;
       margin-right: -.5em;
     }
@@ -471,6 +574,26 @@
       z-index: 1;
       opacity: 0;
     }
+    .new {
+      height: 2em;
+      width: 3em;
+      position: relative;
+      z-index: 1;
+      top: 2.8em;
+      right: -6.5em;
+      mix-blend-mode: difference;
+      text-align: end;
+      background-color: black;
+      border-radius: .33em;
+      border: solid 1px whitesmoke;
+      color: white;
+      scale: .66;
+    }
+    .new:hover {
+      background-color: #333;
+      border: solid 1px white;
+      color: white;
+    }
     .brothers {
       grid-row: 1;
       grid-column: 1;
@@ -478,20 +601,6 @@
     .footer {
       margin-top: 2em;
       width: 22em;
-    }
-    .clock {
-      display: grid;
-      place-items: center;
-      grid-template-rows: auto;
-      margin: 1em;
-      padding: .66em;
-      border: .09em solid black;
-      border-radius: .66em;
-      height: 11em;
-      width: 11em;
-      scale: 2;
-      overflow: hidden;
-      background-color: white;
     }
     #wrapper {
       display: grid;
@@ -517,7 +626,7 @@
       grid-column: 3;
       height: 1.75em;
       position: relative;
-      top: .66em;
+      top: 2em;
       color:dimgrey;
     }
     #rep-count {
@@ -540,6 +649,13 @@
       font-weight: 500;
     }
     #help {
+      display: grid;
+      place-content: center;
+      height: 0em;
+      scale: 2;
+      margin-right: -.5em;
+    }
+    #help-qm {
       border-radius: 1em;
       border-style: solid;
       width: 2em;
@@ -580,6 +696,13 @@
       color: dimgray;
       width: 2.33em;
     }
+    #switch-help {
+      scale: .4;
+      align-self: initial;
+      position: relative;
+      top: 0em;
+      left: 0em;
+    }
     #button {
       width: 2.66em;
       height: 2.66em;
@@ -600,6 +723,75 @@
     #title {
       grid-column: 1/span 2;
       margin-bottom: .33em;
+    }
+    /* The switch - the box around the slider */
+    .switch {
+      position: absolute;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+      grid-column: 1;
+      scale: .6;
+      left: -.5em;
+      bottom: .2em;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    /* The slider */
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #b7b7b7;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 1em;
+    }
+
+    .slider:hover {
+      background-color: #999;
+    }
+
+    .slider:before {
+      position: absolute;
+      display: inline-block;
+      text-align: center;
+      line-height: 1;
+      content: "g";
+      font-size: 1.33em;
+      color: darkgrey;
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #EEDFC9;
+    }
+
+    input:checked + .slider:hover {
+      background-color: #E8CEA9;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+      color: dimgrey;
     }
     '''
   --

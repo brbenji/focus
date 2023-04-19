@@ -1,7 +1,3 @@
-::  additional types for potentail expansion
-::  +$  ease  @dr  :: def ~s4 before focus begins, a delay on begin
-::  +$  name  @t
-::
 /+  rudder
 |%
 +$  focus  @dr
@@ -11,16 +7,21 @@
 +$  wrep  @ud  :: wrap for the rest periods
 +$  gruv  [=focus =wrap =reps =rest =wrep]
 ::
-+$  then  [@da @da]
++$  then  [time=@da wrap=@da]
++$  left  [@dr @dr]
 ::
 +$  public  ?
 ::
 +$  display  ?(%form %help %clock %enter)
 +$  mode  ?(%fin %rest %focus)
++$  multi  ?
 +$  prev-cmd  ?(%begin %pause %cont %fresh)
-+$  reveal  ?
-+$  begin  ?
-+$  state-p  [=display =mode =reveal =prev-cmd =begin]
++$  state-p  [=display =mode =multi =prev-cmd]
+::  for %goals
+::
++$  pin  [owner=@p birth=@da]
++$  goals  [on=? pool=pin day=pin groove=pin reps=pin]
+::
 ::  type unions are eating my lunch!
 ::    disaplyify was made to help out.
 ::
@@ -28,12 +29,18 @@
   |=  incoming=@tas
   %-  display  incoming
 ::
+::  is there a good non-cell way to do this
+::  most of these commands could just be @tas
+::  pause, cont, public, goals
+::
 +$  command
-  $%  [%maneuver =gruv =display =begin]
-      [%pause ?]
-      [%cont ?]
+  $%  [%pause pause=?]
+      [%cont cont=?]
+      [%multi multi]
       [%public public=?]
-      [%reveal reveal]
+      [%maneuver =gruv =display]
+      [%sub =pin]
+      [%goals goals=?]
   ==
 ::
 +$  update
@@ -41,7 +48,7 @@
       [%blank def=gruv]
   ==
 ::  state for rudder, a copy of +.state-0
-::  +$  state-0  [%0 groove=gruv =reps =then =state-p =public]
+::  +$  state-0  [%0 groove=gruv =reps =then =left =state-p =goals =public]
 ::
-+$  tack  [groove=gruv =reps then state-p public]
++$  tack  [groove=gruv =reps =then left state-p =goals public]
 --
