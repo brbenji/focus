@@ -8,7 +8,7 @@ run through as many **repititions** as you wish.
 I built this to time out my work sessions, meditations, and exercises.
 
 ## demo and install
-a publicaly visible version lives at [moon.howm.art/focus](https://moon.howm.art/focus).  
+a publicaly visible version lives at [bird.howm.art/focus](https://bird.howm.art/focus).  
 on urbit, anyone will be able to install %focus from **~havdys-nordus-mocwyl**.
 
 **make your %focus app publicly visible, by running this in your urbit's dojo:* `:focus &focus-command [%public &]`
