@@ -21,14 +21,14 @@
 /~  pages  (page:rudder tack command)  /app/webui
 ::
 /*  enter-wav  %wav  /app/webui/assets/enter-lap/wav
-/*  form-wav  %wav  /app/webui/assets/form-race-ok/wav
-/*  reps-wav  %wav  /app/webui/assets/reps-pause-off/wav
-/*  help-wav  %wav  /app/webui/assets/help-pause-to-next/wav
+/*  form-wav   %wav  /app/webui/assets/form-race-ok/wav
+/*  reps-wav   %wav  /app/webui/assets/reps-pause-off/wav
+/*  help-wav   %wav  /app/webui/assets/help-pause-to-next/wav
 /*  begin-wav  %wav  /app/webui/assets/begin-new-record/wav
 /*  focus-wav  %wav  /app/webui/assets/focus-friend-start/wav
-/*  wrap-wav  %wav  /app/webui/assets/wrap-pause-on/wav
-/*  rest-wav  %wav  /app/webui/assets/rest-match-complete/wav
-/*  wrep-wav  %wav  /app/webui/assets/wrep-pause-exit-game/wav
+/*  wrap-wav   %wav  /app/webui/assets/wrap-pause-on/wav
+/*  rest-wav   %wav  /app/webui/assets/rest-match-complete/wav
+/*  wrep-wav   %wav  /app/webui/assets/wrep-pause-exit-game/wav
 ::
 /*  tile  %png  /app/webui/assets/tile/png
 ::
@@ -94,21 +94,22 @@
   ::      on whoever is in a lobby/group...or whatever
   ::
   ?>  (team:title our.bowl src.bowl)
-  ?+  mark  (on-poke:def mark vase)
+  ?+    mark  (on-poke:def mark vase)
       %focus-command
     =/  command  !<(command vase)
     ?-    -.command
         %goals
       ?.  goals.command
-        ::| - no goals
+        ::  false - don't want goals
         ::  turn off signal for sending goal cards
+        ::
         `this(on.goals goals.command)
-      ::  & - wanting goals
+      ::  true - means we wanting goals
       ::  branch on first time or not
       ::
       ::  XX: this is a bad marker for a successful goals integration
-      ::      if you delete the pool, it won't recover without a |nuke
-      ::      need to learn how to scry/sub
+      ::        if you delete the pool, it won't recover without a |nuke
+      ::        need to learn how to scry/sub
       ::
       ?.  =(birth.pool.goals *@da)
         ::  false - turn on the state signal to start sending goal cards
@@ -129,7 +130,7 @@
           ==
           %=  this
             pool.goals  [our.bowl now.bowl]
-            on.goals  goals.command
+            on.goals    goals.command
           ==
       ::
       ++  check-dependency
@@ -171,14 +172,14 @@
         (~(rest pass:io /fin-wrap) wrap.then)
       ==
       %=  this
-        left  at-pause
+        left              at-pause
         prev-cmd.state-p  %pause
       ==
       ::
         %cont
       ~&  'welcome back'
       ~&  >>  'continue'
-      =/  time  `@da`(add now.bowl -.left)
+      =/  time     `@da`(add now.bowl -.left)
       =/  setwrap  `@da`(add now.bowl +.left)
       :-
       ?:  (gte reps reps.groove)
@@ -191,9 +192,9 @@
         (~(wait pass:io /wrap) setwrap)
       ==
       %=  this
-        display.state-p  %clock
+        display.state-p   %clock
         prev-cmd.state-p  %cont
-        then  [time setwrap]
+        then              [time setwrap]
       ==
       ::
         %public
@@ -224,15 +225,15 @@
       ::
       =/  am-pm  (mod h:(yell now.bowl) 12)
       ::  (mod 12 12) is 0 so convert null back to 12
-      =/  hour  ?:((gte am-pm 12) "{<?~(am-pm 12 am-pm)>}pm-utc" "{<?~(am-pm 12 am-pm)>}am-utc")
-      =/  day  "{<m:(yore now.bowl)>}.{<d.t:(yore now.bowl)>}"
+      =/  hour   ?:((gte am-pm 12) "{<?~(am-pm 12 am-pm)>}pm-utc" "{<?~(am-pm 12 am-pm)>}am-utc")
+      =/  day    "{<m:(yore now.bowl)>}.{<d.t:(yore now.bowl)>}"
       ::  a copy of +face in webui
       ::  XX: create a library for all useful arms and definitions
       ::
       =/  face
-        =/  sec  (yell focus.gruv.command)
+        =/  sec    (yell focus.gruv.command)
         =/  total  (add (mul hor:yo h.sec) (add (mul mit:yo m.sec) s.sec))
-        =/  min  (div total 60)
+        =/  min    (div total 60)
         ::  account for times less than a minute
         ::  display seconds instead
         ::
@@ -255,10 +256,10 @@
         ::
         :-  time-cards
         %=  this
-          groove.state  gruv.command
+          groove.state     gruv.command
           display.state-p  display.command
-          mode.state-p  %focus
-          reps  0
+          mode.state-p     %focus
+          reps             0
         ==
       ::  true - send goal facts too
       ::
@@ -282,11 +283,11 @@
             time-cards
         ==
         %=  this
-          groove.state  gruv.command
+          groove.state     gruv.command
           display.state-p  display.command
-          mode.state-p  %focus
-          reps  0
-          groove.goals  [our.bowl now.bowl]
+          mode.state-p     %focus
+          reps             0
+          groove.goals     [our.bowl now.bowl]
         ==
       ::  false - create a new day-goal and a groove-goal in it.
       ::
@@ -316,15 +317,15 @@
           time-cards
       ==
       %=  this
-        groove.state  gruv.command
+        groove.state     gruv.command
         display.state-p  display.command
-        mode.state-p  %focus
-        reps  0
-        day.goals  [our.bowl now.bowl]
+        mode.state-p     %focus
+        reps             0
+        day.goals        [our.bowl now.bowl]
         ::  this groove-goal arrives exactly with day-goal
         ::  %goal-store will increment the time by 1ms
         ::
-        groove.goals  [our.bowl (add now.bowl ~s0..0001)]
+        groove.goals     [our.bowl (add now.bowl ~s0..0001)]
       ==
       ::
         %multi
@@ -389,13 +390,13 @@
 ++  on-arvo
   |=  [=wire sign=sign-arvo]
   ^-  (quip card _this)
-  ?+  -.wire  (on-arvo:def wire sign)
+  ?+    -.wire  (on-arvo:def wire sign)
       %rest
     ?>  ?=([%behn %wake *] sign)
-    =/  focus  focus.groove
-    =/  wrap  (mul wrap.groove (div focus 10))
+    =/  focus     focus.groove
+    =/  wrap      (mul wrap.groove (div focus 10))
     =/  setfocus  (add now.bowl focus)
-    =/  setwrap  (add now.bowl (mul wrap (div focus 10)))
+    =/  setwrap   (add now.bowl (mul wrap (div focus 10)))
     =/  desc
       ?:  (lte reps.groove 1)
         "focus"
@@ -422,8 +423,8 @@
           rep-goal
       ==
       %=  this
-        reps  +(reps)
-        then  [setfocus (add now.bowl wrap)]
+        reps          +(reps)
+        then          [setfocus (add now.bowl wrap)]
         mode.state-p  %focus
       ==
     ::  set focus timers
@@ -435,8 +436,8 @@
         rep-goal
     ==
     %=  this
-      reps  +(reps)
-      then  [setfocus (add now.bowl wrap)]
+      reps          +(reps)
+      then          [setfocus (add now.bowl wrap)]
       mode.state-p  %focus
     ==
     ::
@@ -445,8 +446,8 @@
     ::
     ?>  ?=([%behn %wake *] sign)
     ~&  >  'rest'
-    =/  rest  rest.groove
-    =/  wrep  wrep.groove
+    =/  rest     rest.groove
+    =/  wrep     wrep.groove
     =/  setrest  (add now.bowl rest)
     =/  setwrep  (add now.bowl (mul wrep (div rest 10)))
     :-
@@ -454,7 +455,7 @@
         (~(wait pass:io /wrap) setwrep)
     ==
     %=  this
-      then  [setrest setwrep]
+      then          [setrest setwrep]
       mode.state-p  %rest
     ==
     ::
@@ -477,10 +478,10 @@
     ::
     :-  ~
     %=  this
-      display.state-p  %enter
-      mode.state-p  %fin
+      display.state-p   %enter
+      mode.state-p      %fin
       prev-cmd.state-p  %fresh
-      multi.state-p  |
+      multi.state-p     |
     ==
       %connect
     ~&  'eyre connecting'
